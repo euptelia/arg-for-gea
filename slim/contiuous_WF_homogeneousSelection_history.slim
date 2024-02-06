@@ -1,0 +1,135 @@
+// set up a simulation
+initialize() {
+	defineConstant("seed", rdunif(1, 0, asInteger(2^62) - 1));
+	setSeed(seed);
+	// mutation rate
+	defineConstant("mu", 1e-9); 
+	// genome size: 10 Mb
+	defineConstant("L", 1e7); 
+	// population size
+	defineConstant("N", 5e3);
+	// Sd of mutation effect size on trait value
+	defineConstant("sigma_M", 0.1);
+	// Sd of fitness function (selection curve)
+	defineConstant("sigma_W", 1.0);
+	// Sd of dispersion (centered on parent 1)
+	defineConstant("sigma_D", 0.02);
+	// Max distance for competition: 30m/3km
+	defineConstant("compD", 3e-2);
+	// Max distance for mate choice: 300m/3km
+	defineConstant("mateD", 0.1);
+   // Max strength for competition
+	defineConstant("maxCompStrength", 1.0);
+	
+	// For saving files
+	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/homoSelection_history/WF/");
+	
+	// two-dimentional space + phenotype; prevent selfing
+	initializeSLiMOptions(dimensionality="xy", preventIncidentalSelfing=T);
+	// initializeSLiMOptions(dimensionality="xy", periodicity="xy", preventIncidentalSelfing=T);    
+	initializeMutationRate(mu);
+	// initializeMutationType("m1", 0.5, "f", 0.0);
+	initializeMutationType("m2", 0.5, "n", 0.0, sigma_M);   // QTL mutations
+	m2.convertToSubstitution = F;
+	
+	// g1 genomic element type: intergenic regions and chromosomes with no QTL
+	// initializeGenomicElementType("g1", m1, 0);
+	// g2 genomic element type: genes at chromosomes with QTL
+	initializeGenomicElementType("g2", m2, 1.0);
+	
+	// genome of total length 10 Mb 
+	// four chromosomes
+	len_chrom = asInteger(L/4);
+	//5kb-genes with 5/10/20 kb-intergenic regions in the first three chromosomes
+	len_gene = 5000;
+	len_intergenic_list = c(10000, 10000, 10000);
+	for (i in 0:2)
+	{
+		len_intergenic = len_intergenic_list[i];
+		len_block = len_gene + len_intergenic;
+		for (j in seq(len_chrom*i, asInteger(len_chrom*(i+1)-len_block),len_block))
+		{
+			initializeGenomicElement(g2, j, j + len_gene);
+		}
+	}
+	
+	//recombination rate: Bae et al., 2023: 2e-8 -- 27e-8 (modal 15e-8)
+	rates = c(rep(c(1e-7, 0.5),3), 1e-7);
+	ends = c(len_chrom-1, len_chrom,
+		len_chrom*2-1, len_chrom*2,
+		len_chrom*3-1, len_chrom*3,
+		len_chrom*4-1);
+	initializeRecombinationRate(rates, ends);
+	
+	// interaction for competition (compD = 30m/30 km)
+	initializeInteractionType(1, "xy", reciprocal=T, maxDistance=compD);
+	i1.setInteractionFunction("n", maxCompStrength, compD/3);
+	
+	// interaction for mate choice
+	initializeInteractionType(2, "xy", reciprocal=T, maxDistance=mateD);
+	
+	// Keep track of the tree sequence for the population
+	initializeTreeSeq();
+}
+
+mutationEffect(m2) {
+	return 1.0; // The direct fitness effect is reset to neutral
+}
+
+// create a subpopulation
+1 early() {
+	sim.addSubpop("p0", N);
+	// initial positions are random in ([0,1], [0,1])
+	p0.setSpatialBounds(c(0.0, 0.0, 1.0, 1.0));
+	p0.individuals.x = runif(p0.individualCount);
+	p0.individuals.y = runif(p0.individualCount);
+	p0.individuals.z = 0;
+	defineConstant("mapValues", matrix(c(0,0,0,0), ncol=2));
+	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,
+		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
+}
+
+1: early(){
+	i2.evaluate(sim.subpopulations);
+}
+
+1: late() {
+	// construct phenotypes and fitness effects
+	inds = sim.subpopulations.individuals;
+	phenotypes = inds.sumOfMutationsOfType(m2);
+	//takes x and y but not z
+	location = inds.spatialPosition;
+	optimum = p0.spatialMapValue("map1", location);
+	//Competition: mean interaction strength
+	i1.evaluate(sim.subpopulations);
+	inds = p0.individuals;
+	totalStrength = i1.totalOfNeighborStrengths(inds);
+	Rd = (1.1 - totalStrength/inds.size());
+	
+	//fitness function
+	inds.fitnessScaling = Rd * (1.0 + dnorm(phenotypes, optimum, sigma_W));
+	inds.z = phenotypes;
+	
+	// color individuals according to phenotype
+	inds.color = p0.spatialMapColor("map1", phenotypes);
+}
+
+1: mateChoice() {
+	neighbors = i2.nearestNeighbors(individual, 10);
+	//	distance = distanceMatrix[,inds.tag];
+	return (size(neighbors) ? sample(neighbors, 1) else float(0));
+}
+
+modifyChild() {
+	// draw a child position near the first parent, within bounds
+	do child.x = parent1.x + rnorm(1, 0, sigma_D);
+	while ((child.x < 0.0) | (child.x > 1.0));
+	do child.y = parent1.y + rnorm(1, 0, sigma_D);
+	while ((child.y < 0.0) | (child.y > 1.0));
+	return T;
+}
+
+10000 late() {
+	sim.treeSeqOutput(outDir + "Continuous_WF_homoHistory_" + "mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + "_seed" + seed + ".trees");
+	sim.simulationFinished();
+}

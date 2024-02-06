@@ -3,6 +3,8 @@ initialize() {
 	initializeSLiMModelType("nonWF");
 	defineConstant("seed", rdunif(1, 0, asInteger(2^62) - 1));
 	setSeed(seed);
+	// mutation rate
+	defineConstant("mu", 1e-9); 
 	// genome size: 10 Mb
 	defineConstant("L", 1e7); //
 	// carrying capacity density: capacity when uniformly distributed
@@ -30,7 +32,7 @@ initialize() {
 	// two-dimentional space + phenotype; prevent selfing
 	initializeSLiMOptions(dimensionality="xy", preventIncidentalSelfing=T);
 	// initializeSLiMOptions(dimensionality="xy", periodicity="xy", preventIncidentalSelfing=T);    
-	initializeMutationRate(1e-9);
+	initializeMutationRate(mu);
 	// initializeMutationType("m1", 0.5, "f", 0.0);
 	initializeMutationType("m2", 0.5, "n", 0.0, sigma_M);   // QTL mutations
 	m2.convertToSubstitution = F;
@@ -81,7 +83,7 @@ mutationEffect(m2) {
 
 // Expansion is not allowed in the first t1 generations
 // Initial boundary: x0 = 0, x1 = 0.1, y0 = 0, y1 = 1
-1:4000 reproduction() {
+10001:14000 reproduction() {
 	// 10 nearby trees
 	neighbors = i2.nearestNeighbors(individual, 10);
 	if (!neighbors.size())
@@ -97,11 +99,12 @@ mutationEffect(m2) {
 	}
 }
 
-
-1 early() {
+10001 early() {
 	//sim.addSubpop("p0", K);
 	// Load neutral history and variation from msprime 
-	sim.readFromPopulationFile("/home/tianlin/Documents/github/data/slim_data/neutral_N5000_L10000000_r1e-07_mu1e-09_ancSeed1608637543_mutSeed1273642420_rep1_intergene10kbx3chrom.trees");
+	//sim.readFromPopulationFile("/home/tianlin/Documents/github/data/slim_data/neutral_N5000_L10000000_r1e-07_mu1e-09_ancSeed1608637543_mutSeed1273642420_rep1_intergene10kbx3chrom.trees");
+	// Load history of homogeneous stabilizing selection from SLiM simulation
+	sim.readFromPopulationFile("/home/tianlin/Documents/github/data/slim_data/homoSelection_history/WF/Continuous_WF_homoHistory_mu1.0e-09_sigmaM0.1_sigmaW4.0_seed917500639710778263.trees");
 	m2Mut = sim.mutationsOfType(m2);
 	for (i in seqAlong(m2Mut))
 		m2Mut[i].setSelectionCoeff(rnorm(1, 0.0, sigma_M));
@@ -116,7 +119,7 @@ mutationEffect(m2) {
 		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
 }
 
-1: early() {
+10001: early() {
 	// construct phenotypes and fitness effects
 	inds = sim.subpopulations.individuals;
 	phenotypes = inds.sumOfMutationsOfType(m2);
@@ -133,7 +136,8 @@ mutationEffect(m2) {
 	// inds.fitnessScaling = K / totalStrength * (mean_fitness + dnorm(phenotypes, optimum, sigma_W));
 	max_adaptation = 1 / sigma_W / sqrt(2/PI);
 	scaled_mut_effect = dnorm(phenotypes, optimum, sigma_W)/ max_adaptation;
-	inds.fitnessScaling = K / totalStrength * (0.3 + 0.7*scaled_mut_effect);
+	// inds.fitnessScaling = K / totalStrength * (0.3 + 0.7*scaled_mut_effect);
+	inds.fitnessScaling = K / totalStrength * scaled_mut_effect;
 	inds.z = phenotypes;
 	//	//fitness function
 	//	inds.fitnessScaling = Rd * (1.0 + dnorm(phenotypes, optimum, sigma_W));
@@ -142,13 +146,12 @@ mutationEffect(m2) {
 	inds.color = p0.spatialMapColor("map1", phenotypes);
 }
 
-
-2: first() {
+10001: first() {
 	i2.evaluate(sim.subpopulations);
 }
 
 // Expansion is allowed after t1 generations
-4001: reproduction() {
+14001: reproduction() {
 	//print(length(p0.individuals));
 	// 10 nearby trees
 	neighbors = i2.nearestNeighbors(individual, 10);
@@ -170,13 +173,13 @@ mutationEffect(m2) {
 }
 
 // Heterogeneous selection occured after t1 generations
-4001 early(){
+14001 early(){
 	defineConstant("mapValues2", matrix(c(0,0,1,1), ncol=2));
 	p0.defineSpatialMap("map1", "xy", mapValues2, interpolate=T,
-		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
+		valueRange=c(0.0, 1.0), colors=c("orangered4", "burlywood2", "paleturquoise"));
 }
 
-10000 late() {
-	sim.treeSeqOutput(outDir + "Continuous_nonWF_M3_1.5_" + "sigma_M" + sigma_M + "_seed_" + seed + ".trees");
+20000 late() {
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_" + "mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + "_seed" + seed + ".trees");
 	sim.simulationFinished();
 }
