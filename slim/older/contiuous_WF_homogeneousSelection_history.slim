@@ -84,7 +84,8 @@ mutationEffect(m2) {
 	p0.individuals.x = runif(p0.individualCount);
 	p0.individuals.y = runif(p0.individualCount);
 	p0.individuals.z = 0;
-	defineConstant("mapValues", matrix(c(0,0,0,0), ncol=2));
+	//defineConstant("mapValues", matrix(c(0,0,0,0), ncol=2));
+	defineGlobal("mapValues", matrix(c(0,0,0,0), ncol=2));
 	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,
 		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
 }
