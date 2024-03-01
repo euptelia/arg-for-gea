@@ -85,6 +85,7 @@ def LF_fitness(ind_x, ind_y, phenotype,
 sigma_w = 0.4
 dist_mate = 0.1
 model_name = "Continuous_nonWF_M2b_mu1.0e-09_sigmaM0.4_sigmaW0.4_seed4211585214153878784_tick20000"
+# model_name = "Continuous_nonWF_M2b_mu1.0e-09_sigmaM0.4_sigmaW0.4_seed4211585214153878784_tick10400"
 inPath = "/home/tianlin/Documents/github/data/slim_data/"
 figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/"
 outPath = "/home/tianlin/Documents/github/data/tskit_data/output/"
@@ -147,32 +148,81 @@ plt.ylabel("Average relative fitness")
 plt.savefig(figPath + str(model_name) + "_test_localAdapt.png")
 plt.close()
 
-# Contribution of each mutation to LF
+# # Contribution of each mutation to LF
+# # Version 1: drop off (discard)
+# index_site = 0
+# LF_without_mut = []
+# t = time()
+# for v in ts.variants():
+#     # Calculate the effect of each mutation at the focal site
+#     index_gt = 1
+#     while index_gt < len(mut_effect_lists[index_site]):
+#         #hide other mutations except the focal mutation
+#         focal_gt = np.array(v.genotypes)
+#         focal_gt[focal_gt != index_gt] = 0
+#         # effect of the focal mutation in each individual
+#         effect_mut_genomes = np.array(mut_effect_lists[index_site])[focal_gt]
+#         # Add up two genomes of each individual
+#         effect_mut_ind = (effect_mut_genomes[range(0, 2*N-1, 2)]
+#                         + effect_mut_genomes[range(1, 2*N, 2)])
+#         # Phenotype without the mut = phenotypes of each ind - effect of the focal mutation in each ind
+#         phenotype_without_mut = ind_z - effect_mut_ind
+#         (w_local, w_foreign) = LF_fitness(ind_x, ind_y, phenotype_without_mut,
+#                                           ind_x, dist_mate, sigma_w)
+#         LF_without_mut.append(np.mean(w_local-w_foreign))
+#         index_gt += 1
+#     index_site += 1
+#     if index_site % 100 == 0:
+#         print(f"{index_site} sites processed")
+# delta_LF_mut = mean_LF-LF_without_mut
+# # Elapsed Time
+# timer = time() - t
+# print(timer/60)
+
+# # Contribution of each mutation to LF
+# #Version 2: randomizing the distribution of the mutation
 index_site = 0
-LF_without_mut = []
+LF_shuffle = []
 t = time()
+# traverse sites with mutations
 for v in ts.variants():
     # Calculate the effect of each mutation at the focal site
     index_gt = 1
+    # traverse derived alleles at the site
     while index_gt < len(mut_effect_lists[index_site]):
-        #hide other mutations except the focal mutation
+        # for multiallelic sites, hide other alleles at the site except the focal allele,
+        # leave only one allele at each time
         focal_gt = np.array(v.genotypes)
         focal_gt[focal_gt != index_gt] = 0
         # effect of the focal mutation in each individual
         effect_mut_genomes = np.array(mut_effect_lists[index_site])[focal_gt]
-        # Add up two genomes of each individual
+        # Add up the two genomes of each individual
         effect_mut_ind = (effect_mut_genomes[range(0, 2*N-1, 2)]
                         + effect_mut_genomes[range(1, 2*N, 2)])
-        # Phenotype without the mut = phenotypes of each ind - effect of the focal mutation in each ind
+
         phenotype_without_mut = ind_z - effect_mut_ind
-        (w_local, w_foreign) = LF_fitness(ind_x, ind_y, phenotype_without_mut,
-                                          ind_x, dist_mate, sigma_w)
-        LF_without_mut.append(np.mean(w_local-w_foreign))
+        # Shuffle the distribution of the individuals (without changing observed heterozygosity)
+        replicates = 10
+        r = 0
+        LF_shuffle_mut = np.zeros(replicates)
+        while r < replicates:
+            effect_mut_ind_shuffle = list(effect_mut_ind) # shallow copy
+            np.random.shuffle(effect_mut_ind_shuffle)
+            #print(list(effect_mut_ind))
+            #print(effect_mut_ind_shuffle)
+            # Phenotype with shuffled mut = phenotypes of each ind - effect of the focal mutation in each ind
+            #                               + effect of the focal mutation in each ind after shuffling
+            phenotype_shuffle = phenotype_without_mut + effect_mut_ind_shuffle
+            (w_local, w_foreign) = LF_fitness(ind_x, ind_y, phenotype_shuffle,
+                                              ind_x, dist_mate, sigma_w)
+            LF_shuffle_mut[r] = np.mean(w_local - w_foreign)
+            r += 1
+        LF_shuffle.append(np.mean(LF_shuffle_mut))
         index_gt += 1
     index_site += 1
     if index_site % 100 == 0:
         print(f"{index_site} sites processed")
-delta_LF_mut = mean_LF-LF_without_mut
+delta_LF_mut = mean_LF-LF_shuffle
 # Elapsed Time
 timer = time() - t
 print(timer/60)
@@ -277,8 +327,9 @@ for i in ts.individuals():
     samplePop.append(int(i.location[0]/0.1)+int(i.location[1]/0.1)*10)
 samplePop = np.array(samplePop)
 
+
 # Get individual IDs of each sample population,
-# also calculate the environmental optimal of each population, using the location of all local samples
+# also calculate the environmental optimal of each population, using the position of all local samples
 indiv_samplePop = {}
 env_samplePoP = np.zeros(num_samplePop)
 freq_samplePop = np.zeros(shape=(ts.num_sites, num_samplePop))
@@ -291,18 +342,51 @@ for pop in np.arange(num_samplePop):
         freq = sum(v.genotypes)/len(indiv_samplePop[pop])
         freq_samplePop[j][pop] = freq
         j += 1
+
 # Correlation between allele frequency and environmental optima
-cor_GE = []
-for v in np.arange(ts.num_sites):
-    cor_GE.append(np.corrcoef(freq_samplePop[v],env_samplePoP))
-print(indiv_samplePop)
-print(env_samplePoP )
+# (np.corrcoef returns a matrix)
+cor_GE = np.zeros(shape=(2, ts.num_sites))
+for i in np.arange(ts.num_sites):
+    if sum(freq_samplePop[i]) > 0:
+        # correlation coefficient
+        cor_GE[0][i] = stats.spearmanr(freq_samplePop[i],env_samplePoP)[0]
+        # p-value
+        cor_GE[1][i] = stats.spearmanr(freq_samplePop[i], env_samplePoP)[1]
+    else:
+        cor_GE[0][i] = float('nan')
+        cor_GE[1][i] = float('nan')
 
-# allele frequency of each sample population
-for
-for v in ts.variants(samples=[]):
-    print(v.genotypes)
+# plt.plot(cor_GE[1], delta_LF_mut,
+#          marker="o", linestyle="",
+#          color="saddlebrown", alpha=0.1)
+# plt.xlabel("cor_GE p-values")
+# plt.ylabel("delta_LF_mut")
+# plt.savefig(figPath+model_name+"corGEpvalue_vs_LF_mut.png",
+#             dpi=300)
+# plt.close()
 
 
-# traverse sample populations, calculate average local environmental optimal with the position of all local
-ts.individuals_location[0][2]
+plt.scatter(cor_GE[1], delta_LF_mut,
+         marker="o",
+         c=age, alpha=0.2)
+plt.xlabel("cor_GE p-values")
+plt.ylabel("delta_LF_mut")
+plt.colorbar()
+
+plt.savefig(figPath+model_name+"_corGEpvalue_vs_LF_mut_ageColor.png",
+            dpi=300)
+plt.close()
+
+# plt.scatter(cor_GE[0], delta_LF_mut,
+#          marker="o",
+#          c=age, alpha=0.2)
+# plt.xlabel("cor_GE p-values")
+# plt.ylabel("delta_LF_mut")
+# plt.colorbar()
+#
+# plt.savefig(figPath+model_name+"_corGEcoef_vs_LF_mut_ageColor.png",
+#             dpi=300)
+# plt.close()
+
+
+
