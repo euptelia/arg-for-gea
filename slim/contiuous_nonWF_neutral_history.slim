@@ -10,7 +10,7 @@ initialize() {
 	defineConstant("L", 1e7); //
 	// carrying capacity density: capacity when uniformly distributed
 	// Observed N: ~5000 diploid individual
-	defineConstant("K", 17000); //
+	defineConstant("K", 5500); //
 	//  reproduction rate
 	defineConstant("R", 0.2);
 	// Sd of mutation effect size on trait value
@@ -27,7 +27,7 @@ initialize() {
 	defineConstant("mateD", 0.1);
 	// Max strength for competition
 	defineConstant("maxCompStrength", 1.0);
-	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/homoSelection_history/nonWF/");
+	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/neutral_history/");
 	// defineConstant("outDir", "D:/UBC_office/slim/output/");
 	
 	// two-dimentional space + phenotype; prevent selfing
@@ -135,7 +135,9 @@ mutationEffect(m2) {
 	// Scale fitness to [0,1]
 	max_adaptation = 1 / sigma_W / sqrt(2/PI);
 	scaled_mut_effect = dnorm(phenotypes, optimum, sigma_W)/ max_adaptation;
-	inds.fitnessScaling = K / totalStrength * scaled_mut_effect;
+	// Disabled selection on the trait
+	//inds.fitnessScaling = K / totalStrength * scaled_mut_effect;
+	inds.fitnessScaling = K / totalStrength;
 	inds.z = phenotypes;
 	//	//fitness function
 	//	inds.fitnessScaling = Rd * (1.0 + dnorm(phenotypes, optimum, sigma_W));
@@ -149,6 +151,6 @@ mutationEffect(m2) {
 }
 
 10000 late() {
-	sim.treeSeqOutput(outDir + "Continuous_nonWF_homoHistory_" + "mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + "_seed" + seed + ".trees");
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_neutralHistory_" + "mu" + mu + "_sigmaM" + sigma_M + "_seed" + seed + ".trees");
 	sim.simulationFinished();
 }

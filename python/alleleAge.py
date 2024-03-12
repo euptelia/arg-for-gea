@@ -84,8 +84,13 @@ def LF_fitness(ind_x, ind_y, phenotype,
 #Values
 sigma_w = 0.4
 dist_mate = 0.1
-model_name = "Continuous_nonWF_M2b_mu1.0e-09_sigmaM0.4_sigmaW0.4_seed4211585214153878784_tick20000"
+# model_name = "Continuous_nonWF_M2b_mu1.0e-09_sigmaM0.4_sigmaW0.4_seed4211585214153878784_tick20000"
 # model_name = "Continuous_nonWF_M2b_mu1.0e-09_sigmaM0.4_sigmaW0.4_seed4211585214153878784_tick10400"
+# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW2.0_seed2186716867923388027_tick20000"
+# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW0.1_seed2805110583194452015_tick20000"
+# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW0.4_seed1207239118116064755_tick20000"
+model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.01_sigmaW2.0_seed674562876216857337_tick20000"
+
 inPath = "/home/tianlin/Documents/github/data/slim_data/"
 figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/"
 outPath = "/home/tianlin/Documents/github/data/tskit_data/output/"
@@ -182,6 +187,7 @@ plt.close()
 # # Contribution of each mutation to LF
 # #Version 2: randomizing the distribution of the mutation
 index_site = 0
+shuffle_replicates = 1
 LF_shuffle = []
 t = time()
 # traverse sites with mutations
@@ -202,10 +208,9 @@ for v in ts.variants():
 
         phenotype_without_mut = ind_z - effect_mut_ind
         # Shuffle the distribution of the individuals (without changing observed heterozygosity)
-        replicates = 10
         r = 0
-        LF_shuffle_mut = np.zeros(replicates)
-        while r < replicates:
+        LF_shuffle_mut = np.zeros(shuffle_replicates)
+        while r < shuffle_replicates:
             effect_mut_ind_shuffle = list(effect_mut_ind) # shallow copy
             np.random.shuffle(effect_mut_ind_shuffle)
             #print(list(effect_mut_ind))
@@ -226,15 +231,18 @@ delta_LF_mut = mean_LF-LF_shuffle
 # Elapsed Time
 timer = time() - t
 print(timer/60)
+# for 10 replicates, 180 sites take 30 minutes
 
 # Save the contribution of each mutation to LF
-with open(outPath+model_name+"delta_LF_mut.txt", "w") as fout:
+with open(outPath+model_name + "delta_LF_shuffle" +
+          str(shuffle_replicates) + "_mut.txt", "w") as fout:
     for item in delta_LF_mut:
-        fout.write(str(item) + "\n" )
+        fout.write(str(item) + "\n")
 fout.close()
 
 # Load LF from file
-delta_LF_mut = np.loadtxt(outPath+model_name+"delta_LF_mut.txt")
+delta_LF_mut = np.loadtxt(outPath+model_name + "delta_LF_shuffle" +
+          str(shuffle_replicates) + "_mut.txt")
 
 # Age of each mutation
 age = ts.mutations_time
@@ -272,13 +280,26 @@ plt.ylabel("Count")
 plt.savefig(figPath+model_name+"_localAdapt_ageAndLF_LFhist.png",
             dpi=300)
 plt.close()
-# Hist positive LF
+
+# Histogram of positive LF
 plt.hist(tempy, bins=100,
          color="grey")
 # plt.title("With local adapation")
 plt.xlabel("$LF_{mutation}$")
 plt.ylabel("Count")
 plt.savefig(figPath+model_name+"_localAdapt_LFhist_positive.png",
+            dpi=300)
+plt.close()
+
+# Cumulative plot
+sorted_lfmut = np.array(list(reversed(sorted(tempy))))
+positiveTotal = sum(sorted_lfmut)
+cumulative_lf = [sum(sorted_lfmut[0:k+1])/positiveTotal for k in range(len(sorted_lfmut))]
+plt.plot(range(len(sorted_lfmut)), cumulative_lf,
+         color="lightseagreen")
+plt.xlabel("Mutations sorted by LFmut")
+plt.ylabel("Cumulative positive LF")
+plt.savefig(figPath + model_name + "_LFcumulative_positive.png",
             dpi=300)
 plt.close()
 
@@ -317,10 +338,12 @@ plt.savefig(figPath+model_name+"continuousWF_localAdapt_ageAndLF_ln.png",
 plt.close()
 
 
+
+
 #### cor Freq-Env as a proximation of GEA
-# Divide the population into 10x10 sample populations, for each sample population,
+# Divide the population into 10x10 sample-populations, for each sample population,
 # calculate the correlation between allele frequency of each mutation and average local environmental variable(optimal)
-# samplePop id of each individual
+# Assign samplePop id of each individual
 num_samplePop = 100
 samplePop = []
 for i in ts.individuals():
@@ -336,7 +359,7 @@ freq_samplePop = np.zeros(shape=(ts.num_sites, num_samplePop))
 for pop in np.arange(num_samplePop):
     indiv_samplePop[pop] = np.where(samplePop == pop)[0]
     env_samplePoP[pop] = (np.mean(ts.individuals_location[indiv_samplePop[pop]][:, 0]))
-    # Calculate the derived allele frequency of all functional mutations
+    # Calculate the derived allele frequency of all functional mutations in focal population
     j = 0
     for v in ts.variants(samples=indiv_samplePop[pop]):
         freq = sum(v.genotypes)/len(indiv_samplePop[pop])
@@ -349,21 +372,15 @@ cor_GE = np.zeros(shape=(2, ts.num_sites))
 for i in np.arange(ts.num_sites):
     if sum(freq_samplePop[i]) > 0:
         # correlation coefficient
-        cor_GE[0][i] = stats.spearmanr(freq_samplePop[i],env_samplePoP)[0]
+        # cor_GE[0][i] = stats.spearmanr(freq_samplePop[i],env_samplePoP)[0]
+        cor_GE[0][i] = stats.kendalltau(freq_samplePop[i], env_samplePoP)[0]
         # p-value
-        cor_GE[1][i] = stats.spearmanr(freq_samplePop[i], env_samplePoP)[1]
+        # cor_GE[1][i] = stats.spearmanr(freq_samplePop[i], env_samplePoP)[1]
+        cor_GE[1][i] = stats.kendalltau(freq_samplePop[i], env_samplePoP)[1]
     else:
         cor_GE[0][i] = float('nan')
         cor_GE[1][i] = float('nan')
 
-# plt.plot(cor_GE[1], delta_LF_mut,
-#          marker="o", linestyle="",
-#          color="saddlebrown", alpha=0.1)
-# plt.xlabel("cor_GE p-values")
-# plt.ylabel("delta_LF_mut")
-# plt.savefig(figPath+model_name+"corGEpvalue_vs_LF_mut.png",
-#             dpi=300)
-# plt.close()
 
 
 plt.scatter(cor_GE[1], delta_LF_mut,
@@ -372,7 +389,6 @@ plt.scatter(cor_GE[1], delta_LF_mut,
 plt.xlabel("cor_GE p-values")
 plt.ylabel("delta_LF_mut")
 plt.colorbar()
-
 plt.savefig(figPath+model_name+"_corGEpvalue_vs_LF_mut_ageColor.png",
             dpi=300)
 plt.close()
@@ -388,5 +404,7 @@ plt.close()
 #             dpi=300)
 # plt.close()
 
-
+# Check the mutation with largest LF_mut
+np.argmax(delta_LF_mut)
+freq_samplePop[8]
 
