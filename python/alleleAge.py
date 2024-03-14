@@ -84,12 +84,31 @@ def LF_fitness(ind_x, ind_y, phenotype,
 #Values
 sigma_w = 0.4
 dist_mate = 0.1
+
+#M2b
 # model_name = "Continuous_nonWF_M2b_mu1.0e-09_sigmaM0.4_sigmaW0.4_seed4211585214153878784_tick20000"
 # model_name = "Continuous_nonWF_M2b_mu1.0e-09_sigmaM0.4_sigmaW0.4_seed4211585214153878784_tick10400"
 # model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW2.0_seed2186716867923388027_tick20000"
 # model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW0.1_seed2805110583194452015_tick20000"
 # model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW0.4_seed1207239118116064755_tick20000"
-model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.01_sigmaW2.0_seed674562876216857337_tick20000"
+# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.01_sigmaW2.0_seed674562876216857337_tick20000"
+# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW0.4_seed420342970716621951_tick20000"
+# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW0.4_seed4094191535017385840_tick20000"
+
+#Set 1: sigmaM0.1, sigmaW2.0
+#M0a
+# model_name = "Continuous_nonWF_M0a_mu1.0e-09_sigmaM0.1_seed159493640993233401_tick20000"
+#M0b
+# model_name = "Continuous_nonWF_M0b_neutralHistory_mu1.0e-09_sigmaM0.1_seed4262922979799227249_tick20000"
+#M1a
+# model_name = "Continuous_nonWF_M1a_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW2.0_seed2043775523926582509_tick20000"
+#M1b
+# model_name = "Continuous_nonWF_M1b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW2.0_seed1704698170862545749_tick20000"
+#M2a
+# model_name = "Continuous_nonWF_M2a_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW2.0_seed432632840517966805_tick20000"
+#M2b
+# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW2.0_seed443882937971756522_tick20000"
+
 
 inPath = "/home/tianlin/Documents/github/data/slim_data/"
 figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/"
@@ -143,7 +162,10 @@ for site in ts.sites():
 LF_cline = w_local - w_foreign
 mean_LF = np.mean(LF_cline)
 
+# Overall extent of local adaptation
 print(mean_LF)
+
+# Display the average fitness of local and foreign populations
 plt.figure(1)
 plt.boxplot([w_local, w_foreign],
             labels=["Local", "Foreign"])
@@ -154,7 +176,7 @@ plt.savefig(figPath + str(model_name) + "_test_localAdapt.png")
 plt.close()
 
 # # Contribution of each mutation to LF
-# # Version 1: drop off (discard)
+# # Version 1: drop off (discarded)
 # index_site = 0
 # LF_without_mut = []
 # t = time()
@@ -184,17 +206,17 @@ plt.close()
 # timer = time() - t
 # print(timer/60)
 
-# # Contribution of each mutation to LF
-# #Version 2: randomizing the distribution of the mutation
-index_site = 0
+# Contribution of each mutation to LF
+#Version 2: randomizing the distribution of the mutation
 shuffle_replicates = 1
 LF_shuffle = []
 t = time()
+index_site = 0
 # traverse sites with mutations
 for v in ts.variants():
     # Calculate the effect of each mutation at the focal site
     index_gt = 1
-    # traverse derived alleles at the site
+    # traverse all derived alleles at the site
     while index_gt < len(mut_effect_lists[index_site]):
         # for multiallelic sites, hide other alleles at the site except the focal allele,
         # leave only one allele at each time
@@ -203,11 +225,10 @@ for v in ts.variants():
         # effect of the focal mutation in each individual
         effect_mut_genomes = np.array(mut_effect_lists[index_site])[focal_gt]
         # Add up the two genomes of each individual
-        effect_mut_ind = (effect_mut_genomes[range(0, 2*N-1, 2)]
-                        + effect_mut_genomes[range(1, 2*N, 2)])
-
+        effect_mut_ind = (effect_mut_genomes[range(0, 2*N-1, 2)] +
+                          effect_mut_genomes[range(1, 2*N, 2)])
         phenotype_without_mut = ind_z - effect_mut_ind
-        # Shuffle the distribution of the individuals (without changing observed heterozygosity)
+        # Shuffle the distribution of the individuals (without changing the observed heterozygosity)
         r = 0
         LF_shuffle_mut = np.zeros(shuffle_replicates)
         while r < shuffle_replicates:
@@ -277,7 +298,7 @@ plt.hist(delta_LF_mut, bins=100,
          color="grey")
 plt.xlabel("$LF_{mutation}$")
 plt.ylabel("Count")
-plt.savefig(figPath+model_name+"_localAdapt_ageAndLF_LFhist.png",
+plt.savefig(figPath+model_name+"_LFhist.png",
             dpi=300)
 plt.close()
 
@@ -287,11 +308,11 @@ plt.hist(tempy, bins=100,
 # plt.title("With local adapation")
 plt.xlabel("$LF_{mutation}$")
 plt.ylabel("Count")
-plt.savefig(figPath+model_name+"_localAdapt_LFhist_positive.png",
+plt.savefig(figPath+model_name+"_LFhist_positive.png",
             dpi=300)
 plt.close()
 
-# Cumulative plot
+# Cumulative plot of LF_mut
 sorted_lfmut = np.array(list(reversed(sorted(tempy))))
 positiveTotal = sum(sorted_lfmut)
 cumulative_lf = [sum(sorted_lfmut[0:k+1])/positiveTotal for k in range(len(sorted_lfmut))]
@@ -303,16 +324,27 @@ plt.savefig(figPath + model_name + "_LFcumulative_positive.png",
             dpi=300)
 plt.close()
 
-# LF ~ phenotypic effect size
-plt.plot(abs(mut_effect), delta_LF_mut,
-         marker="o", linestyle="",
-         color="saddlebrown", alpha=0.1)
+# # LF ~ phenotypic effect size
+# plt.plot(abs(mut_effect), delta_LF_mut,
+#          marker="o", linestyle="",
+#          color="saddlebrown", alpha=0.1)
+# plt.xlabel("|Phenptypic effect size|")
+# # plt.ylabel("$LF_{mutation}$ (ln)")
+# plt.ylabel("$LF_{mutation}$")
+# # plt.savefig("output/continuousWF_localAdapt_phenoEffectAndLF_ln.png",
+# #             dpi=100)
+# plt.savefig(figPath+model_name+"continuousWF_phenoEffectAndLF.png",
+#             dpi=300)
+# plt.close()
+
+# LF_mut ~ cor_GE p-values, colored by age
+plt.scatter(abs(mut_effect), delta_LF_mut,
+            marker="o",
+            c=age, alpha=0.2)
 plt.xlabel("|Phenptypic effect size|")
-# plt.ylabel("$LF_{mutation}$ (ln)")
 plt.ylabel("$LF_{mutation}$")
-# plt.savefig("output/continuousWF_localAdapt_phenoEffectAndLF_ln.png",
-#             dpi=100)
-plt.savefig(figPath+model_name+"continuousWF_localAdapt_phenoEffectAndLF.png",
+plt.colorbar()
+plt.savefig(figPath+model_name+"_phenoEffectAndLF_ageColor.png",
             dpi=300)
 plt.close()
 
@@ -333,56 +365,87 @@ plt.xlabel("Mutation age (ln)")
 plt.ylabel("$LF_{mutation}$ (ln)")
 #plt.xscale("linear")
 #plt.yscale("linear")
-plt.savefig(figPath+model_name+"continuousWF_localAdapt_ageAndLF_ln.png",
+plt.savefig(figPath+model_name+"_ageAndLF_ln.png",
             dpi=300)
 plt.close()
-
 
 
 
 #### cor Freq-Env as a proximation of GEA
 # Divide the population into 10x10 sample-populations, for each sample population,
 # calculate the correlation between allele frequency of each mutation and average local environmental variable(optimal)
-# Assign samplePop id of each individual
-num_samplePop = 100
-samplePop = []
-for i in ts.individuals():
-    samplePop.append(int(i.location[0]/0.1)+int(i.location[1]/0.1)*10)
-samplePop = np.array(samplePop)
+# Assign a two-digit sample-pop id for each individual
+# |90|91|92|93|94|95|96|97|98|99|
+# ...
+# |20|21|22|23|24|25|26|27|28|29|
+# |10|11|12|03|14|15|16|17|18|19|
+# |00|01|02|03|04|05|06|07|08|09|
+map_width = 1.0
+map_height = 1.0
+# Only works when both num_row and num_col <= 10
+num_row = 10
+num_col = 10
+num_sample_pop = num_row * num_col
+sample_pop_ids = np.zeros(ts.num_individuals)
+sample_pop_ids[:] = np.nan
+i = 0
+for ind in ts.individuals():
+    x = int(ind.location[0]/(map_width/num_row))
+    y = int(ind.location[1]/(map_width/num_col))
+    # Push the ones on the upper boundaries back
+    x = x if x < num_row else (num_row-1)
+    y = y if y < num_col else (num_col-1)
+    sample_pop_ids[i] = (x+y*10)
+    i += 1
+# # Check the sample size of the grids
+# plt.hist(sample_pop_ids, bins=100,
+#          color="grey")
+# plt.savefig(figPath+model_name+"_subsample_size.png",
+#             dpi=300)
+# plt.close()
 
-
-# Get individual IDs of each sample population,
-# also calculate the environmental optimal of each population, using the position of all local samples
-indiv_samplePop = {}
-env_samplePoP = np.zeros(num_samplePop)
-freq_samplePop = np.zeros(shape=(ts.num_sites, num_samplePop))
-for pop in np.arange(num_samplePop):
-    indiv_samplePop[pop] = np.where(samplePop == pop)[0]
-    env_samplePoP[pop] = (np.mean(ts.individuals_location[indiv_samplePop[pop]][:, 0]))
+# A collection of individual IDs for each sample population
+inds_sample_pop = {}
+# Average environmental optimal of each sample population,
+# calculated by the position of all local individuals
+env_sample_pop = np.zeros(num_sample_pop)
+env_sample_pop[:] = np.nan
+# A vector of allele frequencies of all mutations for each sample population
+freq_sample_pop = np.zeros(shape=(ts.num_sites, num_sample_pop))
+freq_sample_pop[:] = np.nan
+for focal_pop_id in np.arange(num_sample_pop):
+    focal_ind_list = np.array(np.where(sample_pop_ids == focal_pop_id)[0])
+    focal_genome_list = np.stack((focal_ind_list*2,focal_ind_list*2+1)).ravel('F')
+    inds_sample_pop[focal_pop_id] = focal_ind_list
+    # Current map: local env optimals = x coordinates of local samples
+    env_sample_pop[focal_pop_id] = np.mean(ts.individuals_location[focal_ind_list][:, 0])
     # Calculate the derived allele frequency of all functional mutations in focal population
     j = 0
-    for v in ts.variants(samples=indiv_samplePop[pop]):
-        freq = sum(v.genotypes)/len(indiv_samplePop[pop])
-        freq_samplePop[j][pop] = freq
+    for v in ts.variants(samples=focal_genome_list):
+        # Will cause an ERROR for multi-allelic sites
+        derived_freq = sum(v.genotypes)/len(focal_genome_list)
+        # print(len(focal_ind_list))
+        # print(v.genotypes)
+        # print(len(focal_ind_list))
+        # print(len(v.genotypes))
+        # print(v.frequencies())
+        # print(derived_freq)
+        freq_sample_pop[j][focal_pop_id] = derived_freq
         j += 1
 
+
 # Correlation between allele frequency and environmental optima
-# (np.corrcoef returns a matrix)
+# correlation coefficient and p-value
 cor_GE = np.zeros(shape=(2, ts.num_sites))
+cor_GE[:] = np.nan
 for i in np.arange(ts.num_sites):
-    if sum(freq_samplePop[i]) > 0:
-        # correlation coefficient
-        # cor_GE[0][i] = stats.spearmanr(freq_samplePop[i],env_samplePoP)[0]
-        cor_GE[0][i] = stats.kendalltau(freq_samplePop[i], env_samplePoP)[0]
-        # p-value
-        # cor_GE[1][i] = stats.spearmanr(freq_samplePop[i], env_samplePoP)[1]
-        cor_GE[1][i] = stats.kendalltau(freq_samplePop[i], env_samplePoP)[1]
-    else:
-        cor_GE[0][i] = float('nan')
-        cor_GE[1][i] = float('nan')
+    # fixed/lost mutations would raise a statistic error
+    if sum(freq_sample_pop[i]) > 0:
+        # position 0: correlation coefficients, position 1: p-values
+        # (cor_GE[0][i], cor_GE[1][i]) = stats.spearmanr(freq_sample_pop[i], env_sample_pop)
+        (cor_GE[0][i], cor_GE[1][i]) = stats.kendalltau(freq_sample_pop[i], env_sample_pop)
 
-
-
+# LF_mut ~ cor_GE p-values, colored by age
 plt.scatter(cor_GE[1], delta_LF_mut,
          marker="o",
          c=age, alpha=0.2)
@@ -393,18 +456,52 @@ plt.savefig(figPath+model_name+"_corGEpvalue_vs_LF_mut_ageColor.png",
             dpi=300)
 plt.close()
 
-# plt.scatter(cor_GE[0], delta_LF_mut,
-#          marker="o",
-#          c=age, alpha=0.2)
-# plt.xlabel("cor_GE p-values")
-# plt.ylabel("delta_LF_mut")
-# plt.colorbar()
-#
-# plt.savefig(figPath+model_name+"_corGEcoef_vs_LF_mut_ageColor.png",
+# ln(positive LF_mut) ~ ln(cor_GE p-values), colored by age
+# Remove negative LF values and 0 allele age for some plots
+positive_lfmut_age = age[delta_LF_mut > 0]
+positive_lfmut = delta_LF_mut[delta_LF_mut > 0]
+positive_lfmut_gea = cor_GE[1][delta_LF_mut > 0]
+(tau, p) = stats.kendalltau(positive_lfmut_age, positive_lfmut)
+
+plt.scatter(np.log(positive_lfmut_gea), np.log(positive_lfmut),
+         marker="o",
+         c=positive_lfmut_age, alpha=0.2)
+plt.xlabel("cor_GE p-values")
+plt.ylabel("delta_LF_mut")
+plt.colorbar()
+plt.savefig(figPath+model_name+"_corGEpvalue_vs_LF_mut_ageColor_positveLn.png",
+            dpi=300)
+plt.close()
+
+plt.scatter(abs(cor_GE[0]), delta_LF_mut,
+         marker="o",
+         c=age, alpha=0.2)
+plt.xlabel("cor_GE p-values")
+plt.ylabel("delta_LF_mut")
+plt.colorbar()
+plt.savefig(figPath+model_name+"_corGEcoef_vs_LF_mut_ageColor.png",
+            dpi=300)
+plt.close()
+
+# # Check the distribution of mutation with largest LF_mut
+# np.nanargmax(delta_LF_mut)
+# maxlf_mut = np.reshape(freq_sample_pop[np.nanargmax(delta_LF_mut)],
+#                        (10, 10))
+# # Plot
+# fig, ax = plt.subplots()
+# im = ax.imshow(maxlf_mut)
+# plt.savefig(figPath+model_name+"_maxLF_distribute.png",
 #             dpi=300)
 # plt.close()
-
-# Check the mutation with largest LF_mut
-np.argmax(delta_LF_mut)
-freq_samplePop[8]
+#
+# #Check the distribution of the mutation with most significant cor_GE
+# np.nanargmin(cor_GE[1])
+# minp_mut = np.reshape(freq_sample_pop[np.nanargmin(cor_GE[1])],
+#                       (10, 10))
+# #Plot
+# fig, ax = plt.subplots()
+# im = ax.imshow(minp_mut)
+# plt.savefig(figPath+model_name+"_min_p_distribute.png",
+#             dpi=300)
+# plt.close()
 
