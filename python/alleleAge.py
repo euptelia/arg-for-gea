@@ -228,7 +228,8 @@ for v in ts.variants():
         effect_mut_ind = (effect_mut_genomes[range(0, 2*N-1, 2)] +
                           effect_mut_genomes[range(1, 2*N, 2)])
         phenotype_without_mut = ind_z - effect_mut_ind
-        # Shuffle the distribution of the individuals (without changing the observed heterozygosity)
+        # Shuffle the distribution of the individuals
+        # (without changing the observed heterozygosity)
         r = 0
         LF_shuffle_mut = np.zeros(shuffle_replicates)
         while r < shuffle_replicates:
@@ -236,8 +237,9 @@ for v in ts.variants():
             np.random.shuffle(effect_mut_ind_shuffle)
             #print(list(effect_mut_ind))
             #print(effect_mut_ind_shuffle)
-            # Phenotype with shuffled mut = phenotypes of each ind - effect of the focal mutation in each ind
-            #                               + effect of the focal mutation in each ind after shuffling
+            # Phenotype with shuffled mut =
+            # phenotypes of each ind - effect of the focal mutation in each ind
+            # + effect of the focal mutation in each ind after shuffling
             phenotype_shuffle = phenotype_without_mut + effect_mut_ind_shuffle
             (w_local, w_foreign) = LF_fitness(ind_x, ind_y, phenotype_shuffle,
                                               ind_x, dist_mate, sigma_w)
@@ -274,6 +276,15 @@ for site in ts.sites():
         effect_by_mut.append(mut.metadata['mutation_list'][0]['selection_coeff'])
 effect_by_mut = np.array(effect_by_mut)
 
+# Frequency of each mutation
+freq = []
+num_samples = ts.num_samples
+for v in ts.variants():
+    for allele in np.arange(1, v.num_alleles):
+        focal_freq = np.count_nonzero(v.genotypes == allele)/num_samples
+        freq.append(focal_freq)
+
+
 
 
 # TMRCA of all samples at the position of each mutation
@@ -286,9 +297,7 @@ tempx = age[np.logical_and(delta_LF_mut > 0, age > 0)]
 tempy = delta_LF_mut[np.logical_and(delta_LF_mut > 0, age > 0)]
 tempx_log = np.log(tempx)
 tempy_log = np.log(tempy)
-res = stats.linregress(tempx_log, tempy_log)
-spr = stats.spearmanr(age, delta_LF_mut)
-spr_positive = stats.spearmanr(tempx, tempy)
+
 
 
 
@@ -296,7 +305,7 @@ spr_positive = stats.spearmanr(tempx, tempy)
 # Hist LF
 plt.hist(delta_LF_mut, bins=100,
          color="grey")
-plt.xlabel("$LF_{mutation}$")
+plt.xlabel("$LF_{mut}$")
 plt.ylabel("Count")
 plt.savefig(figPath+model_name+"_LFhist.png",
             dpi=300)
@@ -306,20 +315,34 @@ plt.close()
 plt.hist(tempy, bins=100,
          color="grey")
 # plt.title("With local adapation")
-plt.xlabel("$LF_{mutation}$")
+plt.xlabel("$LF_{mut}$")
 plt.ylabel("Count")
 plt.savefig(figPath+model_name+"_LFhist_positive.png",
             dpi=300)
 plt.close()
 
 # Cumulative plot of LF_mut
+expected_explained_proportion = 0.8
 sorted_lfmut = np.array(list(reversed(sorted(tempy))))
 positiveTotal = sum(sorted_lfmut)
-cumulative_lf = [sum(sorted_lfmut[0:k+1])/positiveTotal for k in range(len(sorted_lfmut))]
-plt.plot(range(len(sorted_lfmut)), cumulative_lf,
+cumulative_lf = [0] + [sum(sorted_lfmut[0:k+1])/positiveTotal
+                       for k in range(len(sorted_lfmut))]
+# How many alleles do we need to account for 80% of current local adaptation?
+gea_goal = sum(np.array(cumulative_lf) < expected_explained_proportion)
+explained = cumulative_lf[gea_goal]
+plt.plot(range(len(sorted_lfmut)+1), cumulative_lf,
          color="lightseagreen")
-plt.xlabel("Mutations sorted by LFmut")
-plt.ylabel("Cumulative positive LF")
+plt.xlabel("Mutations sorted in descending order of $LF_{mut}$")
+plt.ylabel("Cumulative proportion of positive LF")
+# plt.axvline(x=gea_goal, color="firebrick", linestyle="dotted")
+# plt.axhline(y=explained, color="firebrick", linestyle="dotted")
+plt.plot([gea_goal+1, gea_goal+1], [0, explained],
+         color="firebrick", linestyle="dotted")
+plt.plot([0, gea_goal+1], [explained, explained],
+         color="firebrick", linestyle="dotted")
+plt.annotate(str(gea_goal), xy=(gea_goal+1, explained),
+             xytext=(gea_goal + 1 + len(cumulative_lf)/40, 0),
+             color="firebrick")
 plt.savefig(figPath + model_name + "_LFcumulative_positive.png",
             dpi=300)
 plt.close()
@@ -337,32 +360,41 @@ plt.close()
 #             dpi=300)
 # plt.close()
 
-# LF_mut ~ cor_GE p-values, colored by age
+# LF ~ |phenotypic effect size|
 plt.scatter(abs(mut_effect), delta_LF_mut,
             marker="o",
             c=age, alpha=0.2)
-plt.xlabel("|Phenptypic effect size|")
-plt.ylabel("$LF_{mutation}$")
+plt.xlabel("|Phenotypic effect size|")
+plt.ylabel("$LF_{mut}$")
 plt.colorbar()
+plt.tight_layout()
 plt.savefig(figPath+model_name+"_phenoEffectAndLF_ageColor.png",
             dpi=300)
 plt.close()
 
 # LF ~ allele age
-#np.seterr(divide = 'ignore')
+res = stats.linregress(tempx_log, tempy_log)
+rsquared = round(res.rvalue ** 2, 3)
+linearp = '{:0.2e}'.format(res.pvalue)
+spr = stats.spearmanr(age, delta_LF_mut)
+spr_positive = stats.spearmanr(tempx, tempy)
+
 plt.figure(1)
 plt.plot(tempx_log, tempy_log,
          marker="o", linestyle="",
-         color="saddlebrown", alpha=0.1,
-         label="Spearman's rho: "+str(spr)+"\n" + "p-value: 2.66e-22")
-# plt.plot(tempx_log, res.intercept + tempy_log*res.slope,
-#          color = "cornflowerblue")
+         color="saddlebrown", alpha=0.1)
+plt.plot(sorted(tempx_log),
+         res.intercept + np.array(sorted(tempx_log))*res.slope,
+         color = "cornflowerblue")
+plt.text(0, min(tempy_log)+(max(tempy_log)-min(tempy_log))*0.9,
+         "$r^{2}$="+str(rsquared)+"\n" + "p-value=" + str(linearp),
+         color = "cornflowerblue")
 # plt.axline((0,res.intercept),
 #            slope=res.slope, color="cornflowerblue",
 #            label = "")
 # plt.title("With local adapation")
-plt.xlabel("Mutation age (ln)")
-plt.ylabel("$LF_{mutation}$ (ln)")
+plt.xlabel("ln(Mutation age)")
+plt.ylabel("ln(Positive $LF_{mut})$")
 #plt.xscale("linear")
 #plt.yscale("linear")
 plt.savefig(figPath+model_name+"_ageAndLF_ln.png",
@@ -425,8 +457,6 @@ for focal_pop_id in np.arange(num_sample_pop):
         # Will cause an ERROR for multi-allelic sites
         derived_freq = sum(v.genotypes)/len(focal_genome_list)
         # print(len(focal_ind_list))
-        # print(v.genotypes)
-        # print(len(focal_ind_list))
         # print(len(v.genotypes))
         # print(v.frequencies())
         # print(derived_freq)
@@ -449,9 +479,10 @@ for i in np.arange(ts.num_sites):
 plt.scatter(cor_GE[1], delta_LF_mut,
          marker="o",
          c=age, alpha=0.2)
-plt.xlabel("cor_GE p-values")
-plt.ylabel("delta_LF_mut")
+plt.xlabel("GEA p-values")
+plt.ylabel("$LF_{mut}$")
 plt.colorbar()
+plt.tight_layout()
 plt.savefig(figPath+model_name+"_corGEpvalue_vs_LF_mut_ageColor.png",
             dpi=300)
 plt.close()
@@ -466,9 +497,10 @@ positive_lfmut_gea = cor_GE[1][delta_LF_mut > 0]
 plt.scatter(np.log(positive_lfmut_gea), np.log(positive_lfmut),
          marker="o",
          c=positive_lfmut_age, alpha=0.2)
-plt.xlabel("cor_GE p-values")
-plt.ylabel("delta_LF_mut")
+plt.xlabel("ln(GEA p-values)")
+plt.ylabel("ln($LF_{mut}$)")
 plt.colorbar()
+plt.tight_layout()
 plt.savefig(figPath+model_name+"_corGEpvalue_vs_LF_mut_ageColor_positveLn.png",
             dpi=300)
 plt.close()
@@ -476,9 +508,10 @@ plt.close()
 plt.scatter(abs(cor_GE[0]), delta_LF_mut,
          marker="o",
          c=age, alpha=0.2)
-plt.xlabel("cor_GE p-values")
-plt.ylabel("delta_LF_mut")
+plt.xlabel("|GEA Kendall's tau|")
+plt.ylabel("$LF_{mut}$")
 plt.colorbar()
+plt.tight_layout()
 plt.savefig(figPath+model_name+"_corGEcoef_vs_LF_mut_ageColor.png",
             dpi=300)
 plt.close()
@@ -504,4 +537,17 @@ plt.close()
 # plt.savefig(figPath+model_name+"_min_p_distribute.png",
 #             dpi=300)
 # plt.close()
+
+# Allele frequencies
+# LF_mut ~ cor_GE p-values, colored by Allele frequencies
+plt.scatter(cor_GE[1], delta_LF_mut,
+         marker="o",
+         c=freq, alpha=0.2)
+plt.xlabel("GEA p-values")
+plt.ylabel("$LF_{mut}$")
+plt.colorbar()
+plt.tight_layout()
+plt.savefig(figPath+model_name+"_corGEpvalue_vs_LF_mut_freqColor.png",
+            dpi=300)
+plt.close()
 
