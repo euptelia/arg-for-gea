@@ -26,7 +26,9 @@ initialize() {
 	defineConstant("mateD", 0.1);
 	// Max strength for competition
 	defineConstant("maxCompStrength", 1.0);
-	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/");
+//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/");
+	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/m2b_mu1e-7_m0.1_w0.4/");
+	
 	// defineConstant("outDir", "D:/UBC_office/slim/output/");
 	
 	// two-dimentional space + phenotype; prevent selfing
@@ -191,6 +193,11 @@ mutationEffect(m2) {
 10400 late() {
 	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_neutralHistory_" + "mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + "_seed" + seed + "_tick" + sim.cycle + ".trees");
 }
+
+//14000 late() {
+//	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_neutralHistory_" + "mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + "_seed" + seed + "_tick" + sim.cycle + ".trees");
+//	sim.simulationFinished();
+//}
 
 20000 late() {
 	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_neutralHistory_" + "mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + "_seed" + seed + "_tick" + sim.cycle + ".trees");

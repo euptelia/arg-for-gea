@@ -86,7 +86,7 @@ sigma_w = 0.4
 dist_mate = 0.1
 
 #M2b
-# model_name = "Continuous_nonWF_M2b_mu1.0e-09_sigmaM0.4_sigmaW0.4_seed4211585214153878784_tick20000"
+model_name = "Continuous_nonWF_M2b_mu1.0e-09_sigmaM0.4_sigmaW0.4_seed4211585214153878784_tick20000"
 # model_name = "Continuous_nonWF_M2b_mu1.0e-09_sigmaM0.4_sigmaW0.4_seed4211585214153878784_tick10400"
 # model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW2.0_seed2186716867923388027_tick20000"
 # model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW0.1_seed2805110583194452015_tick20000"

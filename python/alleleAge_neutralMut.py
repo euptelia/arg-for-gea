@@ -85,7 +85,9 @@ def LF_fitness(ind_x, ind_y, phenotype,
 
 ############################# program #########################################
 #Values
-sigma_w = 0.4
+# sigma_w = 0.4
+sigma_w = 1.0
+# sigma_w = 2.0
 dist_mate = 0.1
 
 #M2b
@@ -97,10 +99,14 @@ dist_mate = 0.1
 # model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.01_sigmaW2.0_seed674562876216857337_tick20000"
 # model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW0.4_seed420342970716621951_tick20000"
 # model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW0.4_seed4094191535017385840_tick20000"
+# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.01_sigmaW1.0_seed41659979142462089_tick20000"
+# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_sigmaM0.001_sigmaW1.0_seed3792290627629629913_tick14000"
+model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_sigmaM0.001_sigmaW4.0_seed1214813491260327418_tick14000"
+
 
 #Set 1: sigmaM0.1, sigmaW2.0
 #M0a
-model_name = "Continuous_nonWF_M0a_mu1.0e-09_sigmaM0.1_seed159493640993233401_tick20000"
+# model_name = "Continuous_nonWF_M0a_mu1.0e-09_sigmaM0.1_seed159493640993233401_tick20000"
 #M0b
 # model_name = "Continuous_nonWF_M0b_neutralHistory_mu1.0e-09_sigmaM0.1_seed4262922979799227249_tick20000"
 #M1a
@@ -346,9 +352,9 @@ plt.xlabel("Mutations sorted in descending order of $LF_{mut}$")
 plt.ylabel("Cumulative proportion of positive LF")
 # plt.axvline(x=gea_goal, color="firebrick", linestyle="dotted")
 # plt.axhline(y=explained, color="firebrick", linestyle="dotted")
-plt.plot([gea_goal+1, gea_goal+1], [0, explained],
+plt.plot([gea_goal, gea_goal], [0, explained],
          color="firebrick", linestyle="dotted")
-plt.plot([0, gea_goal+1], [explained, explained],
+plt.plot([0, gea_goal], [explained, explained],
          color="firebrick", linestyle="dotted")
 plt.annotate(str(gea_goal), xy=(gea_goal+1, explained),
              xytext=(gea_goal + 1 + len(cumulative_lf)/40, 0),
@@ -522,7 +528,16 @@ for i in np.arange(mts.num_mutations):
         #                                                env_sample_pop)
         (cor_GE[0][i], cor_GE[1][i]) = stats.kendalltau(freq_sample_pop[i],
                                                         env_sample_pop)
+# p-value adjusted by the Benjamini-Hochberg method
+# temporarily remove nan values
+p_mask = np.isnan(cor_GE[1])
+p_no_nan = cor_GE[1][~p_mask]
+p_BH_no_nan = stats.false_discovery_control(p_no_nan)
+p_BH = np.full(shape=len(cor_GE[1]), fill_value=np.nan)
+p_BH[~p_mask] = p_BH_no_nan
 
+
+#### Plots ####
 
 # Histogram of GEA p-values
 plt.hist(cor_GE[1], bins=100,
@@ -542,23 +557,49 @@ plt.savefig(figPath+model_name+"_age_hist.png",
             dpi=300)
 plt.close()
 
-# Histogram of GEA p-values by allele age
+# Histogram of raw GEA p-values by allele age
+# Also calculate the proportion of significant (FDR < 0.05) alleles in each age category,
+# using p-values adjusted with Benjamini-Hochberg method
 num_cat = 10
 age_percentile = np.percentile(age, np.append(np.arange(0, 100, num_cat),100))
-k = 0
+# k = 0
+proportion_sig = []
 for i in range(num_cat):
-    k += len(cor_GE[1][np.logical_and(age > age_percentile[i],
-                                      age < age_percentile[i+1])])
-    plt.hist(cor_GE[1][np.logical_and(age > age_percentile[i],
-                                      age < age_percentile[i+1])],
+    # k += len(cor_GE[1][np.logical_and(age > age_percentile[i],
+    #                                   age <= age_percentile[i+1])])
+    p_category = cor_GE[1][np.logical_and(age > age_percentile[i],
+                                      age <= age_percentile[i+1])]
+    p_BH_category = p_BH[np.logical_and(age > age_percentile[i],
+                                      age <= age_percentile[i+1])]
+    num_allele = len(p_category)
+    # proportion_sig.append(sum(p_BH_category < 0.05)/num_allele)
+    proportion_sig.append(sum(p_category < 0.05) / num_allele)
+    plt.hist(p_category,
              bins=100,
              color="grey")
     plt.xlabel("GEA p-values")
     plt.ylabel("Count")
+    plt.title("#Alleles=" + str(num_allele))
     plt.savefig(figPath+model_name+"_GEA_pvalue_hist_byAge_bin"+str(i)+".png",
                 dpi=300)
     plt.close()
-print(k)
+# print(k)
+
+# Proportion of significant alleles ~ age percentile bin
+plt.plot(np.arange(100/num_cat, 110, 100/num_cat),
+         proportion_sig,
+         color="grey")
+plt.xlabel("Allele age percentile bins")
+# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
+plt.ylabel("Proportion of alleles with p-value < 0.05")
+plt.xticks(ticks=np.arange(100/num_cat, 110, 100/num_cat),
+           labels=[(str(i*10)+"-"+str(i*10+10)) for i in range(10)])
+# plt.savefig(figPath+model_name+"_proportionGEABHp_vs_age.png",
+#             dpi=300)
+plt.savefig(figPath+model_name+"_proportionGEArawP_vs_age.png",
+            dpi=300)
+plt.close()
+
 
 # Histogram of GEA tau
 plt.hist(cor_GE[0], bins=100,
@@ -569,38 +610,73 @@ plt.savefig(figPath+model_name+"_GEA_tau_hist.png",
             dpi=300)
 plt.close()
 
+# GEA p-value ~ Allele age
+plt.scatter(age, cor_GE[1],
+         marker="o",
+         c="grey", alpha=0.05)
+plt.xlabel("Allele age")
+plt.ylabel("GEA p-values")
+# plt.colorbar().set_label("$LF_{mut}$")
+plt.tight_layout()
+plt.savefig(figPath+model_name+"_GEApvalue_vs_age.png",
+            dpi=300)
+plt.close()
 
+# |GEA Kendall's tau| ~ Allele age
+plt.scatter(age, abs(cor_GE[0]),
+         marker="o",
+         c="grey", alpha=0.05)
+plt.xlabel("Allele age")
+plt.ylabel("|GEA Kendall's tau|")
+# plt.colorbar().set_label("$LF_{mut}$")
+plt.tight_layout()
+plt.savefig(figPath+model_name+"_absGEATau_vs_age.png",
+            dpi=300)
+plt.close()
+
+# Allele frequency ~ Allele age
+plt.scatter(age, freq,
+         marker="o",
+         # c=cor_GE[1], alpha=0.05)
+         c="grey", alpha = 0.05)
+plt.xlabel("Allele age")
+plt.ylabel("Allele frequency")
+# plt.colorbar().set_label("GEA p-values")
+plt.tight_layout()
+plt.savefig(figPath+model_name+"_freq_vs_age.png",
+            dpi=300)
+plt.close()
 
 
 # LF_mut ~ cor_GE p-values, colored by age
 plt.scatter(cor_GE[1], delta_LF_mut,
          marker="o",
-         c=age, alpha=0.2)
+         c=np.log(age), alpha=0.2)
 plt.xlabel("GEA p-values")
 plt.ylabel("$LF_{mut}$")
 plt.colorbar()
 plt.tight_layout()
-plt.savefig(figPath+model_name+"_corGEpvalue_vs_LF_mut_ageColor.png",
+plt.savefig(figPath+model_name+"_corGEpvalue_vs_LF_mut_agelnColor.png",
             dpi=300)
 plt.close()
 
-# ln(positive LF_mut) ~ ln(cor_GE p-values), colored by age
-# Remove negative LF values and 0 allele age for some plots
-positive_lfmut_age = age[delta_LF_mut > 0]
-positive_lfmut = delta_LF_mut[delta_LF_mut > 0]
-positive_lfmut_gea = cor_GE[1][delta_LF_mut > 0]
-(tau, p) = stats.kendalltau(positive_lfmut_age, positive_lfmut)
-
-plt.scatter(np.log(positive_lfmut_gea), np.log(positive_lfmut),
-         marker="o",
-         c=positive_lfmut_age, alpha=0.2)
-plt.xlabel("ln(GEA p-values)")
-plt.ylabel("ln($LF_{mut}$)")
-plt.colorbar()
-plt.tight_layout()
-plt.savefig(figPath+model_name+"_corGEpvalue_vs_LF_mut_ageColor_positveLn.png",
-            dpi=300)
-plt.close()
+# # ln(positive LF_mut) ~ ln(cor_GE p-values), colored by age
+# # Remove negative LF values and 0 allele age for some plots
+# positive_lfmut_age = age[delta_LF_mut > 0]
+# positive_lfmut = delta_LF_mut[delta_LF_mut > 0]
+# positive_lfmut_gea = cor_GE[1][delta_LF_mut > 0]
+# (tau, p) = stats.kendalltau(positive_lfmut_age, positive_lfmut)
+#
+# plt.scatter(np.log(positive_lfmut_gea), np.log(positive_lfmut),
+#          marker="o",
+#          c=positive_lfmut_age, alpha=0.2)
+# plt.xlabel("ln(GEA p-values)")
+# plt.ylabel("ln($LF_{mut}$)")
+# plt.colorbar()
+# plt.tight_layout()
+# plt.savefig(figPath+model_name+"_corGEpvalue_vs_LF_mut_ageColor_positveLn.png",
+#             dpi=300)
+# plt.close()
 
 plt.scatter(abs(cor_GE[0]), delta_LF_mut,
          marker="o",
@@ -648,5 +724,71 @@ plt.savefig(figPath+model_name+"_corGEpvalue_vs_LF_mut_freqColor.png",
             dpi=300)
 plt.close()
 
+
+# True positive rate ~ Allele age percentile bins
+# TPR = TP/(TP+FN)
+# True adaptive allele: account for more than LF_min percent of positve LF_mut
+# GEA significant: BH-adjusted p-value < 0.05
+LF_positive = sum(delta_LF_mut[delta_LF_mut>0])
+LF_min = 0
+num_cat = 10
+cat_width = int(100/num_cat) if 100 % num_cat == 0 else 100/num_cat
+age_percentile = np.percentile(age,
+                               np.append(np.arange(0, 100, cat_width),100))
+TPR = []
+FPR = []
+for i in range(num_cat):
+    # p_category = cor_GE[1][np.logical_and(age > age_percentile[i],
+    #                                   age <= age_percentile[i+1])]
+    p_BH_category = p_BH[np.logical_and(age > age_percentile[i],
+                                      age <= age_percentile[i+1])]
+    delta_LF_mut_category = delta_LF_mut[np.logical_and(age > age_percentile[i],
+                                      age <= age_percentile[i+1])]
+    # num_allele = len(p_BH_category)
+    # proportion_sig.append(sum(p_BH_category < 0.05)/num_allele)
+    expP = delta_LF_mut_category > LF_min*LF_positive
+    obsP = p_BH_category < 0.05
+    TP = sum(expP & obsP)
+    FP = sum(~expP & obsP)
+    FN = sum(expP & ~obsP)
+    TN = sum(~expP & ~obsP)
+    TPR.append(TP/(TP+FN))
+    FPR.append(FP/(TN+FP))
+
+# TPR ～ Allele age
+plt.plot(np.arange(100/num_cat, 101, 100/num_cat),
+         TPR,
+         color="grey")
+plt.xlabel("Allele age percentile bins")
+# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
+plt.ylabel("True positive rate (TP/(TP+FN))")
+plt.xticks(ticks=np.arange(100/num_cat, 101, 100/num_cat),
+           labels=[(str(i*cat_width)+"-"+str((i+1)*cat_width))
+                   for i in range(num_cat)])
+# plt.savefig(figPath+model_name+"_proportionGEABHp_vs_age.png",
+#             dpi=300)
+plt.tight_layout()
+plt.savefig(figPath+model_name+str(num_cat)+"_minLF"+str(LF_min)+"_"+
+            str(num_cat)+"bins"+"_TPR_lfmut1percent_GEABHp0.05_vs_age.png",
+            dpi=300)
+plt.close()
+
+# FPR ～ Allele age
+plt.plot(np.arange(100/num_cat, 101, 100/num_cat),
+         FPR,
+         color="grey")
+plt.xlabel("Allele age percentile bins")
+# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
+plt.ylabel("False positive rate (FP/(FP+TN)))")
+plt.xticks(ticks=np.arange(100/num_cat, 101, 100/num_cat),
+           labels=[(str(i*cat_width)+"-"+str((i+1)*cat_width))
+                   for i in range(num_cat)])
+# plt.savefig(figPath+model_name+"_proportionGEABHp_vs_age.png",
+#             dpi=300)
+plt.tight_layout()
+plt.savefig(figPath+model_name+str(num_cat)+"_minLF"+str(LF_min)+"_"+
+            str(num_cat)+"bins"+"_FPR_lfmut1percent_GEABHp0.05_vs_age.png",
+            dpi=300)
+plt.close()
 
 
