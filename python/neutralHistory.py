@@ -4,7 +4,7 @@ Make neutral coalescent history and add neutral mutations to trees
 Generate .tree input for SLiM as a neutral burn-in
 ！NOTE: check the genome structure of SLiM model before use!
 tianlin.duan42@gmail.com
-2024.01.19
+2024.04.05
 """
 ############################# modules #############################
 import msprime
@@ -43,7 +43,7 @@ mu = float(args.mutationRate)
 num_replicates = int(args.replicates)
 rng = np.random.RandomState(42)
 mut_model = msprime.SLiMMutationModel(type=2)
-saveDir = "/home/tianlin/Documents/github/data/slim_data/"
+saveDir = "/home/tianlin/Documents/github/data/slim_data/msprime_history/"
 # saveDir = "D:/UBC_office/slim/input/"
 t = time()
 

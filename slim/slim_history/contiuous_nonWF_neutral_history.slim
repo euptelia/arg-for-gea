@@ -1,0 +1,157 @@
+// Genenrating tree sequences with a history under homogeneous stabilizing selection 
+// set up a nonWF simulation
+initialize() {
+	initializeSLiMModelType("nonWF");
+	defineConstant("seed", rdunif(1, 0, asInteger(2^62) - 1));
+	setSeed(seed);
+	// mutation rate
+	defineConstant("mu", 1e-8);
+	// genome size: 10 Mb
+	defineConstant("L", 1e7); //
+	// carrying capacity density: capacity when uniformly distributed
+	// Observed N: ~5000 diploid individual
+	defineConstant("K", 5500); //
+	//  reproduction rate
+	defineConstant("R", 0.2);
+	// Sd of mutation effect size on trait value
+	defineConstant("sigma_M", 0.01);
+	// Sd of fitness function (selection curve): weak selection
+	//	defineConstant("sigma_W", 8.0);
+	// Sd of dispersion (centered on parent 1)
+	defineConstant("sigma_D", 0.02);
+	//	// Competition kernal width: compD/3
+	//	defineConstant("S", 1e-2);
+	// Max distance for competition: 30m/3km
+	defineConstant("compD", 3e-2);
+	// Max distance for mate choice: 300m/3km
+	defineConstant("mateD", 0.1);
+	// Max strength for competition
+	defineConstant("maxCompStrength", 1.0);
+	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/neutral_history/");
+	// defineConstant("outDir", "D:/UBC_office/slim/output/");
+	
+	// two-dimentional space + phenotype; prevent selfing
+	initializeSLiMOptions(dimensionality="xy", preventIncidentalSelfing=T);
+	// initializeSLiMOptions(dimensionality="xy", periodicity="xy", preventIncidentalSelfing=T);    
+	initializeMutationRate(mu);
+	// initializeMutationType("m1", 0.5, "f", 0.0);
+	initializeMutationType("m2", 0.5, "n", 0.0, sigma_M);   // QTL mutations
+	m2.convertToSubstitution = F;
+	
+	// g1 genomic element type: intergenic regions and chromosomes with no QTL
+	// initializeGenomicElementType("g1", m1, 0);
+	// g2 genomic element type: genes at chromosomes with QTL
+	initializeGenomicElementType("g2", m2, 1.0);
+	
+	// genome of total length 10 Mb 
+	// four chromosomes
+	len_chrom = asInteger(L/4);
+	//5kb-genes with 5/10/20 kb-intergenic regions in the first three chromosomes
+	len_gene = 5000;
+	len_intergenic_list = c(10000, 10000, 10000);
+	for (i in 0:2)
+	{
+		len_intergenic = len_intergenic_list[i];
+		len_block = len_gene + len_intergenic;
+		for (j in seq(len_chrom*i, asInteger(len_chrom*(i+1)-len_block),len_block))
+		{
+			initializeGenomicElement(g2, j, j + len_gene);
+		}
+	}
+	
+	//recombination rate: Bae et al., 2023: 2e-8 -- 27e-8 (modal 15e-8)
+	rates = c(rep(c(1e-7, 0.5),3), 1e-7);
+	ends = c(len_chrom-1, len_chrom,
+		len_chrom*2-1, len_chrom*2,
+		len_chrom*3-1, len_chrom*3,
+		len_chrom*4-1);
+	initializeRecombinationRate(rates, ends);
+	
+	// interaction for competition (compD = 30m/30 km)
+	initializeInteractionType(1, "xy", reciprocal=T, maxDistance=compD);
+	i1.setInteractionFunction("n", maxCompStrength, compD/3);
+	
+	// interaction for mate choice
+	initializeInteractionType(2, "xy", reciprocal=T, maxDistance=mateD);
+	
+	// Keep track of the tree sequence for the population
+	initializeTreeSeq();
+}
+
+mutationEffect(m2) {
+	return 1.0; // The direct fitness effect is reset to neutral
+}
+
+1: reproduction() {
+	//print(length(p0.individuals));
+	// 10 nearby trees
+	neighbors = i2.nearestNeighbors(individual, 10);
+	if (!neighbors.size())
+		return;
+	mate = sample(neighbors, 1);
+	// Overlapping generations, on average R offsprings were generated
+	for (i in seqLen(rpois(1,R)))
+	{
+		offspring = subpop.addCrossed(individual, mate);
+		// reprising boundaries
+		do pos = individual.spatialPosition + rnorm(2, 0, sigma_D);
+		while (!p0.pointInBounds(pos));
+		offspring.setSpatialPosition(pos);
+	}
+}
+
+1 early() {
+	sim.addSubpop("p0", K);
+	m2Mut = sim.mutationsOfType(m2);
+	for (i in seqAlong(m2Mut))
+		m2Mut[i].setSelectionCoeff(rnorm(1, 0.0, sigma_M));
+	// Set spatial boundary as (x0, y0, x1, y1)
+	p0.setSpatialBounds(c(0.0, 0.0, 1.0, 1.0));
+	p0.individuals.x = runif(p0.individualCount, min=0, max=1);
+	p0.individuals.y = runif(p0.individualCount);
+	p0.individuals.z = p0.individuals.sumOfMutationsOfType(m2);
+	// Homogeneous stabilizing selection in the initial envrionment
+	//defineConstant("mapValues", matrix(c(0,0,0,0), ncol=2));
+	defineGlobal("mapValues", matrix(c(0,0,0,0), ncol=2));
+	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,
+		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
+}
+
+1: early() {
+	// construct phenotypes and fitness effects
+	inds = sim.subpopulations.individuals;
+	phenotypes = inds.sumOfMutationsOfType(m2);
+	//takes map value with x and y
+	optimum = p0.spatialMapValue("map1", inds.spatialPosition);
+	
+	//Competition: mean interaction strength
+	i1.evaluate(sim.subpopulations);
+	inds = p0.individuals;
+	totalStrength = i1.totalOfNeighborStrengths(inds);
+	//	Rd = (1.1 - totalStrength/inds.size());
+	totalStrength = (totalStrength + 1) / (2 * PI * (compD/3)^2);
+	// mean_fitness = mean(p0.cachedFitness(NULL));
+	// inds.fitnessScaling = K / totalStrength * (mean_fitness + dnorm(phenotypes, optimum, sigma_W));
+	// Scale fitness to [0,1]
+	//	max_adaptation = 1 / sigma_W / sqrt(2/PI);
+	//	scaled_mut_effect = dnorm(phenotypes, optimum, sigma_W)/ max_adaptation;
+	// Disabled selection on the trait
+	//inds.fitnessScaling = K / totalStrength * scaled_mut_effect;
+	inds.fitnessScaling = K / totalStrength;
+	inds.z = phenotypes;
+	//	//fitness function
+	//	inds.fitnessScaling = Rd * (1.0 + dnorm(phenotypes, optimum, sigma_W));
+	
+	// color individuals according to phenotype
+	inds.color = p0.spatialMapColor("map1", phenotypes);
+}
+
+2: first() {
+	i2.evaluate(sim.subpopulations);
+}
+
+10000 late() {
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_neutralHistory_" + "mu" + mu +
+		"_sigmaM" + sigma_M + "sigmaD" + sigma_D + "_mateD" + mateD + "_seed" + seed + ".trees");
+	sim.simulationFinished();
+}

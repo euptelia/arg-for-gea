@@ -139,6 +139,8 @@ dist_mate = 0.1
 
 # For polygenic level
 # model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4_seed4558024080115874106_tick20000"
+model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed2644576448062051676_tick10000"
+
 
 # For lower Fst
 # model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4sigmaD0.1_mateD0.2_seed589982169230488297_tick20000"
@@ -165,10 +167,11 @@ N = ts.num_individuals
 # Environmental optimal
 optimal = np.array(ind_x)
 
-# Recapitation
-ts_recap = pyslim.recapitate(ts, ancestral_Ne=5e3,
-                             recombination_rate=1e-7,
-                             random_seed=1)
+# # Recapitation: skipped if msprimeHistory has already been used
+# ts_recap = pyslim.recapitate(ts, ancestral_Ne=5e3,
+#                              recombination_rate=1e-7,
+#                              random_seed=1)
+ts_recap = ts
 
 (tmrca_recap, kb_recap) = tree_heights(ts_recap)
 
