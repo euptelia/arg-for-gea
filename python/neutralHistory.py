@@ -28,7 +28,7 @@ parser.add_argument('-r', '--recombinationRate',
                     type=float, default=1e-7)
 parser.add_argument('-mu', '--mutationRate',
                     help='mutation rate',
-                    type=float, default=1e-9)
+                    type=float, default=1e-8)
 parser.add_argument('-rep', '--replicates',
                     help='Number of replicate',
                     type=int, default=1)

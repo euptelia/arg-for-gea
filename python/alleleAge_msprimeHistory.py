@@ -21,15 +21,15 @@ import sys # for sys.exit()
 import allel # for allel.weir_cockerham_fst()
 
 ############################# options #############################
-# import argparse
-# parser = argparse.ArgumentParser()
-# parser.add_argument('-t', '--tree',
-#                     help='Base name of the tree file from SLiM',
-#                     type=str)
-# parser.add_argument('-p', '--plot',
-#                     help='1 for generating plots and 0 for not plotting',
-#                     type=int, default=1)
-# args = parser.parse_args()
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('-t', '--tree',
+                    help='Base name of the tree file from SLiM',
+                    type=str)
+parser.add_argument('-p', '--plot',
+                    help='1 for generating plots and 0 for not plotting',
+                    type=int, default=1)
+args = parser.parse_args()
 
 ############################# functions #######################################
 def tree_heights(treeSequences):
@@ -56,9 +56,9 @@ def tree_height(tree, max_tick):
         tmrca = (tree.time(real_root))
     return tmrca
 
-def LF_fitness_loop(ind_x, ind_y, phenotype, optimal, dist_mate, sigma_w):
+def LF_fitness_loop(ind_x, ind_y, phenotype, optima, dist_mate, sigma_w):
     """Takes x and y coordinates (array-like), phenotypes (array-like),
-        optimal of the localtion of each individual(array-like),
+        optima of the localtion of each individual(array-like),
         a maximum distance for mating (single value),
         and a standard deviation of fitness function (single value).
     Return an array of the difference of average fitness of local and foreign individuals.
@@ -68,28 +68,28 @@ def LF_fitness_loop(ind_x, ind_y, phenotype, optimal, dist_mate, sigma_w):
     w_local = []
     for i in range(len(ind_x)):
         dist = np.sqrt((ind_x - ind_x[i]) ** 2 + (ind_y - ind_y[i]) ** 2)
-        w_all = 1.0 + stats.norm.pdf(phenotype, optimal[i], sigma_w)
+        w_all = 1.0 + stats.norm.pdf(phenotype, optima[i], sigma_w)
         w_relative = np.array(w_all / np.mean(w_all))
         w_foreign.append(np.mean(w_relative[dist > dist_mate]))
         w_local.append(np.mean(w_relative[dist <= dist_mate]))
     return np.array(w_local), np.array(w_foreign)
 
 def LF_fitness(ind_x, ind_y, phenotype,
-               optimal, dist_mate, sigma_w):
+               optima, dist_mate, sigma_w):
     """Takes x and y coordinates (array-like), phenotypes (array-like),
-        environmental optimals (array-like), a maximum distance for mating (single value),
+        environmental optima (array-like), a maximum distance for mating (single value),
         and a standard deviation of fitness function (single value).
     Return two arrays of the average fitness of local and foreign individuals, respectively.
     v2: time efficient but not memory efficient.
     Try the other version when the number of individuals is large.
     """
-    optimal=np.array(optimal)
+    optima=np.array(optima)
     coord = list(zip(ind_x, ind_y))
     dist_matrix = distance_matrix(coord, coord)
     isLocal_matrix = dist_matrix <= dist_mate
     # Calculate fitness matrix (w_matrix[i][j]: individual j at location i) with broadcast
     w_matrix = 1.0 + stats.norm.pdf(np.array(phenotype),
-                                    np.array(optimal)[:, np.newaxis],
+                                    np.array(optima)[:, np.newaxis],
                                     sigma_w)
     # relative fitness
     w_matrix = w_matrix / np.mean(w_matrix, 1)[:, np.newaxis]
@@ -106,7 +106,7 @@ sigma_w = 1.0
 dist_mate = 0.1
 
 #User input arguments:
-# model_name = args.tree
+model_name = args.tree
 
 #M2b
 # model_name = "Continuous_nonWF_M2b_mu1.0e-09_sigmaM0.4_sigmaW0.4_seed4211585214153878784_tick20000"
@@ -139,13 +139,28 @@ dist_mate = 0.1
 
 # For polygenic level
 # model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4_seed4558024080115874106_tick20000"
-model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed2644576448062051676_tick10000"
+# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed2644576448062051676_tick10000"
+# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed2576810709553405081_tick10000"
+# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed752867212612127483_tick400"
+# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed752867212612127483_tick10000"
+# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed2630909755192467016_tick400"
 
 
 # For lower Fst
 # model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4sigmaD0.1_mateD0.2_seed589982169230488297_tick20000"
 
+# Environmental optima data added
+# model_name = "Continuous_nonWF_M2b_msprimeHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed1182060949244852873_tick10000"
+# model_name = "Continuous_nonWF_M2b_msprimeHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed1182060949244852873_tick400"
+# model_name = "Continuous_nonWF_M2a_msprimeHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed875191216119940727_tick100"
+# model_name = "Continuous_nonWF_M2a_msprimeHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed875191216119940727_tick400"
+# model_name = "Continuous_nonWF_M2a_msprimeHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed875191216119940727_tick10000"
+# model_name = "Continuous_nonWF_M2b_msprimeHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.1_mateD0.2_seed2135186399283767611_tick400"
+# model_name = "Continuous_nonWF_M2b_msprimeHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.1_mateD0.2_seed2135186399283767611_tick10000"
 
+
+# Test "no standing variation problem"
+model_name = "Continuous_nonWF_M2a_msprimeHistory_mu1.0e-09_r1.0e-07_sigmaM0.1_sigmaW0.4_sigmaD0.02_mateD0.1_seed1455097569078309823_tick100"
 
 
 inPath = "/home/tianlin/Documents/github/data/slim_data/"
@@ -164,8 +179,9 @@ pos_by_mut = ts.sites_position[ts.mutations_site]
 max_tick = ts.metadata["SLiM"]["tick"]
 # Number of diploid individuals
 N = ts.num_individuals
-# Environmental optimal
-optimal = np.array(ind_x)
+# Environmental optima
+optima = np.array(ts.metadata['SLiM']['user_metadata']['indsOptimum'])
+# mapValues = np.array(ts.metadata['SLiM']['user_metadata']['mapValue'])
 
 # # Recapitation: skipped if msprimeHistory has already been used
 # ts_recap = pyslim.recapitate(ts, ancestral_Ne=5e3,
@@ -201,7 +217,7 @@ for site in mts.sites():
 
 # Observed extent of local adaptation (local-foreign contrast (LF))
 (w_local, w_foreign) = LF_fitness(ind_x, ind_y, ind_z,
-                                  optimal, dist_mate, sigma_w)
+                                  optima, dist_mate, sigma_w)
 LF_cline = w_local - w_foreign
 mean_LF = np.mean(LF_cline)
 # Overall extent of local adaptation
@@ -253,7 +269,7 @@ for v in mts.variants():
                 # + effect of the focal mutation in each ind after shuffling
                 phenotype_shuffle = phenotype_without_mut + effect_mut_ind_shuffle
                 (w_local, w_foreign) = LF_fitness(ind_x, ind_y, phenotype_shuffle,
-                                                  ind_x, dist_mate, sigma_w)
+                                                  optima, dist_mate, sigma_w)
                 LF_shuffle_mut[r] = np.mean(w_local - w_foreign)
                 r += 1
             LF_shuffle.append(np.mean(LF_shuffle_mut))
@@ -340,7 +356,7 @@ delta_LF_mut_positveLFandAge_log = np.log(delta_LF_mut_positveLFandAge)
 #### cor Freq-Env as a proximation of GEA
 # Divide the population into 10x10 subpopulations, for each subpopulation,
 # calculate the correlation between allele frequency of each mutation
-# and average local environmental variable(optimal)
+# and average local environmental variable(optima)
 # Assign a two-digit subpop id for each individual
 # |90|91|92|93|94|95|96|97|98|99|
 # ...
@@ -377,7 +393,7 @@ np.unique(sample_pop_ids, return_counts=True)
 inds_subpop = {}
 # A collection of genome IDs for each subpopulation
 genome_subpop = {}
-# Average environmental optimal of each sample population,
+# Average environmental optima of each sample population,
 # calculated by the position of all local individuals
 env_sample_pop = np.full(fill_value=np.nan,
                          shape=num_sample_pop)
@@ -390,8 +406,10 @@ for focal_pop_id in np.arange(num_sample_pop):
                                   focal_ind_list*2+1)).ravel('F')
     inds_subpop[focal_pop_id] = focal_ind_list
     genome_subpop[focal_pop_id] = focal_genome_list
-    # Current map: local env optima = x coordinates of local samples
-    env_sample_pop[focal_pop_id] = np.mean(mts.individuals_location[focal_ind_list][:, 0])
+    # A special map: local env optima = x coordinates of local samples
+    # env_sample_pop[focal_pop_id] = np.mean(mts.individuals_location[focal_ind_list][:, 0])
+    #General form of optima
+    env_sample_pop[focal_pop_id] = np.mean(optima[focal_ind_list])
     # Calculate derived allele frequency of each mutation in focal population
     index_site = 0
     index_mut = 0
@@ -575,6 +593,62 @@ plt.savefig(figPath+model_name+"_phenoEffectAndLF_ageColor.png",
             dpi=300)
 plt.close()
 
+# total LF of the size ~ (phenotypic effect size)^2
+plt.figure(1)
+num_cat = 10
+alpha = mut_effect**2
+lf_sum = []
+alpha_cats = np.append(np.arange(0, max(alpha), max(alpha)/num_cat),
+                       max(alpha))
+for i in range(num_cat):
+    lf_category = delta_LF_mut[np.logical_and(alpha > alpha_cats[i],
+                                              alpha <= alpha_cats[i+1])]
+    lf_sum.append(sum(lf_category/LF_positive))
+
+
+plt.plot(alpha_cats[1:],
+         lf_sum,
+         color="grey")
+plt.xlabel("(Phenotypic effect size)^2")
+# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
+plt.ylabel("Relative contribution to local adaptation")
+# plt.xticks(ticks=np.arange(100/num_cat, 101, 100/num_cat),
+#            labels=[(str(i*cat_width)+"-"+str((i+1)*cat_width))
+#                    for i in range(num_cat)])
+plt.tight_layout()
+plt.savefig(figPath+model_name+"_"+str(num_cat) + "bins"+
+            "_LF_by_effectSizesqured_bin.png",
+            dpi=300)
+plt.close()
+
+
+
+
+# LF_mut by pos
+fig, axs = plt.subplots(2, 1)
+fig.set_figheight(9)
+fig.set_figwidth(9)
+# plot 0: TMRCA with the contribution of sites to local adaptation (delta LF)
+# axs[0].stairs(tmrca_recap, kb_recap, baseline=None,
+#            color="mediumaquamarine")
+axs[0].plot(pos_by_mut/1000, delta_LF_mut,
+         marker="o", linestyle="",
+         color="mediumaquamarine", alpha=0.2)
+# axs[0].set_title("$LF_{mutation}$")
+# axs[0].set_xlabel("Genomic positions (kb)")
+axs[0].set_ylabel("$LF_{mutation}$")
+# axs[1].stairs(tmrca_recap, kb_recap, baseline=None,
+#            color="mediumaquamarine")
+axs[1].plot(pos_by_mut/1000, -np.log10(cor_GE[1]),
+         marker="o", linestyle="",
+         color="saddlebrown", alpha=0.05)
+# axs[1].set_title("-log10(p-value)")
+axs[1].set_xlabel("Genomic positions (kb)")
+axs[1].set_ylabel("-log10(p-value)")
+plt.savefig(figPath+model_name+"_lfmut_gea_by_pos.png",
+            dpi=300)
+plt.close()
+
 # # positive LF ~ allele age
 # tempx = age_positveLFandAge_log
 # tempy = delta_LF_mut_positveLFandAge_log
@@ -682,7 +756,11 @@ for i in range(num_cat):
     plt.close()
 # print(k)
 
+
+
+
 # Proportion of significant alleles ~ age percentile bin
+num_cat = 10
 plt.plot(np.arange(100/num_cat, 110, 100/num_cat),
          proportion_sig,
          color="grey")
@@ -838,6 +916,55 @@ for i in range(num_cat):
 # plt.savefig(figPath+model_name+"_corGEpvalue_vs_LF_mut_ageColor_positveLn.png",
 #             dpi=300)
 # plt.close()
+
+#### Compare to the time of demographic history ####
+# Histogram of raw GEA p-values by allele age: before/after expansion
+num_phase = 2
+# age_timeCat = np.array([0.0, 10000, max(age)])
+age_timeCat = np.array([0.0, 100, max(age)])
+k = 0
+proportion_sig = []
+names = ["After expansion", "Before expansion"]
+lf_min = min(delta_LF_mut/LF_positive)
+lf_max = max(delta_LF_mut/LF_positive)
+for i in range(num_phase):
+    p_category = cor_GE[1][np.logical_and(age > age_timeCat[i],
+                                      age <= age_timeCat[i+1])]
+    print()
+    # p_BH_category = p_BH[np.logical_and(age > age_timeCat[i],
+    #                                   age <= age_timeCat[i+1])]
+    p_category_rank = p_category.argsort().argsort()
+    delta_LF_mut_category = delta_LF_mut[
+        np.logical_and(age > age_timeCat[i],
+                       age <= age_timeCat[i + 1])
+    ]
+    relative_LF_mut_category = delta_LF_mut_category / LF_positive
+
+    # p-value histograms by time phases
+    plt.hist(p_category,
+             bins=100,
+             color="grey")
+    plt.xlabel("GEA p-values")
+    plt.ylabel("Count")
+    plt.title(names[k])
+    plt.savefig(figPath+model_name+"_GEA_pvalue_hist_byAgePhases"+str(i)+".png",
+                dpi=300)
+    plt.close()
+    # Scatter plots by time phases: LF_mut～p-value
+    plt.scatter(p_category_rank, relative_LF_mut_category,
+                marker="o",
+                c="grey", alpha=0.2)
+    plt.ylim(lf_min * 1.10, lf_max * 1.05)
+    plt.xlabel("GEA p-values ranks")
+    plt.ylabel("Relative $LF_{mut}$")
+    plt.title(names[k])
+    plt.tight_layout()
+    plt.savefig(figPath + model_name + "_byAgePhases" + str(i) +
+                "_corGEpvalueRank_vs_relativeLFmut.png",
+                dpi=300)
+    plt.close()
+    k += 1
+
 
 plt.scatter(abs(cor_GE[0]), delta_LF_mut,
          marker="o",

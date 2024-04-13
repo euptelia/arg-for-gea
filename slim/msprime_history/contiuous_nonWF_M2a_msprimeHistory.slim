@@ -2,9 +2,9 @@
 initialize() {
 	initializeSLiMModelType("nonWF");
 	defineConstant("seed", rdunif(1, 0, asInteger(2^62) - 1));
-	defineConstant("model_name", "Continuous_nonWF_M2b_msprimeHistory_");
+   defineConstant("model_name", "Continuous_nonWF_M2a_msprimeHistory_");
 	setSeed(seed);
-	// functional mutation rate
+	// mutation rate
 	defineConstant("mu", 1e-9);
 	// recombination rate
 	defineConstant("r", 1e-7);
@@ -20,13 +20,13 @@ initialize() {
 	// Sd of fitness function (selection curve)
 	defineConstant("sigma_W", 0.4);
 	// Sd of dispersion (centered on parent 1)
-	defineConstant("sigma_D", 0.1);
+	defineConstant("sigma_D", 0.02);
 	//	// Competition kernal width: compD/3
 	//	defineConstant("S", 1e-2);
 	// Max distance for competition: 30m/3km
 	defineConstant("compD", 3e-2);
 	// Max distance for mate choice: 300m/3km
-	defineConstant("mateD", 0.2);
+	defineConstant("mateD", 0.1);
 	// Max strength for competition
 	defineConstant("maxCompStrength", 1.0);
 	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/");
@@ -86,23 +86,23 @@ mutationEffect(m2) {
 	return 1.0; // The direct fitness effect is reset to neutral
 }
 
-// Expansion is not allowed in the first t1 generations
-// Initial boundary: x0 = 0, x1 = 0.1, y0 = 0, y1 = 1
-1:100 reproduction() {
-	// 10 nearby trees
-	neighbors = i2.nearestNeighbors(individual, 10);
-	if (!neighbors.size())
-		return;
-	mate = sample(neighbors, 1);
-	// Overlapping generations, on average R offsprings were generated
-	for (i in seqLen(rpois(1,R)))
-	{
-		offspring = subpop.addCrossed(individual, mate);
-		do pos = individual.spatialPosition + rnorm(2, 0, sigma_D);
-		while (!((pos[0]>=0) & (pos[0]<=0.1) & (pos[1]>=0) & (pos[1]<=1)));
-		offspring.setSpatialPosition(pos);
-	}
-}
+//// Expansion is not allowed in the first t1 generations
+//// Initial boundary: x0 = 0, x1 = 0.1, y0 = 0, y1 = 1
+//1:100 reproduction() {
+//	// 10 nearby trees
+//	neighbors = i2.nearestNeighbors(individual, 10);
+//	if (!neighbors.size())
+//		return;
+//	mate = sample(neighbors, 1);
+//	// Overlapping generations, on average R offsprings were generated
+//	for (i in seqLen(rpois(1,R)))
+//	{
+//		offspring = subpop.addCrossed(individual, mate);
+//		do pos = individual.spatialPosition + rnorm(2, 0, sigma_D);
+//		while (!((pos[0]>=0) & (pos[0]<=0.1) & (pos[1]>=0) & (pos[1]<=1)));
+//		offspring.setSpatialPosition(pos);
+//	}
+//}
 
 1 early() {
 	//sim.addSubpop("p0", K);
@@ -123,7 +123,8 @@ mutationEffect(m2) {
 	
 	// Set spatial boundary as (x0, y0, x1, y1)
 	p0.setSpatialBounds(c(0.0, 0.0, 1.0, 1.0));
-	p0.individuals.x = runif(p0.individualCount, min=0, max=0.1);
+//	p0.individuals.x = runif(p0.individualCount, min=0, max=0.1);
+	p0.individuals.x = runif(p0.individualCount);
 	p0.individuals.y = runif(p0.individualCount);
 	p0.individuals.z = p0.individuals.sumOfMutationsOfType(m2);
 	// Homogeneous stabilizing selection in the initial envrionment
@@ -165,8 +166,8 @@ mutationEffect(m2) {
 	i2.evaluate(sim.subpopulations);
 }
 
-// Expansion is allowed after t1 generations
-101: reproduction() {
+// The whole map is immediately open
+1: reproduction() {
 	//print(length(p0.individuals));
 	// 10 nearby trees
 	neighbors = i2.nearestNeighbors(individual, 10);
@@ -196,6 +197,16 @@ mutationEffect(m2) {
 //}
 
 // An early sample right after expansion and local adaptation
+100 late() {
+   defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition)); // match the stages
+	sim.treeSeqOutput(outDir + model_name + 
+	"mu" + mu + "_r" + r +"_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
+	"_sigmaD" + sigma_D + "_mateD" + mateD + 
+	"_seed" + seed + "_tick" + sim.cycle + ".trees",
+	metadata = Dictionary("indsOptimum", optimum));
+}
+
+// An early sample
 400 late() {
    defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
 	sim.treeSeqOutput(outDir + model_name + 

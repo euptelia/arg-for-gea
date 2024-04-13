@@ -2,12 +2,9 @@
 initialize() {
 	initializeSLiMModelType("nonWF");
 	defineConstant("seed", rdunif(1, 0, asInteger(2^62) - 1));
-	defineConstant("model_name", "Continuous_nonWF_M2b_msprimeHistory_");
 	setSeed(seed);
-	// functional mutation rate
-	defineConstant("mu", 1e-9);
-	// recombination rate
-	defineConstant("r", 1e-7);
+	// mutation rate
+	defineConstant("mu", 1e-8);
 	// genome size: 10 Mb
 	defineConstant("L", 1e7); //
 	// carrying capacity density: capacity when uniformly distributed
@@ -16,17 +13,17 @@ initialize() {
 	//  reproduction rate
 	defineConstant("R", 0.2);
 	// Sd of mutation effect size on trait value
-	defineConstant("sigma_M", 0.1);
+	defineConstant("sigma_M", 0.01);
 	// Sd of fitness function (selection curve)
 	defineConstant("sigma_W", 0.4);
 	// Sd of dispersion (centered on parent 1)
-	defineConstant("sigma_D", 0.1);
+	defineConstant("sigma_D", 0.02);
 	//	// Competition kernal width: compD/3
 	//	defineConstant("S", 1e-2);
 	// Max distance for competition: 30m/3km
 	defineConstant("compD", 3e-2);
 	// Max distance for mate choice: 300m/3km
-	defineConstant("mateD", 0.2);
+	defineConstant("mateD", 0.1);
 	// Max strength for competition
 	defineConstant("maxCompStrength", 1.0);
 	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/");
@@ -63,8 +60,8 @@ initialize() {
 		}
 	}
 	
-	//recombination rate: Apuli et al., 2020: 1.6e-8 -- 27e-8 (modal 15e-8)
-	rates = c(rep(c(r, 0.5),3), r);
+	//recombination rate: Ingvarsson et al., 2008: 2e-8 -- 27e-8 (modal 15e-8)
+	rates = c(rep(c(1e-7, 0.5),3), 1e-7);
 	ends = c(len_chrom-1, len_chrom,
 		len_chrom*2-1, len_chrom*2,
 		len_chrom*3-1, len_chrom*3,
@@ -86,9 +83,9 @@ mutationEffect(m2) {
 	return 1.0; // The direct fitness effect is reset to neutral
 }
 
-// Expansion is not allowed in the first t1 generations
+// Expansion is not allowed in the first t1 generations ()
 // Initial boundary: x0 = 0, x1 = 0.1, y0 = 0, y1 = 1
-1:100 reproduction() {
+1:100000 reproduction() {
 	// 10 nearby trees
 	neighbors = i2.nearestNeighbors(individual, 10);
 	if (!neighbors.size())
@@ -105,21 +102,23 @@ mutationEffect(m2) {
 }
 
 1 early() {
-	//sim.addSubpop("p0", K);
+	sim.addSubpop("p0", K);
 	// Alternatively, load neutral history and variation from msprime 
-	//	sim.readFromPopulationFile("/home/tianlin/Documents/github/data/slim_data/neutral_N5000_L10000000_r1e-07_mu1e-09_ancSeed1608637543_mutSeed1273642420_rep1_intergene10kbx3chrom.trees");
-	//	sim.readFromPopulationFile("/home/tianlin/Documents/github/data/slim_data/msprime_history/neutral_N5000_L10000000_r1e-06_mu1e-08_ancSeed1608637543_mutSeed1273642420_rep1_intergene10kbx3chrom.trees");
-	//	sim.readFromPopulationFile("/home/tianlin/Documents/github/data/slim_data/msprime_history/neutral_N5000_L100000000_r1e-07_mu1e-09_ancSeed1608637543_mutSeed1273642420_rep1_intergene10kbx3chrom.trees");
-	sim.readFromPopulationFile("/home/tianlin/Documents/github/data/slim_data/msprime_history/neutral_N5000_L10000000_r1e-07_mu1e-09_ancSeed1608637543_mutSeed1273642420_rep1_intergene10kbx3chrom.trees");
-//	sim.readFromPopulationFile("/home/tianlin/Documents/github/data/slim_data/msprime_history/neutral_N5000_L10000000_r1e-07_mu1e-08_ancSeed1608637543_mutSeed1273642420_rep1_intergene10kbx3chrom.trees");
+	//sim.readFromPopulationFile("/home/tianlin/Documents/github/data/slim_data/neutral_N5000_L10000000_r1e-07_mu1e-09_ancSeed1608637543_mutSeed1273642420_rep1_intergene10kbx3chrom.trees");
+	// Load history of homogeneous stabilizing selection from SLiM simulation
+	//sim.readFromPopulationFile("/home/tianlin/Documents/github/data/slim_data/homoSelection_history/WF/Continuous_WF_homoHistory_mu1.0e-09_sigmaM0.1_sigmaW4.0_seed917500639710778263.trees");
+	//sim.readFromPopulationFile("/home/tianlin/Documents/github/data/slim_data/homoSelection_history/nonWF/Continuous_WF_homoHistory_mu1.0e-09_sigmaM0.1_sigmaW1.0_seed1638122716788735194.trees");
+	// sim.readFromPopulationFile("/home/tianlin/Documents/github/data/slim_data/homoSelection_history/nonWF/Continuous_nonWF_homoHistory_mu1.0e-09_sigmaM0.1_sigmaW4.0_seed881035566204303519.trees");
+	//		sim.readFromPopulationFile("/home/tianlin/Documents/github/data/slim_data/neutral_history/Continuous_nonWF_neutralHistory_mu1.0e-09_sigmaM0.1_seed4275362900292646479.trees");
+	//		sim.readFromPopulationFile("/home/tianlin/Documents/github/data/slim_data/neutral_history/Continuous_nonWF_neutralHistory_mu1.0e-08_sigmaM0.001sigmaD0.02_mateD0.1_seed3536875157336939183.trees");
+	//		sim.readFromPopulationFile("/home/tianlin/Documents/github/data/slim_data/neutral_history/Continuous_nonWF_neutralHistory_mu1.0e-08_sigmaM0.01sigmaD0.02_mateD0.1_seed1728756015127325451.trees");
 	
-	// Alternatively, load history of homogeneous stabilizing selection from SLiM simulation
-	//		sim.readFromPopulationFile("/home/tianlin/Documents/github/data/slim_data/neutral_history/Continuous_nonWF_neutralHistory_mu1.0e-08_sigmaM0.01sigmaD0.02_mateD0.1_seed1728756015127325451.trees");		
 	
-	//If the tree sequence came from msprime, set mutation type and selection coefficient 
-	m2Mut = sim.mutationsOfType(m2);
-	for (i in seqAlong(m2Mut))
-		m2Mut[i].setSelectionCoeff(rnorm(1, 0.0, sigma_M));
+	
+	//	//If the tree sequence came from msprime, set mutation type and selection coefficient 
+	//	m2Mut = sim.mutationsOfType(m2);
+	//	for (i in seqAlong(m2Mut))
+	//		m2Mut[i].setSelectionCoeff(rnorm(1, 0.0, sigma_M));
 	
 	// Set spatial boundary as (x0, y0, x1, y1)
 	p0.setSpatialBounds(c(0.0, 0.0, 1.0, 1.0));
@@ -128,7 +127,7 @@ mutationEffect(m2) {
 	p0.individuals.z = p0.individuals.sumOfMutationsOfType(m2);
 	// Homogeneous stabilizing selection in the initial envrionment
 	//defineConstant("mapValues", matrix(c(0,0,0,0), ncol=2));
-	defineGlobal("mapValues", matrix(c(0,0,1,1), ncol=2));
+	defineGlobal("mapValues", matrix(c(0.5,0.5,1,1), ncol=2));
 	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,
 		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
 }
@@ -136,10 +135,10 @@ mutationEffect(m2) {
 1: early() {
 	// construct phenotypes and fitness effects
 	inds = sim.subpopulations.individuals;
+	//	phenotypes = inds.sumOfMutationsOfType(m2)+0.5;
 	phenotypes = inds.sumOfMutationsOfType(m2);
 	//takes map value with x and y
-//	optimum = p0.spatialMapValue("map1", inds.spatialPosition);
-	defineGlobal("optimum", p0.spatialMapValue("map1", inds.spatialPosition));
+	optimum = p0.spatialMapValue("map1", inds.spatialPosition);
 	
 	//Competition: mean interaction strength
 	i1.evaluate(sim.subpopulations);
@@ -166,7 +165,7 @@ mutationEffect(m2) {
 }
 
 // Expansion is allowed after t1 generations
-101: reproduction() {
+100001: reproduction() {
 	//print(length(p0.individuals));
 	// 10 nearby trees
 	neighbors = i2.nearestNeighbors(individual, 10);
@@ -187,35 +186,25 @@ mutationEffect(m2) {
 	}
 }
 
-//// Heterogeneous selection occured after t1 generations
-//10101 early(){
-//	//defineConstant("mapValues2", matrix(c(0,0,1,1), ncol=2));
-//	defineGlobal("mapValues", matrix(c(0,0,1,1), ncol=2));
-//	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,
-//		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
-//}
+// Heterogeneous selection occured after t1 generations
+100001 early(){
+	//defineConstant("mapValues2", matrix(c(0,0,1,1), ncol=2));
+	defineGlobal("mapValues", matrix(c(0,0,1,1), ncol=2));
+	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,
+		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
+}
 
 // An early sample right after expansion and local adaptation
-400 late() {
-   defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
-	sim.treeSeqOutput(outDir + model_name + 
-	"mu" + mu + "_r" + r +"_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
-	"_sigmaD" + sigma_D + "_mateD" + mateD + 
-	"_seed" + seed + "_tick" + sim.cycle + ".trees",
-	metadata = Dictionary("indsOptimum", optimum));
+100400 late() {
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_neutralHistory_" + "mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + "_seed" + seed + "_tick" + sim.cycle + ".trees");
 }
 
 //14000 late() {
-//	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_neutralHistory_" + "mu" + mu + "_r" + r + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + "_seed" + seed + "_tick" + sim.cycle + ".trees");
+//	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_neutralHistory_" + "mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + "_seed" + seed + "_tick" + sim.cycle + ".trees");
 //	sim.simulationFinished();
 //}
 
-10000 late() {
-   defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
-	sim.treeSeqOutput(outDir + model_name +
-		"mu" + mu + "_r" + r + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W +
-		"_sigmaD" + sigma_D + "_mateD" + mateD +
-		"_seed" + seed + "_tick" + sim.cycle + ".trees",
-	metadata = Dictionary("indsOptimum", optimum));
+110000 late() {
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistory_" + "mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + "_seed" + seed + "_tick" + sim.cycle + ".trees");
 	sim.simulationFinished();
 }
