@@ -8,8 +8,8 @@ initialize() {
 	// genome size: 10 Mb
 	defineConstant("L", 1e7); //
 	// carrying capacity density: capacity when uniformly distributed
-	// Observed N: ~4800 diploid individual
-	defineConstant("K", 17000); //
+	// Observed N: ~530 diploid individuals at the single optimum stage
+	defineGlobal("K", 17000); //
 	//  reproduction rate
 	defineConstant("R", 0.2);
 	// Sd of mutation effect size on trait value
@@ -17,16 +17,16 @@ initialize() {
 	// Sd of fitness function (selection curve)
 	defineConstant("sigma_W", 0.4);
 	// Sd of dispersion (centered on parent 1)
-	defineConstant("sigma_D", 0.02);
+	defineConstant("sigma_D", 0.06);
 	//	// Competition kernal width: compD/3
 	//	defineConstant("S", 1e-2);
 	// Max distance for competition: 30m/3km
 	defineConstant("compD", 3e-2);
 	// Max distance for mate choice: 300m/3km
-	defineConstant("mateD", 0.1);
+	defineConstant("mateD", 0.15);
 	// Max strength for competition
 	defineConstant("maxCompStrength", 1.0);
-	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/");
+	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/glacial_history/M0b_highPoly_highMig/");
 	//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/m2b_mu1e-7_m0.1_w0.4/");
 	
 	// defineConstant("outDir", "D:/UBC_office/slim/output/");
@@ -127,18 +127,19 @@ mutationEffect(m2) {
 	p0.individuals.z = p0.individuals.sumOfMutationsOfType(m2);
 	// Homogeneous stabilizing selection in the initial envrionment
 	//defineConstant("mapValues", matrix(c(0,0,0,0), ncol=2));
-	defineGlobal("mapValues", matrix(c(0.5,0.5,1,1), ncol=2));
+	defineGlobal("mapValues", matrix(c(0.5,0.5,0.5,0.5), ncol=2));
 	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,
 		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
 }
 
-1: early() {
+1:100000 early() {
 	// construct phenotypes and fitness effects
 	inds = sim.subpopulations.individuals;
 	//	phenotypes = inds.sumOfMutationsOfType(m2)+0.5;
 	phenotypes = inds.sumOfMutationsOfType(m2);
 	//takes map value with x and y
-	optimum = p0.spatialMapValue("map1", inds.spatialPosition);
+	//	optimum = p0.spatialMapValue("map1", inds.spatialPosition);
+	defineGlobal("optimum", p0.spatialMapValue("map1", inds.spatialPosition));
 	
 	//Competition: mean interaction strength
 	i1.evaluate(sim.subpopulations);
@@ -150,7 +151,7 @@ mutationEffect(m2) {
 	// inds.fitnessScaling = K / totalStrength * (mean_fitness + dnorm(phenotypes, optimum, sigma_W));
 	max_adaptation = 1 / sigma_W / sqrt(2/PI);
 	scaled_mut_effect = dnorm(phenotypes, optimum, sigma_W)/ max_adaptation;
-	// inds.fitnessScaling = K / totalStrength * (0.3 + 0.7*scaled_mut_effect);
+	// Stabilizing selection is on
 	inds.fitnessScaling = K / totalStrength * scaled_mut_effect;
 	inds.z = phenotypes;
 	//	//fitness function
@@ -192,11 +193,48 @@ mutationEffect(m2) {
 	defineGlobal("mapValues", matrix(c(0,0,1,1), ncol=2));
 	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,
 		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
+	defineGlobal("K", 5000);
 }
 
-// An early sample right after expansion and local adaptation
-100400 late() {
-	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_neutralHistory_" + "mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + "_seed" + seed + "_tick" + sim.cycle + ".trees");
+100001: early() {
+	// construct phenotypes and fitness effects
+	inds = sim.subpopulations.individuals;
+	//	phenotypes = inds.sumOfMutationsOfType(m2)+0.5;
+	phenotypes = inds.sumOfMutationsOfType(m2);
+	//takes map value with x and y
+	//	optimum = p0.spatialMapValue("map1", inds.spatialPosition);
+	defineGlobal("optimum", p0.spatialMapValue("map1", inds.spatialPosition));
+	
+	//Competition: mean interaction strength
+	i1.evaluate(sim.subpopulations);
+	inds = p0.individuals;
+	totalStrength = i1.totalOfNeighborStrengths(inds);
+	//	Rd = (1.1 - totalStrength/inds.size());
+	totalStrength = (totalStrength + 1) / (2 * PI * (compD/3)^2);
+	// mean_fitness = mean(p0.cachedFitness(NULL));
+	// inds.fitnessScaling = K / totalStrength * (mean_fitness + dnorm(phenotypes, optimum, sigma_W));
+	max_adaptation = 1 / sigma_W / sqrt(2/PI);
+	scaled_mut_effect = dnorm(phenotypes, optimum, sigma_W)/ max_adaptation;
+	//	inds.fitnessScaling = K / totalStrength * scaled_mut_effect;
+	// Selection on the trait is diabled
+	inds.fitnessScaling = K / totalStrength;
+	inds.z = phenotypes;
+	//	//fitness function
+	//	inds.fitnessScaling = Rd * (1.0 + dnorm(phenotypes, optimum, sigma_W));
+	
+	// color individuals according to phenotype
+	inds.color = p0.spatialMapColor("map1", phenotypes);
+}
+
+// An early sample 
+101000 late() {
+	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M0b_glacialHistory_clineMap_" +
+		"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W +
+		"_sigmaD" + sigma_D + "_mateD" + mateD +
+		"_seed" + seed + "_tick" + sim.cycle + ".trees",
+		metadata = Dictionary("indsOptimum", optimum,
+		"mapValues", mapValues));
 }
 
 //14000 late() {
@@ -205,6 +243,12 @@ mutationEffect(m2) {
 //}
 
 110000 late() {
-	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistory_" + "mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + "_seed" + seed + "_tick" + sim.cycle + ".trees");
+	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M0b_glacialHistory_clineMap_" +
+		"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W +
+		"_sigmaD" + sigma_D + "_mateD" + mateD +
+		"_seed" + seed + "_tick" + sim.cycle + ".trees",
+		metadata = Dictionary("indsOptimum", optimum,
+		"mapValues", mapValues));
 	sim.simulationFinished();
 }

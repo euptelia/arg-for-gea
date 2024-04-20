@@ -19,11 +19,14 @@ import random
 from time import time
 import sys # for sys.exit()
 import allel # for allel.weir_cockerham_fst()
+import os # mkdir
 
 ############################# options #############################
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', '--tree',
+                    # may contain the relative path to the file
+                    # if the path differs from and is inside the inPath below
                     help='Base name of the tree file from SLiM',
                     type=str)
 parser.add_argument('-p', '--plot',
@@ -100,13 +103,16 @@ def LF_fitness(ind_x, ind_y, phenotype,
 
 ############################# program #########################################
 # Values
-# sigma_w = 0.4
-sigma_w = 1.0
+sigma_w = 0.4
+# sigma_w = 1.0
 # sigma_w = 2.0
-dist_mate = 0.1
+dist_mate = 0.15
 
 #User input arguments:
-model_name = args.tree
+relative_path_file_name = args.tree
+# Remove paths
+model_name = relative_path_file_name.split("/")[-1]
+file_name = relative_path_file_name+".trees"
 
 #M2b
 # model_name = "Continuous_nonWF_M2b_mu1.0e-09_sigmaM0.4_sigmaW0.4_seed4211585214153878784_tick20000"
@@ -164,16 +170,24 @@ model_name = args.tree
 
 # Test glacial model
 # model_name = "Continuous_nonWF_M2b_glacialHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4_seed4459818163778896215_tick110000"
-# model_name="Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4_seed3619471502973802965_tick100800"
+# model_name="Continuous_nonWF_M2b_glacialHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4_seed3619471502973802965_tick100800"
 
-
-inPath = "/home/tianlin/Documents/github/data/slim_data/"
+# inPath = "/home/tianlin/Documents/github/data/slim_data/"
 # inPath = "/home/tianlin/Documents/github/data/slim_data/m2b_mu1e-7_m0.1_w0.4/test/"
-figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/"
-outPath = "/home/tianlin/Documents/github/data/tskit_data/output/"
+# inPath = "/home/tianlin/Documents/github/data/slim_data/glacial_history/highPoly_highMig_clineMap/"
+# inPath = "/home/tianlin/Documents/github/data/slim_data/glacial_history/highPoly_middleMig_patchyMap/"
+inPath = "/home/tianlin/Documents/github/data/slim_data/glacial_history/M0b_highPoly_highMig/"
+# figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/"
+figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240419/"
+# outPath = "/home/tianlin/Documents/github/data/tskit_data/output/"
+# outPath = "/home/tianlin/Documents/github/data/tskit_data/output/Continuous_nonWF_M2b_glacialHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.1_mateD0.2/"
+outPath = "/home/tianlin/Documents/github/data/tskit_data/output/Continuous_nonWF_M0b_glacialHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15/"
+# current_tick = int(model_name.split("_")[-1][4:]) # hard coded for a specific name pattern, not ideal
+history = 100000 # number of generations before the focal model
 
 # Tree-sequence file from SLiM
-ts = tskit.load(inPath + model_name + ".trees")
+ts = tskit.load(inPath + file_name)
+current_tick = ts.metadata['SLiM']['tick']
 ind_x, ind_y, ind_z = zip(*ts.individuals_location)
 # Genomic position of sites
 pos = ts.sites_position
@@ -185,13 +199,12 @@ max_tick = ts.metadata["SLiM"]["tick"]
 N = ts.num_individuals
 # Environmental optima
 optima = np.array(ts.metadata['SLiM']['user_metadata']['indsOptimum'])
-# mapValues = np.array(ts.metadata['SLiM']['user_metadata']['mapValue'])
+mapValues = np.array(ts.metadata['SLiM']['user_metadata']['mapValues'])
 
-# # Recapitation: skipped if msprimeHistory has already been used
-# ts_recap = pyslim.recapitate(ts, ancestral_Ne=5e3,
-#                              recombination_rate=1e-7,
-#                              random_seed=1)
-ts_recap = ts
+# Recapitation: better skipped as no functional mutation was added during this stage
+ts_recap = pyslim.recapitate(ts, ancestral_Ne=5e3,
+                             recombination_rate=1e-7,
+                             random_seed=1)
 
 (tmrca_recap, kb_recap) = tree_heights(ts_recap)
 
@@ -288,18 +301,18 @@ print(timer/60)
 # for 1 replicate, 373377 neutral sites and 200 functional sites take 4 minutes
 # for 1 replicate, 333977 neutral sites and 200 functional sites take 28 minutes
 
-# Save the contribution of each mutation to LF
-with open(outPath+model_name + "delta_LF_shuffle" +
-          str(shuffle_replicates) + "_withNeutralMut_mutSeed" +
-          str(mutation_seed) + ".txt", "w") as fout:
-    for item in delta_LF_mut:
-        fout.write(str(item) + "\n")
-fout.close()
-
-# Load LF from file
-delta_LF_mut = np.loadtxt(outPath+model_name + "delta_LF_shuffle" +
-          str(shuffle_replicates) + "_withNeutralMut_mutSeed" +
-          str(mutation_seed) + ".txt")
+# # Save the contribution of each mutation to LF
+# with open(outPath+model_name + "delta_LF_shuffle" +
+#           str(shuffle_replicates) + "_withNeutralMut_mutSeed" +
+#           str(mutation_seed) + ".txt", "w") as fout:
+#     for item in delta_LF_mut:
+#         fout.write(str(item) + "\n")
+# fout.close()
+#
+# # Load LF from file
+# delta_LF_mut = np.loadtxt(outPath+model_name + "delta_LF_shuffle" +
+#           str(shuffle_replicates) + "_withNeutralMut_mutSeed" +
+#           str(mutation_seed) + ".txt")
 
 # Age of each mutation
 age = mts.mutations_time
@@ -308,17 +321,6 @@ pos_by_mut = mts.sites_position[mts.mutations_site]
 # Mutation effects by mutation coordinates
 effect_by_mut = np.full(shape=mts.num_mutations,
                         fill_value=np.nan)
-
-# t0 = time()
-# effect_by_mut = np.full(shape=mts.num_mutations,
-#                         fill_value=np.nan)
-# i = 0
-# for site in mts.sites():
-#     for mut in site.mutations:
-#         effect_by_mut[i] = mut.metadata['mutation_list'][0]['selection_coeff']
-#         i += 1
-# timer = time() - t0
-# print(timer) # Very slightly faster
 
 effect_by_mut = []
 for site in mts.sites():
@@ -516,6 +518,10 @@ print(fst)
 #     print("Program finished. No plot will be generated as --plot is 0.")
 #     sys.exit(0)
 
+#Path for the current run
+figPath = figPath + model_name+ "_fst_" + str(round(fst,4)) +"/"
+os.mkdir(figPath)
+
 # Display the average fitness of local and foreign populations
 plt.figure(1)
 plt.boxplot([w_local, w_foreign],
@@ -536,15 +542,15 @@ plt.savefig(figPath+model_name+"_non0LFhist.png",
             dpi=300)
 plt.close()
 
-# Histogram of positive LF
-plt.hist(delta_LF_mut[delta_LF_mut > 0], bins=100,
-         color="grey")
-# plt.title("With local adapation")
-plt.xlabel("$LF_{mut}$")
-plt.ylabel("Count")
-plt.savefig(figPath+model_name+"_LFhist_positive.png",
-            dpi=300)
-plt.close()
+# # Histogram of positive LF
+# plt.hist(delta_LF_mut[delta_LF_mut > 0], bins=100,
+#          color="grey")
+# # plt.title("With local adapation")
+# plt.xlabel("$LF_{mut}$")
+# plt.ylabel("Count")
+# plt.savefig(figPath+model_name+"_LFhist_positive.png",
+#             dpi=300)
+# plt.close()
 
 # Cumulative plot of LF_mut
 expected_explained_proportion = 0.8
@@ -586,56 +592,90 @@ plt.close()
 # plt.close()
 
 # LF ~ |phenotypic effect size|
+age_rank_bin = (age.argsort().argsort()/10000).astype(int)
 plt.scatter(abs(mut_effect), delta_LF_mut,
             marker="o",
-            c=age, alpha=0.2)
+            c=age_rank_bin, alpha=0.2)
 plt.xlabel("|Phenotypic effect size|")
 plt.ylabel("$LF_{mut}$")
-plt.colorbar()
+plt.colorbar().set_label("Age rank bins \n (10000 alleles per bin)")
 plt.tight_layout()
-plt.savefig(figPath+model_name+"_phenoEffectAndLF_ageColor.png",
+plt.savefig(figPath+model_name+"_phenoEffectAndLF_ageRankColor.png",
             dpi=300)
 plt.close()
 
-# total LF of the size ~ (phenotypic effect size)^2
-plt.figure(1)
-num_cat = 10
-alpha = mut_effect**2
+
+
+# total LF of the size ~ |phenotypic effect size|
+# total LF of the size ~ |phenotypic effect size|, separating positive and negative parts
+
+num_cat = 10 # Number of categories for allele age
+abs_effect = abs(mut_effect)
+LF_total = sum(delta_LF_mut)
+LF_positive = sum(delta_LF_mut[delta_LF_mut>0])
+LF_negative = sum(delta_LF_mut[delta_LF_mut<0])
 lf_sum = []
-alpha_cats = np.append(np.arange(0, max(alpha), max(alpha)/num_cat),
-                       max(alpha))
+lf_sum_positive = []
+lf_sum_negative = []
+alpha_cats = np.append(np.arange(0, max(abs_effect), max(abs_effect)/num_cat),
+                       max(abs_effect))
 for i in range(num_cat):
-    lf_category = delta_LF_mut[np.logical_and(alpha > alpha_cats[i],
-                                              alpha <= alpha_cats[i+1])]
-    lf_sum.append(sum(lf_category/LF_positive))
+    lf_category = delta_LF_mut[np.logical_and(abs_effect > alpha_cats[i],
+                                              abs_effect <= alpha_cats[i+1])]
+    lf_sum.append(sum(lf_category/LF_total))
+    lf_sum_positive.append(sum(lf_category[lf_category > 0]) / LF_total)
+    lf_sum_negative.append(sum(lf_category[lf_category < 0]) / LF_total)
 
-
+#total LF of the size ~ |phenotypic effect size|
+plt.figure(1)
 plt.plot(alpha_cats[1:],
          lf_sum,
          color="grey")
-plt.xlabel("(Phenotypic effect size)^2")
-# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
-plt.ylabel("Relative contribution to local adaptation")
+plt.xlabel("|Mutation phenotypic effect size|")
+plt.ylabel("Relative contribution to local adaptation from the size class")
 # plt.xticks(ticks=np.arange(100/num_cat, 101, 100/num_cat),
 #            labels=[(str(i*cat_width)+"-"+str((i+1)*cat_width))
 #                    for i in range(num_cat)])
 plt.tight_layout()
 plt.savefig(figPath+model_name+"_"+str(num_cat) + "bins"+
-            "_LF_by_effectSizesqured_bin.png",
+            "_LF_by_absEffectSize_bin.png",
+            dpi=300)
+plt.close()
+
+# total LF of the size ~ |phenotypic effect size|, separated by positive and
+# negative contributions
+plt.figure(1)
+lf_sum_positive = np.array(lf_sum_positive)
+lf_sum_negative = np.array(lf_sum_negative)
+x = alpha_cats[1:]
+y1 = lf_sum_positive
+y2 = lf_sum_negative
+fig, ax = plt.subplots()
+ax.plot(x, y1, color="mediumaquamarine",
+        label="Positive")
+ax.plot(x, y2, color="saddlebrown",
+        label="Negative")
+ax.axhline(0, color='grey', lw=1, dashes=(1,1))
+plt.xlabel("|Mutation phenotypic effect size|")
+plt.ylabel("Relative contribution to local from the size class")
+ax.legend(loc="upper right")
+ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
+ax.margins(x=0)
+plt.savefig(figPath+model_name+"_"+str(num_cat) + "bins"+
+            "_LF_by_absEffectSize_bin_positveAndnegative.png",
             dpi=300)
 plt.close()
 
 
-
-
-# LF_mut by pos
+# Relative LF_mut by pos
 fig, axs = plt.subplots(2, 1)
 fig.set_figheight(9)
 fig.set_figwidth(9)
+LF_positive = sum(delta_LF_mut[delta_LF_mut>0])
 # plot 0: TMRCA with the contribution of sites to local adaptation (delta LF)
 # axs[0].stairs(tmrca_recap, kb_recap, baseline=None,
 #            color="mediumaquamarine")
-axs[0].plot(pos_by_mut/1000, delta_LF_mut,
+axs[0].plot(pos_by_mut/1000, delta_LF_mut/LF_positive,
          marker="o", linestyle="",
          color="mediumaquamarine", alpha=0.2)
 # axs[0].set_title("$LF_{mutation}$")
@@ -682,35 +722,31 @@ plt.close()
 #             dpi=300)
 # plt.close()
 
-# non-0 |LF| ~ allele age
-tempx = np.log(age[np.logical_and(delta_LF_mut != 0, age != 0)])
-tempy = np.log(np.abs(delta_LF_mut[np.logical_and(delta_LF_mut != 0, age != 0)]))
-res = stats.linregress(tempx, tempy)
-rsquared = round(res.rvalue ** 2, 3)
-slope = '{:0.2e}'.format(res.slope)
-linearp = '{:0.2e}'.format(res.pvalue)
-spr_abs = stats.spearmanr(tempx, tempy)
-plt.figure(1)
-plt.plot(tempx, tempy,
-         marker="o", linestyle="",
-         color="saddlebrown", alpha=0.1)
-plt.plot(sorted(tempx),
-         res.intercept + np.array(sorted(tempx))*res.slope,
-         color = "cornflowerblue")
-plt.text(0, min(tempy)+(max(tempy)-min(tempy))*0.9,
-         "$r^{2}$="+str(rsquared) + "\n" +
-         "P-value=" + str(linearp) + "\n" +
-         "Slope=" + str(slope),
-         color = "cornflowerblue")
-# plt.axline((0,res.intercept),
-#            slope=res.slope, color="cornflowerblue",
-#            label = "")
-# plt.title("With local adapation")
-plt.xlabel("ln(Mutation age)")
-plt.ylabel("ln(|$LF_{mut})$|")
-plt.savefig(figPath+model_name+"_non0ageAndAbsoluteNon0LF_ln.png",
-            dpi=300)
-plt.close()
+# # non-0 |LF| ~ allele age
+# tempx = np.log(age[np.logical_and(delta_LF_mut != 0, age != 0)])
+# tempy = np.log(np.abs(delta_LF_mut[np.logical_and(delta_LF_mut != 0, age != 0)]))
+# res = stats.linregress(tempx, tempy)
+# rsquared = round(res.rvalue ** 2, 3)
+# slope = '{:0.2e}'.format(res.slope)
+# linearp = '{:0.2e}'.format(res.pvalue)
+# spr_abs = stats.spearmanr(tempx, tempy)
+# plt.figure(1)
+# plt.plot(tempx, tempy,
+#          marker="o", linestyle="",
+#          color="saddlebrown", alpha=0.1)
+# plt.plot(sorted(tempx),
+#          res.intercept + np.array(sorted(tempx))*res.slope,
+#          color = "cornflowerblue")
+# plt.text(0, min(tempy)+(max(tempy)-min(tempy))*0.9,
+#          "$r^{2}$="+str(rsquared) + "\n" +
+#          "P-value=" + str(linearp) + "\n" +
+#          "Slope=" + str(slope),
+#          color = "cornflowerblue")
+# plt.xlabel("ln(Mutation age)")
+# plt.ylabel("ln(|$LF_{mut})$|")
+# plt.savefig(figPath+model_name+"_non0ageAndAbsoluteNon0LF_ln.png",
+#             dpi=300)
+# plt.close()
 
 
 
@@ -754,12 +790,14 @@ for i in range(num_cat):
              color="grey")
     plt.xlabel("GEA p-values")
     plt.ylabel("Count")
-    plt.title("Bin " + str(i))
+
+    plt.title("Bin " + str(i) + ": \n " +
+              "age " +str(int(age_percentile[i])) +
+              "-" + str(int(age_percentile[i+1])))
     plt.savefig(figPath+model_name+"_GEA_pvalue_hist_byAge_bin"+str(i)+".png",
                 dpi=300)
     plt.close()
 # print(k)
-
 
 
 
@@ -773,69 +811,67 @@ plt.xlabel("Allele age percentile bins")
 plt.ylabel("Proportion of alleles with p-value < 0.05")
 plt.xticks(ticks=np.arange(100/num_cat, 110, 100/num_cat),
            labels=[(str(i*10)+"-"+str(i*10+10)) for i in range(10)])
-# plt.savefig(figPath+model_name+"_proportionGEABHp_vs_age.png",
-#             dpi=300)
 plt.savefig(figPath+model_name+"_proportionGEArawP_vs_age.png",
             dpi=300)
 plt.close()
 
 
-# Histogram of GEA tau
-plt.hist(cor_GE[0], bins=100,
-         color="grey")
-plt.xlabel("GEA Kendall's tau")
-plt.ylabel("Count")
-plt.savefig(figPath+model_name+"_GEA_tau_hist.png",
-            dpi=300)
-plt.close()
+# # Histogram of GEA tau
+# plt.hist(cor_GE[0], bins=100,
+#          color="grey")
+# plt.xlabel("GEA Kendall's tau")
+# plt.ylabel("Count")
+# plt.savefig(figPath+model_name+"_GEA_tau_hist.png",
+#             dpi=300)
+# plt.close()
 
-# GEA p-value ~ Allele age
-plt.scatter(age, cor_GE[1],
-         marker="o",
-         c="grey", alpha=0.05)
-plt.xlabel("Allele age")
-plt.ylabel("GEA p-values")
-# plt.colorbar().set_label("$LF_{mut}$")
-plt.tight_layout()
-plt.savefig(figPath+model_name+"_GEApvalue_vs_age.png",
-            dpi=300)
-plt.close()
+# # GEA p-value ~ Allele age
+# plt.scatter(age, cor_GE[1],
+#          marker="o",
+#          c="grey", alpha=0.05)
+# plt.xlabel("Allele age")
+# plt.ylabel("GEA p-values")
+# # plt.colorbar().set_label("$LF_{mut}$")
+# plt.tight_layout()
+# plt.savefig(figPath+model_name+"_GEApvalue_vs_age.png",
+#             dpi=300)
+# plt.close()
 
-# |GEA Kendall's tau| ~ Allele age
-plt.scatter(age, abs(cor_GE[0]),
-         marker="o",
-         c="grey", alpha=0.05)
-plt.xlabel("Allele age")
-plt.ylabel("|GEA Kendall's tau|")
-# plt.colorbar().set_label("$LF_{mut}$")
-plt.tight_layout()
-plt.savefig(figPath+model_name+"_absGEATau_vs_age.png",
-            dpi=300)
-plt.close()
+# # |GEA Kendall's tau| ~ Allele age
+# plt.scatter(age, abs(cor_GE[0]),
+#          marker="o",
+#          c="grey", alpha=0.05)
+# plt.xlabel("Allele age")
+# plt.ylabel("|GEA Kendall's tau|")
+# # plt.colorbar().set_label("$LF_{mut}$")
+# plt.tight_layout()
+# plt.savefig(figPath+model_name+"_absGEATau_vs_age.png",
+#             dpi=300)
+# plt.close()
 
-# Allele frequency ~ Allele age
-plt.scatter(age, freq,
-         marker="o",
-         # c=cor_GE[1], alpha=0.05)
-         c="grey", alpha = 0.05)
-plt.xlabel("Allele age")
-plt.ylabel("Allele frequency")
-# plt.colorbar().set_label("GEA p-values")
-plt.tight_layout()
-plt.savefig(figPath+model_name+"_freq_vs_age.png",
-            dpi=300)
-plt.close()
+# # Allele frequency ~ Allele age
+# plt.scatter(age, freq,
+#          marker="o",
+#          # c=cor_GE[1], alpha=0.05)
+#          c="grey", alpha = 0.05)
+# plt.xlabel("Allele age")
+# plt.ylabel("Allele frequency")
+# # plt.colorbar().set_label("GEA p-values")
+# plt.tight_layout()
+# plt.savefig(figPath+model_name+"_freq_vs_age.png",
+#             dpi=300)
+# plt.close()
 
 
-# Relative LF_mut ~ cor_GE p-values, colored by age
+# Relative LF_mut ~ cor_GE p-values, colored by log10(age)
 plt.scatter(cor_GE[1], delta_LF_mut/LF_positive,
-         marker="o",
-         c=age, alpha=0.2)
+            marker="o",
+            c=np.log10(age), alpha=0.2)
 plt.xlabel("GEA p-values")
 plt.ylabel("Relative $LF_{mut}$")
-plt.colorbar()
+plt.colorbar().set_label("log10(allele age)")
 plt.tight_layout()
-plt.savefig(figPath+model_name+"_corGEpvalue_vs_relativeLFmut_lnageColor.png",
+plt.savefig(figPath+model_name+"_corGEpvalue_vs_relativeLFmut_log10ageColor.png",
             dpi=300)
 plt.close()
 
@@ -925,10 +961,11 @@ for i in range(num_cat):
 # Histogram of raw GEA p-values by allele age: before/after expansion
 num_phase = 2
 # age_timeCat = np.array([0.0, 10000, max(age)])
-age_timeCat = np.array([0.0, 100, max(age)])
+boundary = current_tick - history
+age_timeCat = np.array([0.0, boundary, max(age)])
 k = 0
 proportion_sig = []
-names = ["After expansion", "Before expansion"]
+names = ["After heterogeneous selection", "Before heterogeneous selection"]
 lf_min = min(delta_LF_mut/LF_positive)
 lf_max = max(delta_LF_mut/LF_positive)
 for i in range(num_phase):
@@ -972,12 +1009,12 @@ for i in range(num_phase):
 
 plt.scatter(abs(cor_GE[0]), delta_LF_mut,
          marker="o",
-         c=age, alpha=0.2)
+         c=np.log10(age), alpha=0.2)
 plt.xlabel("|GEA Kendall's tau|")
 plt.ylabel("$LF_{mut}$")
-plt.colorbar()
+plt.colorbar().set_label("log10(allele age)")
 plt.tight_layout()
-plt.savefig(figPath+model_name+"_corGEcoef_vs_LF_mut_ageColor.png",
+plt.savefig(figPath+model_name+"_corGEcoef_vs_LF_mut_log10ageColor.png",
             dpi=300)
 plt.close()
 
@@ -1010,7 +1047,7 @@ plt.scatter(cor_GE[1], delta_LF_mut,
          c=freq, alpha=0.2)
 plt.xlabel("GEA p-values")
 plt.ylabel("$LF_{mut}$")
-plt.colorbar()
+plt.colorbar().set_label("Allele frequency")
 plt.tight_layout()
 plt.savefig(figPath+model_name+"_corGEpvalue_vs_LF_mut_freqColor.png",
             dpi=300)
@@ -1032,7 +1069,7 @@ plt.xticks(ticks=np.arange(100/num_cat, 101, 100/num_cat),
 # plt.savefig(figPath+model_name+"_proportionGEABHp_vs_age.png",
 #             dpi=300)
 plt.tight_layout()
-plt.savefig(figPath+model_name+str(num_cat)+"_minLF"+str(LF_min)+"_"+
+plt.savefig(figPath+model_name+"_minLF"+str(LF_min)+"_"+
             str(num_cat)+"bins"+"_TPR_lfmut1percent_GEABHp0.05_vs_age.png",
             dpi=300)
 plt.close()
@@ -1050,7 +1087,7 @@ plt.xticks(ticks=np.arange(100/num_cat, 101, 100/num_cat),
 # plt.savefig(figPath+model_name+"_proportionGEABHp_vs_age.png",
 #             dpi=300)
 plt.tight_layout()
-plt.savefig(figPath+model_name+str(num_cat)+"_minLF"+str(LF_min)+"_"+
+plt.savefig(figPath+model_name+"_minLF"+str(LF_min)+"_"+
             str(num_cat)+"bins"+"_FPR_lfmut1percent_GEABHp0.05_vs_age.png",
             dpi=300)
 plt.close()
@@ -1069,7 +1106,7 @@ plt.xticks(ticks=np.arange(100/num_cat, 101, 100/num_cat),
 # plt.savefig(figPath+model_name+"_proportionGEABHp_vs_age.png",
 #             dpi=300)
 plt.tight_layout()
-plt.savefig(figPath+model_name+str(num_cat)+"_minLF"+str(LF_min)+"_"+
+plt.savefig(figPath+model_name+"_minLF"+str(LF_min)+"_"+
             str(num_cat)+"bins"+"_FDR_lfmut1percent_GEABHp0.05_vs_age.png",
             dpi=300)
 plt.close()
