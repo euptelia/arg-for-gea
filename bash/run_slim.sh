@@ -24,8 +24,48 @@
 #     slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_patchyMap.slim
 # done
 
-for i in {1..10} #in ten batches
+# for i in {1..10} #in ten batches
+# do
+#     slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M0b_glacialHistory.slim
+# done
+
+# for i in {1..100} #in one batch
+# do
+#     slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_patchyMap.slim
+# done
+
+# for i in {1..25} #in four batches
+# do
+#     slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_clineMap.slim
+# done
+
+# for i in {1..25} #in four batches
+# do
+#     slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_patchyMap.slim
+# done
+
+# for i in {1..25} #in four batches
+# do
+#     slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_clineMap.slim
+# done
+
+#for i in {1..25} #in four batches
+#do
+#    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M0b_glacialHistory.slim
+#done
+
+#for i in {1..5} #in 20 batches
+#do
+#    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_clineMap.slim
+#done
+
+#for i in {1..100} #in 1 batch
+#do
+#    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_clineMap.slim
+#done
+
+for i in {1..100} #in 1 batch
 do
-    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M0b_glacialHistory.slim
+    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_clineMap_temp.slim
 done
 

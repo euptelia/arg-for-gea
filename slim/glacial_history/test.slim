@@ -4,7 +4,7 @@ initialize() {
 	defineConstant("seed", rdunif(1, 0, asInteger(2^62) - 1));
 	setSeed(seed);
 	// mutation rate
-	defineConstant("mu", 1e-9);
+	defineConstant("mu", 1e-8);
 	// genome size: 10 Mb
 	defineConstant("L", 1e7); //
 	// carrying capacity density: capacity when uniformly distributed
@@ -13,21 +13,21 @@ initialize() {
 	//  reproduction rate
 	defineConstant("R", 0.2);
 	// Sd of mutation effect size on trait value
-	defineConstant("sigma_M", 0.1);
+	defineConstant("sigma_M", 0.01);
 	// Sd of fitness function (selection curve)
 	defineConstant("sigma_W", 0.4);
 	// Sd of dispersion (centered on parent 1)
-	defineConstant("sigma_D", 0.03);
+	defineConstant("sigma_D", 0.06);
 	//	// Competition kernal width: compD/3
 	//	defineConstant("S", 1e-2);
 	// Max distance for competition: 30m/3km
 	defineConstant("compD", 3e-2);
 	// Max distance for mate choice: 300m/3km
-	defineConstant("mateD", 0.12);
+	defineConstant("mateD", 0.15);
 	// Max strength for competition
 	defineConstant("maxCompStrength", 1.0);
 //	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/");
-	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum_0/M2b_lowPoly_lowMig_clineMap/");
+	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum_0/M2b_highPoly_highMig_clineMap/");
 	//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/m2b_mu1e-7_m0.1_w0.4/");
 	
 	// defineConstant("outDir", "D:/UBC_office/slim/output/");
@@ -127,10 +127,10 @@ mutationEffect(m2) {
 	p0.individuals.y = runif(p0.individualCount);
 	p0.individuals.z = p0.individuals.sumOfMutationsOfType(m2);
 	// Homogeneous stabilizing selection in the initial envrionment
-//	defineConstant("mapValues", matrix(c(0,0,0,0), ncol=2));
+   defineConstant("mapValues1", matrix(c(0.5,0.5,0.5,0.5), ncol=2));
+//	defineGlobal("mapValues", matrix(c(0,0,0,0), ncol=2));
 //	defineGlobal("mapValues", matrix(c(0.5,0.5,0.5,0.5), ncol=2));
-   defineGlobal("mapValues", matrix(c(0,0,0,0), ncol=2));
-	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,
+	p0.defineSpatialMap("map1", "xy", mapValues1, interpolate=T,
 		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
 }
 
@@ -168,7 +168,7 @@ mutationEffect(m2) {
 }
 
 // Expansion is allowed after t1 generations
-100001: reproduction() {
+1001: reproduction() {
 	//print(length(p0.individuals));
 	// 10 nearby trees
 	neighbors = i2.nearestNeighbors(individual, 10);
@@ -190,15 +190,15 @@ mutationEffect(m2) {
 }
 
 // Heterogeneous selection occured after t1 generations
-100001 early(){
-	//defineConstant("mapValues2", matrix(c(0,0,1,1), ncol=2));
-	defineGlobal("mapValues", matrix(c(0,0,1,1), ncol=2));
-	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,
+1001 early(){
+   defineConstant("mapValues2", matrix(c(0,0,1,1), ncol=2));
+//	defineGlobal("mapValues", matrix(c(0,0,1,1), ncol=2));
+	p0.defineSpatialMap("map1", "xy", mapValues2, interpolate=T,
 		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
 }
 
 // An early sample right after expansion and local adaptation
-101000 late() {
+2000 late() {
 	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
 	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_" + 
 	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
@@ -213,7 +213,7 @@ mutationEffect(m2) {
 //	sim.simulationFinished();
 //}
 
-110000 late() {
+11000 late() {
 	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
 	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_" + 
 	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 

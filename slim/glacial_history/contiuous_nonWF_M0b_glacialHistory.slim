@@ -4,7 +4,7 @@ initialize() {
 	defineConstant("seed", rdunif(1, 0, asInteger(2^62) - 1));
 	setSeed(seed);
 	// mutation rate
-	defineConstant("mu", 1e-8);
+	defineConstant("mu", 1e-9);
 	// genome size: 10 Mb
 	defineConstant("L", 1e7); //
 	// carrying capacity density: capacity when uniformly distributed
@@ -13,7 +13,7 @@ initialize() {
 	//  reproduction rate
 	defineConstant("R", 0.2);
 	// Sd of mutation effect size on trait value
-	defineConstant("sigma_M", 0.01);
+	defineConstant("sigma_M", 0.1);
 	// Sd of fitness function (selection curve)
 	defineConstant("sigma_W", 0.4);
 	// Sd of dispersion (centered on parent 1)
@@ -26,7 +26,7 @@ initialize() {
 	defineConstant("mateD", 0.15);
 	// Max strength for competition
 	defineConstant("maxCompStrength", 1.0);
-	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/glacial_history/M0b_highPoly_highMig/");
+	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/glacial_history/M0b_lowPoly_highMig/");
 	//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/m2b_mu1e-7_m0.1_w0.4/");
 	
 	// defineConstant("outDir", "D:/UBC_office/slim/output/");
@@ -229,7 +229,7 @@ mutationEffect(m2) {
 // An early sample 
 101000 late() {
 	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
-	sim.treeSeqOutput(outDir + "Continuous_nonWF_M0b_glacialHistory_clineMap_" +
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M0b_glacialHistory_" +
 		"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W +
 		"_sigmaD" + sigma_D + "_mateD" + mateD +
 		"_seed" + seed + "_tick" + sim.cycle + ".trees",
@@ -244,7 +244,7 @@ mutationEffect(m2) {
 
 110000 late() {
 	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
-	sim.treeSeqOutput(outDir + "Continuous_nonWF_M0b_glacialHistory_clineMap_" +
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M0b_glacialHistory_" +
 		"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W +
 		"_sigmaD" + sigma_D + "_mateD" + mateD +
 		"_seed" + seed + "_tick" + sim.cycle + ".trees",

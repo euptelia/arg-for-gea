@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 nBatch=4
-inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/M0b_highPoly_highMig/"
+# inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/M0b_highPoly_highMig/"
+# inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/M2b_highPoly_lowMig_patchyMap/"
+# inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum_0/M2b_highPoly_lowMig_clineMap/"
+inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum_0/M2b_lowPoly_lowMig_clineMap/"
+cd ${inPath}
 cd ${inPath}
 nfiles=$(ls *.trees | wc -l)
 nPerbatch=$((nfiles / nBatch))
