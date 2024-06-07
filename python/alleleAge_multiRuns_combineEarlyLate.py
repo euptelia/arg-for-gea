@@ -157,7 +157,9 @@ inPath1 = "/home/tianlin/Documents/github/data/tskit_data/output/table/historica
 inPath2 = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum_0/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15/tick110000/"
 # short_model_name = args.name
 short_model_name = inPath1.split("/")[-3]
-figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240509/" +
+# figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240509/" +
+#            short_model_name + "/")
+figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/202405022/" +
            short_model_name + "/")
 # outPath = ("/home/tianlin/Documents/github/data/tskit_data/output/multiple_runs/" +
 #            short_model_name + "/")
@@ -355,10 +357,12 @@ df2 = pandas.DataFrame(data=dataTable_t2,
 early_lf_mean = np.mean(lf_sum1)
 late_lf_mean = np.mean(lf_sum2)
 rela_diff = (late_lf_mean - early_lf_mean)/late_lf_mean
-labels = ["generation 1000", "generation 10000"]
+labels = ["Generation\n 1 000", "Generation\n 10 000"]
+plt.figure(figsize=(4,4))
 plt.boxplot([lf_sum1, lf_sum2],
             labels = labels)
 plt.ylabel("LF")
+plt.ylim(0, 0.2)
 plt.savefig(figPath + str(model_name) + "_relativeDiff" + str(round(rela_diff, 3)) + "_totalLF.png",
             dpi=300)
 plt.close()

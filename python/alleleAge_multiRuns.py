@@ -67,7 +67,9 @@ inPath = args.input
 # short_model_name = args.name
 short_model_name = inPath.split("/")[-3]
 
-figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240516/" +
+# figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240516/" +
+#            short_model_name + "/100runs_" + inPath.split("/")[-2]+"/")
+figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240522/" +
            short_model_name + "/100runs_" + inPath.split("/")[-2]+"/")
 outPath = ("/home/tianlin/Documents/github/data/tskit_data/output/multiple_runs/" +
            short_model_name + "/100runs_" + inPath.split("/")[-2]+"/")
@@ -167,7 +169,7 @@ plt.scatter(p_rank, dataTable[7],
          c=age_rank_bin, alpha=0.05)
 plt.xlabel("GEA p-values ranks")
 plt.ylabel("Relative $LF_{mut}$")
-plt.colorbar().set_label("Age rank bins \n (10000 alleles per bin)")
+plt.colorbar().set_label("Age rank bins \n (10 000 alleles per bin)")
 plt.tight_layout()
 plt.savefig(figPath+model_name+"_corGEpvalueRank_vs_relativeLFmut_ageBinColor2.png",
             dpi=300)
@@ -503,8 +505,8 @@ ax.axhline(0, color='grey', lw=1, dashes=(1,1))
 plt.xlabel("|Mutation phenotypic effect size|")
 plt.ylabel("Total relative contribution to local adaptation" +
            "\n" + "from the size class")
-# plt.xlim(0, 0.05) # High polygenicity
-plt.xlim(0, 0.40) # Low polygenicity
+plt.xlim(0, 0.05) # High polygenicity
+# plt.xlim(0, 0.40) # Low polygenicity
 plt.ylim(-0.08, 0.2)
 ax.legend(loc="upper right")
 ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
@@ -626,6 +628,8 @@ plt.bar(x, y1, color="mediumaquamarine",
 plt.bar(x, y2, color="saddlebrown",
        label="Negative",
        width=0.035)
+plt.ylim(-0.1, 0.2) #temperary use
+# plt.ylim(0, 0.35) # A value for all 8 combinations
 plt.axhline(0, color='grey', lw=1, dashes=(1,1))
 # plt.xticks(ticks=np.arange(0, max(x), 1),
 #            labels=['{:0.2e}'.format(i)
