@@ -50,8 +50,8 @@ args = parser.parse_args()
 # sigma_w = 0.4
 # dist_mate = 0.12
 num_runs = 100
-inPath = args.input
-
+# inPath = args.input
+inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum_0/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12/tick110000/"
 
 # short_model_name = "m2b_highPoly_lowMig_clineMap"
 # inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/Continuous_nonWF_M2b_glacialHistory_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12/tick101000/"
@@ -69,7 +69,10 @@ short_model_name = inPath.split("/")[-3]
 
 # figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240516/" +
 #            short_model_name + "/100runs_" + inPath.split("/")[-2]+"/")
-figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240522/" +
+# figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240522/" +
+#            short_model_name + "/100runs_" + inPath.split("/")[-2]+"/")
+
+figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240605/" +
            short_model_name + "/100runs_" + inPath.split("/")[-2]+"/")
 outPath = ("/home/tianlin/Documents/github/data/tskit_data/output/multiple_runs/" +
            short_model_name + "/100runs_" + inPath.split("/")[-2]+"/")
@@ -519,18 +522,18 @@ plt.close()
 
 
 # Sum of LF from the age class ~ Allele age
-num_cat = 25 # Number of categories for allele age
+num_cat = 100 # Number of categories for allele age
 # lf_sum = []
 lf_sum_positive = []
 lf_sum_negative = []
-age = np.log10(df["age"])
-# age = df["age"]
-age_cats = np.append(np.arange(0, max(age), max(age)/num_cat),
-                     max(age))
+# age = np.log10(df["age"])
+age = df["age"]
+age_cats = np.append(np.arange(0, tick, tick/num_cat),
+                     tick)
 for i in range(num_cat):
     lf_category = df["relative_lf"][np.logical_and(age > age_cats[i],
                                               age <= age_cats[i+1])]
-    lf_sum.append(sum(lf_category)/num_runs)
+    # lf_sum.append(sum(lf_category)/num_runs)
     lf_sum_positive.append(sum(lf_category[lf_category > 0])/num_runs)
     lf_sum_negative.append(sum(lf_category[lf_category < 0])/num_runs)
 
@@ -566,6 +569,37 @@ for i in range(num_cat):
 #             dpi=300)
 # plt.close()
 
+# # bar plot: in log10 scale
+# plt.figure(1)
+# lf_sum_positive = np.array(lf_sum_positive)
+# lf_sum_negative = np.array(lf_sum_negative)
+# x = age_cats[1:]
+# y1 = lf_sum_positive
+# y2 = lf_sum_negative
+# plt.bar(x, y1, color="mediumaquamarine",
+#        label="Positive",
+#        width=0.18)
+# plt.bar(x, y2, color="saddlebrown",
+#        label="Negative",
+#        width=0.18)
+# plt.axhline(0, color='grey', lw=1, dashes=(1,1))
+# plt.axvline(np.log10(event_age), color='firebrick', lw=1, dashes=(2,1))
+# plt.xticks(ticks=np.arange(0, max(x), 1),
+#            labels=['{:0.2e}'.format(i)
+#                    for i in 10**np.arange(0, max(x), 1)])
+# plt.tick_params(axis='x', rotation=45)
+# plt.xlabel("Allele age (generation)")
+# plt.ylabel("Total relative contribution to local adaptation" +
+#            "\n" + "from the age class")
+# ax.legend(loc="upper right")
+# ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
+# # ax.margins(x=0)
+# plt.tight_layout()
+# plt.savefig(figPath+model_name+"_"+str(num_cat) + "bins"+
+#             "_LF_by_log10age_bin_positveAndnegative_lfRelative2EachRun.png",
+#             dpi=300)
+# plt.close()
+
 # bar plot
 plt.figure(1)
 lf_sum_positive = np.array(lf_sum_positive)
@@ -575,25 +609,28 @@ y1 = lf_sum_positive
 y2 = lf_sum_negative
 plt.bar(x, y1, color="mediumaquamarine",
        label="Positive",
-       width=0.18)
+       width=max(age)*0.9/num_cat)
 plt.bar(x, y2, color="saddlebrown",
        label="Negative",
-       width=0.18)
+       width=max(age)*0.9/num_cat)
+plt.xlim(0, tick)
 plt.axhline(0, color='grey', lw=1, dashes=(1,1))
-plt.axvline(np.log10(event_age), color='firebrick', lw=1, dashes=(2,1))
-plt.xticks(ticks=np.arange(0, max(x), 1),
-           labels=['{:0.2e}'.format(i)
-                   for i in 10**np.arange(0, max(x), 1)])
+plt.axvline(event_age, color='firebrick', lw=1, dashes=(2,1))
+# plt.xticks(ticks=np.arange(0, max(x), max(x)/10),
+#            labels=['{:0.2e}'.format(i)
+#                    for i in np.arange(0, max(x), max(x)/10)])
+plt.xticks(ticks=range(0, tick, 10000),
+           labels=[str(i) for i in range(0, tick, 10000)])
 plt.tick_params(axis='x', rotation=45)
 plt.xlabel("Allele age (generation)")
 plt.ylabel("Total relative contribution to local adaptation" +
            "\n" + "from the age class")
-ax.legend(loc="upper right")
-ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
+plt.legend(loc="upper right")
+# ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
 # ax.margins(x=0)
 plt.tight_layout()
 plt.savefig(figPath+model_name+"_"+str(num_cat) + "bins"+
-            "_LF_by_log10age_bin_positveAndnegative_lfRelative2EachRun.png",
+            "_LF_by_age_bin_positveAndnegative_lfRelative2EachRun.png",
             dpi=300)
 plt.close()
 

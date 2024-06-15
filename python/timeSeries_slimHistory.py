@@ -148,18 +148,23 @@ path_file_basename = args.input
 # path_file_basename = "/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum0_timeSeries/M2b_highPoly_lowMig_clineMap/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_seed1605901219043795304_tick"
 model_name = "_".join(path_file_basename.split("/")[-1].split("_")[0:-2])
 seed = path_file_basename.split("_")[-2]
-figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240605/"
+# figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240605/"
+figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240613/"
 outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/"
-outPath = outBasePath + model_name + "/"
+outPath = outBasePath + model_name + "_seed" + seed + "/"
 if not os.path.exists(outPath):
     os.makedirs(outPath)
 if not os.path.exists(figPath):
     os.makedirs(figPath)
 
 mean_lf_list = []
-times = [50, 100, 200, 300, 400, 800, 1000, 2000, 4000, 10000,
-         20000, 40000, 100000]
+# times = [50, 100, 200, 300, 400, 800, 1000, 2000, 4000, 10000,
+#          20000, 40000, 100000]
 # times = [50, 100, 200, 300, 400, 800, 1000, 2000, 4000, 10000]
+# 18 samples
+times = np.array([50, 100, 200, 300, 400, 800,
+                  1000, 2000, 4000, 6000, 8000,
+                  10000, 20000, 30000, 40000, 60000, 80000, 100000])
 corPE = []
 LFs = []
 gea_goals = []
