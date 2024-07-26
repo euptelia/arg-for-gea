@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import scipy.stats as stats
 from scipy.spatial import distance_matrix
 import numpy as np
+import pandas
 import random
 from time import time
 import sys # for sys.exit()
@@ -101,6 +102,9 @@ def LF_fitness(ind_x, ind_y, phenotype,
     return w_local, w_foreign
 
 ############################# program #########################################
+# M1b
+path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum0_timeSeries_4PolyLevels/M0b_lowMig_clineMap/Continuous_nonWF_M0b_glacialHistoryOptimum0_clineMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07_seed291124602772770173_tick110000.trees"
+
 # Values
 sigma_w = 0.4
 # sigma_w = 1.0
@@ -170,6 +174,8 @@ short_model_name = "_".join(file_name.split("_")[0:-2])
 # Test "no standing variation problem"
 # model_name = "Continuous_nonWF_M2a_msprimeHistory_mu1.0e-09_r1.0e-07_sigmaM0.1_sigmaW0.4_sigmaD0.02_mateD0.1_seed1455097569078309823_tick100"
 
+
+
 # Test glacial model
 # model_name = "Continuous_nonWF_M2b_glacialHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4_seed4459818163778896215_tick110000"
 # model_name="Continuous_nonWF_M2b_glacialHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4_seed3619471502973802965_tick100800"
@@ -181,12 +187,12 @@ short_model_name = "_".join(file_name.split("_")[0:-2])
 # inPath = "/home/tianlin/Documents/github/data/slim_data/glacial_history/M2b_highPoly_highMig_patchyMap/"
 # figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/"
 # figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240426/"
-figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/202405022/"
+figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240722/"
 # outPath = "/home/tianlin/Documents/github/data/tskit_data/output/"
 # outPath = "/home/tianlin/Documents/github/data/tskit_data/output/Continuous_nonWF_M2b_glacialHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.1_mateD0.2/"
 # outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/"
 # path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum_0/M2b_highPoly_lowMig_clineMap/batch1/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_seed166332697017507196_tick110000.trees"
-outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum_0/"
+outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/"
 # outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum_0/test/"
 outPath = outBasePath+short_model_name+"/"
 if not os.path.exists(outPath):
@@ -469,7 +475,7 @@ p_BH_no_nan = stats.false_discovery_control(p_no_nan)
 p_BH = np.full(shape=len(cor_GE[1]), fill_value=np.nan)
 p_BH[~p_mask] = p_BH_no_nan
 
-# True positive rate, False negative rate, False discovery rate
+# True positive rate, False negative rate, False discovery rate for all mutations
 # True adaptive allele: account for more than LF_min percent of positve LF_mut
 # GEA significant: BH-adjusted p-value < 0.05
 LF_positive = sum(delta_LF_mut[delta_LF_mut>0])
@@ -499,6 +505,103 @@ for i in range(num_cat):
     TPR.append(TP/(TP+FN))
     FPR.append(FP/(TN+FP))
     FDR.append(FP/(TP+FP))
+
+
+#### Separate neutral alleles
+# mutation ID, allele age, allele frequency, mutation effect, LF_mut,
+# GEA Kendall's tau and corresponding p-value
+df = np.array([age,
+               freq,
+               mut_effect,
+               cor_GE[0],
+               cor_GE[1]])
+df_neutral = pandas.DataFrame(data=df.transpose(),
+                              columns=["age", "freq", "effect_size",
+                                       "tau", "p"])
+del df
+# Separate neutral alleles and remove lost or fixed alleles
+df_neutral = df_neutral[(df_neutral["effect_size"] == 0) &
+                        (df_neutral["freq"] != 0) &
+                        (df_neutral["freq"] != 1)]
+num_neutral_muts = df_neutral.shape[0]
+
+
+# False negative rate for NEUTRAL mutations among AGE categories
+# Equal numbers
+num_cat = 10
+cat_width = int(100/num_cat) if 100 % num_cat == 0 else 100/num_cat
+age_percentile = np.percentile(df_neutral["age"],
+                               np.append(np.arange(0, 100, cat_width),
+                                         100))
+FPR_neutral_byAge = []
+for i in range(num_cat):
+    p_category = df_neutral["p"][(df_neutral["age"] > age_percentile[i]) &
+                                 (df_neutral["age"] <= age_percentile[i+1])]
+    # Neutral mutations have no phenotypic effect and therefore no positive
+    mut_in_cat = len(p_category)
+    obsP_neutral = p_category < 0.05
+    # All positives are false positives
+    FP = sum(obsP_neutral)
+    FPR_neutral_byAge.append(FP/mut_in_cat)
+
+# False negative rate for NEUTRAL mutations among AGE categories
+# Equal width
+num_cat_age = 10
+max_age = ts.metadata['SLiM']['tick']
+cat_width_age = max_age/num_cat_age
+age_boundaries = np.append(np.arange(0, max_age, cat_width_age), max_age)
+FPR_neutral_byAge_equalWidth = []
+sample_size_age = []
+for i in range(num_cat_age):
+    p_category = df_neutral["p"][(df_neutral["age"] > age_boundaries[i]) &
+                                 (df_neutral["age"] <= age_boundaries[i+1])]
+    sample_size_age.append(len(p_category))
+    # Neutral mutations have no phenotypic effect and therefore no positive
+    mut_in_cat = len(p_category)
+    obsP_neutral = p_category < 0.05
+    # All positives are false positives
+    FP = sum(obsP_neutral)
+    FPR_neutral_byAge_equalWidth.append(FP/mut_in_cat)
+
+# False negative rate for NEUTRAL mutations among FREQUENCY categories
+# Equal numbers
+# Neutral mutations have no phenotypic effect and therefore no positve
+num_cat = 10
+cat_width = int(100/num_cat) if 100 % num_cat == 0 else 100/num_cat
+freq_percentile = np.percentile(df_neutral["freq"],
+                               np.append(np.arange(0, 100, cat_width),100))
+FPR_neutral_byFreq = []
+for i in range(num_cat):
+    if freq_percentile[i] != freq_percentile[i+1]:
+        p_category = df_neutral["p"][(df_neutral["freq"] > freq_percentile[i]) &
+                                     (df_neutral["freq"] <= freq_percentile[i+1])]
+    else:
+        # The frequency of singletons exceed bin width: Use the all singletons
+        p_category = df_neutral["p"][df_neutral["age"] == age_percentile[i]]
+    # Neutral mutations have no phenotypic effect and therefore no positive
+    mut_in_cat = len(p_category)
+    obsP_neutral = p_category < 0.05
+    # All positives are false positives
+    FP = sum(obsP_neutral)
+    FPR_neutral_byFreq.append(FP/mut_in_cat)
+
+# False negative rate for NEUTRAL mutations among FREQ categories
+# Equal intervals
+num_cat_freq = 10
+cat_width_freq = 1.0/num_cat_freq
+freq_boundaries = np.append(np.arange(0, 1.0, cat_width_freq), 1.0)
+FPR_neutral_byFreq_equalWidth = []
+sample_size_freq = []
+for i in range(num_cat_freq):
+    p_category = df_neutral["p"][(df_neutral["freq"] > freq_boundaries[i]) &
+                                 (df_neutral["freq"] <= freq_boundaries[i+1])]
+    sample_size_freq.append(len(p_category))
+    # Neutral mutations have no phenotypic effect and therefore no positive
+    mut_in_cat = len(p_category)
+    obsP_neutral = p_category < 0.05
+    # All positives are false positives
+    FP = sum(obsP_neutral)
+    FPR_neutral_byFreq_equalWidth.append(FP/mut_in_cat)
 
 
 # Fst
@@ -763,6 +866,33 @@ plt.hist(age, bins=100,
 plt.xlabel("Allele age")
 plt.ylabel("Count")
 plt.savefig(figPath+model_name+"_age_hist.png",
+            dpi=300)
+plt.close()
+
+# Histogram of allele freq
+plt.hist(freq, bins=100,
+         color="grey")
+plt.xlabel("Allele frequency")
+plt.ylabel("Count")
+plt.savefig(figPath+model_name+"_freq_hist.png",
+            dpi=300)
+plt.close()
+
+# Histogram of allele age of neutral alleles
+plt.hist(df_neutral["age"], bins=100,
+         color="grey")
+plt.xlabel("Allele age")
+plt.ylabel("Count")
+plt.savefig(figPath+model_name+"_age_hist_neutral.png",
+            dpi=300)
+plt.close()
+
+# Histogram of allele freq of neutral alleles
+plt.hist(df_neutral["freq"], bins=100,
+         color="grey")
+plt.xlabel("Allele frequency")
+plt.ylabel("Count")
+plt.savefig(figPath+model_name+"_freq_hist_neutral.png",
             dpi=300)
 plt.close()
 
@@ -1090,6 +1220,87 @@ plt.savefig(figPath+model_name+"_minLF"+str(LF_min)+"_"+
             dpi=300)
 plt.close()
 
+# Neutral alleles: FPR ～ Allele age, equal number alleles per bin
+plt.plot(np.arange(100/num_cat, 101, 100/num_cat),
+         FPR_neutral_byAge,
+         color="grey")
+plt.xlabel("Allele age percentile bins")
+# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
+plt.ylabel("False positive rate of neutral alleles (FP/(FP+TN))")
+plt.xticks(ticks=np.arange(100/num_cat, 101, 100/num_cat),
+           labels=[(str(i*cat_width)+"-"+str((i+1)*cat_width))
+                   for i in range(num_cat)])
+# plt.savefig(figPath+model_name+"_proportionGEABHp_vs_age.png",
+#             dpi=300)
+plt.tight_layout()
+plt.savefig(figPath+model_name+"_"+
+            str(num_cat)+"bins"+"_FPR_GEAp0.05_vs_age_neutralAllele.png",
+            dpi=300)
+plt.close()
+
+# Neutral alleles: FPR ～ Frequency, equal number alleles per bin
+plt_pos = np.arange(100/num_cat, 101, 100/num_cat)
+plt.plot(plt_pos,
+         FPR_neutral_byFreq,
+         color="grey")
+plt.xlabel("Allele frequency percentile bins")
+# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
+plt.ylabel("False positive rate of neutral alleles (FP/(FP+TN))")
+# for i in range(10):
+#     label = "{:.5f}".format(freq_percentile[i])
+#     print(label)
+#     x = np.arange(100/num_cat-5, 100, 100/num_cat)[i]
+#     y = FPR_neutral_byFreq[i]
+#     plt.annotate(label,
+#                  (x,y))
+#                  # ,
+#                  # textcoords="offset points",
+#                  # xytext=(-0.5, 0.1))
+#     plt.xticks([], minor=False)
+# plt.savefig(figPath+model_name+"_proportionGEABHp_vs_age.png",
+#             dpi=300)
+plt.xticks(ticks=np.arange(100/num_cat, 101, 100/num_cat),
+           labels=[(str(i*cat_width)+"-"+str((i+1)*cat_width))
+                   for i in range(num_cat)])
+plt.tight_layout()
+plt.minorticks_off()
+plt.savefig(figPath+model_name+"_"+
+            str(num_cat)+"bins"+"_FPR_GEAp0.05_vs_freq_neutralAllele.png",
+            dpi=300)
+plt.close()
+
+# Neutral alleles: FPR ～ Allele age, equal intervals
+plt.plot(age_boundaries[0:-1] + cat_width_age/2,
+         FPR_neutral_byAge_equalWidth,
+         color="grey")
+plt.xlabel("Allele age")
+# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
+plt.ylabel("False positive rate of neutral alleles (FP/(FP+TN))")
+plt.xticks(ticks=age_boundaries,
+           labels=[str(int(i)) for i in age_boundaries])
+# plt.savefig(figPath+model_name+"_proportionGEABHp_vs_age.png",
+#             dpi=300)
+plt.tight_layout()
+plt.savefig(figPath+model_name+"_"+
+            str(num_cat)+"bins"+"_FPR_GEAp0.05_vs_age_neutralAllele_equalInterval.png",
+            dpi=300)
+plt.close()
+
+# Neutral alleles: FPR ～ Freq, equal intervals
+plt.plot(freq_boundaries[0:-1] + cat_width_freq/2,
+         FPR_neutral_byFreq_equalWidth,
+         color="grey")
+plt.xlabel("Allele frequency")
+# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
+plt.ylabel("False positive rate of neutral alleles (FP/(FP+TN))")
+plt.xticks(ticks=freq_boundaries,
+           labels=[str(i) for i in freq_boundaries])
+plt.tight_layout()
+plt.savefig(figPath+model_name+"_"+
+            str(num_cat)+"bins"+"_FPR_GEAp0.05_vs_freq_neutralAllele_equalInterval.png",
+            dpi=300)
+plt.close()
+
 
 # FDR ～ Allele age
 plt.plot(np.arange(100/num_cat, 101, 100/num_cat),
@@ -1109,6 +1320,10 @@ plt.savefig(figPath+model_name+"_minLF"+str(LF_min)+"_"+
             dpi=300)
 plt.close()
 
+
+
+
+
 #### Save the data table: quite large, perhaps not a good idea
 # mutation ID, allele age, allele frequency, mutation effect, LF_mut,
 # GEA Kendall's tau and corresponding p-value
@@ -1123,6 +1338,5 @@ np.savetxt(outPath + model_name + "_withNeutralMut_mutSeed" +
            str(mutation_seed) + "_table.txt",
            myTable,
            header="ID, allele_age, allele_freq, effect_size, lf_mut, tau, p")
-
 
 #### Save the data table in loop: less

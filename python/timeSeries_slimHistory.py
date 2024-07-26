@@ -1,6 +1,12 @@
 """
 Explore how the genetic architecture of local adaptation change through time.
 Calculate basic statistics for each time sample.
+The multiple output tables can be further analyzed in timeSeries_multiTimes.py
+
+# Usage:
+python3 timeSeries_slimHistory.py \
+     -i /home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum0_timeSeries_4PolyLevels/M2b_smallHighVm_lowMig_clineMap/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_seed342902065499469520_tick
+
 tianlin.duan42@gmail.com
 2024.06.05
 """
@@ -165,6 +171,10 @@ mean_lf_list = []
 times = np.array([50, 100, 200, 300, 400, 800,
                   1000, 2000, 4000, 6000, 8000,
                   10000, 20000, 30000, 40000, 60000, 80000, 100000])
+# temporary list for unfinished files
+# times = np.array([20000, 30000, 40000, 60000, 80000, 100000])
+# times = np.array([50, 100, 200, 300, 400, 800, 1000,
+#                   2000, 4000, 6000, 8000, 10000])
 corPE = []
 LFs = []
 gea_goals = []
@@ -196,47 +206,47 @@ for i in times:
     mean_LF = np.mean(LF_cline)
     LFs.append(mean_LF)
 
-    # The following part will take a long time:
-    # Skip recapitation and adding neutral mutation steps
-    # Phenotypic effect of each mutation
-    mut_effect = []
-    for mut in ts.mutations():
-        mut_effect.append(mut.metadata['mutation_list'][0]['selection_coeff'])
-    mut_effect = np.array(mut_effect)
-    # Age of each mutation
-    age = ts.mutations_time
-    # Frequency of each mutation
-    freq = []
-    num_samples = ts.num_samples
-    for v in ts.variants():
-        for allele in np.arange(1, v.num_alleles):
-            focal_freq = np.count_nonzero(v.genotypes == allele) / num_samples
-            freq.append(focal_freq)
-    # mean LF and LF_mut of each mutation: takes a long time
-    mean_lf, delta_LF_mut = calculate_lfmut(ts, dist_mate, sigma_w)
-    mean_lf_list.append(mean_lf)
-    # Genomic position of mutations
-    pos_by_mut = ts.sites_position[ts.mutations_site]
-    # Save a table for each time point
-    myTable = np.array([pos_by_mut,
-                        age,
-                        freq,
-                        mut_effect,
-                        delta_LF_mut])
-    np.savetxt(outPath + model_name + "_" + seed + "_tick" + str(current_tick)
-               + "_functionalMut_table.txt",
-               myTable,
-               header="pos, allele_age, allele_freq, effect_size, lf_mut")
-    # Minimum number of alleles for explaining at least 80% positive LF
-    expected_explained_proportion = 0.8
-    positive_lf_mut = delta_LF_mut[delta_LF_mut > 0]
-    sorted_lf_mut = np.array(list(reversed(sorted(positive_lf_mut))))
-    positiveTotal = sum(sorted_lf_mut)
-    cumulative_lf = [0] + [sum(sorted_lf_mut[0:k + 1]) / positiveTotal
-                           for k in range(len(sorted_lf_mut))]
-    # How many alleles do we need to account for 80% of current local adaptation?
-    gea_goal = sum(np.array(cumulative_lf) < expected_explained_proportion)
-    gea_goals.append(gea_goal)
+    # # The following part will take a long time:
+    # # Skip recapitation and adding neutral mutation steps
+    # # Phenotypic effect of each mutation
+    # mut_effect = []
+    # for mut in ts.mutations():
+    #     mut_effect.append(mut.metadata['mutation_list'][0]['selection_coeff'])
+    # mut_effect = np.array(mut_effect)
+    # # Age of each mutation
+    # age = ts.mutations_time
+    # # Frequency of each mutation
+    # freq = []
+    # num_samples = ts.num_samples
+    # for v in ts.variants():
+    #     for allele in np.arange(1, v.num_alleles):
+    #         focal_freq = np.count_nonzero(v.genotypes == allele) / num_samples
+    #         freq.append(focal_freq)
+    # # mean LF and LF_mut of each mutation: takes a long time
+    # mean_lf, delta_LF_mut = calculate_lfmut(ts, dist_mate, sigma_w)
+    # mean_lf_list.append(mean_lf)
+    # # Genomic position of mutations
+    # pos_by_mut = ts.sites_position[ts.mutations_site]
+    # # Save a table for each time point
+    # myTable = np.array([pos_by_mut,
+    #                     age,
+    #                     freq,
+    #                     mut_effect,
+    #                     delta_LF_mut])
+    # np.savetxt(outPath + model_name + "_" + seed + "_tick" + str(current_tick)
+    #            + "_functionalMut_table.txt",
+    #            myTable,
+    #            header="pos, allele_age, allele_freq, effect_size, lf_mut")
+    # # Minimum number of alleles for explaining at least 80% positive LF
+    # expected_explained_proportion = 0.8
+    # positive_lf_mut = delta_LF_mut[delta_LF_mut > 0]
+    # sorted_lf_mut = np.array(list(reversed(sorted(positive_lf_mut))))
+    # positiveTotal = sum(sorted_lf_mut)
+    # cumulative_lf = [0] + [sum(sorted_lf_mut[0:k + 1]) / positiveTotal
+    #                        for k in range(len(sorted_lf_mut))]
+    # # How many alleles do we need to account for 80% of current local adaptation?
+    # gea_goal = sum(np.array(cumulative_lf) < expected_explained_proportion)
+    # gea_goals.append(gea_goal)
 
 # cor(phe, env) ~ time
 plt.figure(figsize=(12,5))
@@ -261,15 +271,15 @@ plt.savefig(figPath + model_name + seed + "_LF_through_time_100000.png",
             dpi=300)
 plt.close()
 
-# gea_goal ~ time
-plt.figure(figsize=(12,5))
-plt.plot(times, gea_goals,
-         marker="o", markersize=5, markerfacecolor="white",
-         color="black")
-plt.xlabel("Generations after the environmental change")
-plt.ylabel("Minimum number of alleles for explaining 80% local adaptation")
-plt.savefig(figPath + model_name + seed + "_geaGoal_through_time_100000.png",
-            dpi=300)
-plt.close()
+# # gea_goal ~ time
+# plt.figure(figsize=(12,5))
+# plt.plot(times, gea_goals,
+#          marker="o", markersize=5, markerfacecolor="white",
+#          color="black")
+# plt.xlabel("Generations after the environmental change")
+# plt.ylabel("Minimum number of alleles for explaining 80% local adaptation")
+# plt.savefig(figPath + model_name + seed + "_geaGoal_through_time_100000.png",
+#             dpi=300)
+# plt.close()
 
 

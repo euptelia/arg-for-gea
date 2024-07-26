@@ -1,5 +1,5 @@
 """
-For crushed jobs, checked which input files have been used and move them into a
+For crushed jobs, check which input files have been used and move them into a
 folder named "used".
 """
 ############################# modules #########################################

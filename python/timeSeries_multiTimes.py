@@ -37,10 +37,25 @@ import glob  #for loading files
 # inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistory_patchyMap_mu1.0e-09_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_seedseed3820987250772412819/Continuous_nonWF_M2b_glacialHistory_patchyMap_mu1.0e-09_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_seed3820987250772412819_tick"
 # inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistory_patchyMap_mu1.0e-09_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_seedseed1111206109971198329/Continuous_nonWF_M2b_glacialHistory_patchyMap_mu1.0e-09_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_seed1111206109971198329_tick"
 
-inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_seedseed3521104240789935238/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_seed3521104240789935238_tick"
+# inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_seedseed3521104240789935238/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_seed3521104240789935238_tick"
 # inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistory_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_seedseed4412267995495713375/Continuous_nonWF_M2b_glacialHistory_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_seed4412267995495713375_tick"
 # inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_seedseed125452272525195840/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_seed125452272525195840_tick"
 # inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistory_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_seedseed3314218593024875116/Continuous_nonWF_M2b_glacialHistory_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_seed3314218593024875116_tick"
+
+# higher mu
+# inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistory_patchyMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_seedseed2738285693785861615/Continuous_nonWF_M2b_glacialHistory_patchyMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_seed2738285693785861615_tick"
+# inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistory_patchyMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_seedseed3230383965073957260/Continuous_nonWF_M2b_glacialHistory_patchyMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_seed3230383965073957260_tick"
+# inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_seedseed342902065499469520/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_seed342902065499469520_tick"
+# inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_seedseed4421638249004261970/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_seed4421638249004261970_tick"
+
+# Lower mu
+# inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistory_patchyMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_seedseed3702620535472569752/Continuous_nonWF_M2b_glacialHistory_patchyMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_seed3702620535472569752_tick"
+# inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistory_patchyMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_seedseed3279662171483765955/Continuous_nonWF_M2b_glacialHistory_patchyMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_seed3279662171483765955_tick"
+# Not working because one file has only one allele, inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_seedseed2783228176023610655/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_seed2783228176023610655_tick"
+# inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_seedseed3551754199028809169/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_seed3551754199028809169_tick"
+
+# Higher migration rate
+inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-06_seedseed1864282251322057274/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-06_seed1864282251322057274_tick"
 
 model_name = "_".join(inPath_filePrefix.split("/")[-1].split("_")[0:-1])
 fileSuffix = "_functionalMut_table.txt"
@@ -68,11 +83,14 @@ fileList = np.char.add(np.char.add(np.array([inPath_filePrefix]),
                                    ticks),
                        np.array([fileSuffix]))
 i = 0
+LFs = []
+gea_goals = []
 for f in fileList:
     focal_tick = times[i]
     focalTable = np.loadtxt(f)
-    # print(np.shape(focalTable))
-    relative_lf_mut = focalTable[4] / sum(focalTable[4])
+    totalLF = sum(focalTable[4])
+    LFs.append(totalLF)
+    relative_lf_mut = focalTable[4] / totalLF
     # Add a column ticks and relative LF_mut
     focalTable = np.concatenate((focalTable,
                                  np.full(shape=(1, np.shape(focalTable)[1]),
@@ -80,6 +98,17 @@ for f in fileList:
                                  [relative_lf_mut]),
                                 axis=0)
     dataTable = np.concatenate((dataTable, focalTable), axis=1)
+
+    # Minimum number of alleles for explaining at least 80% positive LF
+    expected_explained_proportion = 0.8
+    positive_lf_mut = focalTable[4][focalTable[4] > 0]
+    sorted_lf_mut = np.array(list(reversed(sorted(positive_lf_mut))))
+    positiveTotal = sum(sorted_lf_mut)
+    cumulative_lf = [0] + [sum(sorted_lf_mut[0:k + 1]) / positiveTotal
+                           for k in range(len(sorted_lf_mut))]
+    # How many alleles do we need to account for 80% of current local adaptation?
+    gea_goal = sum(np.array(cumulative_lf) < expected_explained_proportion)
+    gea_goals.append(gea_goal)
     i += 1
 
 # Change to pandas dataframe
@@ -105,10 +134,10 @@ plt.savefig(figPath + model_name + "_medianFreq_through_time_100000.png",
             dpi=300)
 plt.close()
 
-# median size ~ time
+# median absolute size ~ time
 median_sizes = []
 for t in times:
-    focal_median = np.median(df[df["time"] == t]["effect_size"])
+    focal_median = np.median(abs(df[df["time"] == t]["effect_size"]))
     median_sizes.append(focal_median)
 
 plt.figure(figsize=(12,5))
@@ -117,7 +146,29 @@ plt.plot(times, median_sizes,
          color="black")
 plt.xlabel("Generations after the environmental change")
 plt.ylabel("Median phenotypic effect size of segregating functional mutations")
-plt.savefig(figPath + model_name + "_medianSize_through_time_100000.png",
+plt.savefig(figPath + model_name + "_medianAbsSize_through_time_100000.png",
+            dpi=300)
+plt.close()
+
+# LF ~ time
+plt.figure(figsize=(12,5))
+plt.plot(times, LFs,
+         marker="o", markersize=5, markerfacecolor="white",
+         color="black")
+plt.xlabel("Generations after the environmental change")
+plt.ylabel("Extent of local adaptation (LF)")
+plt.savefig(figPath + model_name  + "_LF_through_time_100000.png",
+            dpi=300)
+plt.close()
+
+# gea_goal ~ time
+plt.figure(figsize=(12,5))
+plt.plot(times, gea_goals,
+         marker="o", markersize=5, markerfacecolor="white",
+         color="black")
+plt.xlabel("Generations after the environmental change")
+plt.ylabel("Minimum number of alleles for explaining 80% local adaptation")
+plt.savefig(figPath + model_name + "_geaGoal_through_time_100000.png",
             dpi=300)
 plt.close()
 
@@ -165,7 +216,7 @@ plt.stackplot(times, lf_by_freq_positive,
               colors=freq10colors,
               labels=freq_labels)
 plt.xlabel("Generations after the environmental change")
-plt.ylabel("Contribution to local adaptation (sigma LF)")
+plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
 # plt.ylim(0, 1.4)
 plt.legend(loc=(1.01, 0.25),
            title="Allele frequency",
@@ -176,18 +227,43 @@ plt.savefig(figPath + model_name + "_lfByFreq10Bin_stack_through_time_100000.png
             dpi=300)
 plt.close()
 
+# Stacked area, contribution of frequency bins ~ time， 0 - 100 000, add negatives
+plt.figure(figsize=(12, 5))
+plt.stackplot(times, lf_by_freq_positive,
+              colors=freq10colors,
+              labels=freq_labels)
+plt.stackplot(times, lf_by_freq_negative,
+              colors=freq10colors,
+              labels="")
+plt.axhline(y=0, color="grey", linestyle="dotted")
+plt.xlabel("Generations after the environmental change")
+plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
+# plt.ylim(0, 1.4)
+plt.legend(loc=(1.01, 0.25),
+           title="Allele frequency",
+           reverse=True,
+           ncol=1, fontsize="medium")
+plt.tight_layout()
+plt.savefig(figPath + model_name + "_lfByFreq10Bin_stack_positiveAndNegative_through_time_100000.png",
+            dpi=300)
+plt.close()
+
+
 # Zoom in, 0 - 10 000
 # Stacked area, contribution of frequency bins ~ time
 freq10colors = ["#d2ebf3FF", "#9dcde3FF", "#6899CEFF", "#4074cbFF", "#1839aaFF",
                 "#1624a1FF", "#523cb7FF", "#8f69caFF", "#c2a0dfFF", "#e5d0f0FF"]
 freq_labels = ["0-0.1", "0.1-0.2", "0.2-0.3", "0.3-0.4", "0.4-0.5",
                "0.5-0.6", "0.6-0.7", "0.7-0.8", "0.8-0.9", "0.9-1.0"]
-plt.figure(figsize=(12,5))
+index10000 = int(np.where(times == 10000)[0])
+maxY = np.sum(lf_by_freq_positive, axis=0)[index10000] * 1.1
+plt.figure(figsize=(8, 5))
 plt.stackplot(times, lf_by_freq_positive, labels=freq_labels,
               colors=freq10colors)
 plt.xlim(0, 10000)
+plt.ylim(0, maxY)
 plt.xlabel("Generations after the environmental change")
-plt.ylabel("Contribution to local adaptation (sigma LF)")
+plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
 plt.legend(loc=(1.01, 0.25),
            title="Allele frequency",
            reverse=True,
@@ -231,7 +307,7 @@ plt.stackplot(times, lf_by_age_positive,
               colors=age20colors,
               labels=age_labels)
 plt.xlabel("Generations after the environmental change")
-plt.ylabel("Contribution to local adaptation (sigma LF)")
+plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
 # plt.ylim(0, 1.4)
 plt.legend(loc=(1.01, -0.1),
            title="Allele age",
@@ -249,7 +325,7 @@ plt.stackplot(times, lf_by_age_positive, labels=age_labels,
               colors=age20colors)
 plt.xlim(0, 10000)
 plt.xlabel("Generations after the environmental change")
-plt.ylabel("Contribution to local adaptation (sigma LF)")
+plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
 plt.legend(loc=(1.01, -0.1),
            title="Allele age",
            reverse=True,
@@ -292,7 +368,7 @@ plt.stackplot(times, lf_by_muttime_positive,
               colors=time20colors,
               labels=mut_time_labels)
 plt.xlabel("Generations after the environmental change")
-plt.ylabel("Contribution to local adaptation (sigma LF)")
+plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
 # plt.ylim(0, 1.4)
 plt.legend(loc=(1.03, -0.1),
            title="Mutation time (relative to env. change)",
@@ -300,6 +376,27 @@ plt.legend(loc=(1.03, -0.1),
            ncol=1, fontsize="medium")
 plt.tight_layout()
 plt.savefig(figPath + model_name + "_lfByMutTime_20Bin_stack_through_time_100000.png",
+            dpi=300)
+plt.close()
+
+# Stacked area, contribution of frequency bins ~ time， 0 - 100 000，add negative
+plt.figure(figsize=(12, 5))
+plt.stackplot(times, lf_by_muttime_positive,
+              colors=time20colors,
+              labels=mut_time_labels)
+plt.stackplot(times, lf_by_muttime_negative,
+              colors=time20colors,
+              labels="")
+plt.axhline(y=0, color="grey", linestyle="dotted")
+plt.xlabel("Generations after the environmental change")
+plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
+# plt.ylim(0, 1.4)
+plt.legend(loc=(1.03, -0.1),
+           title="Mutation time (relative to env. change)",
+           reverse=True,
+           ncol=1, fontsize="medium")
+plt.tight_layout()
+plt.savefig(figPath + model_name + "_lfByMutTime_20Bin_stack_positiveAndNegativethrough_time_100000.png",
             dpi=300)
 plt.close()
 
@@ -336,7 +433,7 @@ plt.stackplot(times2, lf_by_muttime_positive,
               colors=time20colors)
 # plt.xlim(0, 10000)
 plt.xlabel("Generations after the environmental change")
-plt.ylabel("Contribution to local adaptation (sigma LF)")
+plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
 plt.legend(loc=(1.03, -0.1),
            title="Mutation time (relative to env. change)",
            reverse=True,
@@ -377,7 +474,7 @@ plt.stackplot(times2, lf_by_muttime_positive,
               colors=time20colors)
 # plt.xlim(0, 10000)
 plt.xlabel("Generations after the environmental change")
-plt.ylabel("Contribution to local adaptation (sigma LF)")
+plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
 plt.legend(loc=(1.03, -0.1),
            title="Mutation time (relative to env. change)",
            reverse=True,
@@ -430,7 +527,29 @@ plt.stackplot(times, lf_by_size_positive,
               colors=size20colors,
               labels=size_labels)
 plt.xlabel("Generations after the environmental change")
-plt.ylabel("Contribution to local adaptation (sigma LF)")
+plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
+# plt.ylim(0, 1.4)
+plt.legend(loc=(1.03, -0.1),
+           title="|Phenotypic effect size of mutations|",
+           reverse=True,
+           ncol=1, fontsize="medium")
+plt.tight_layout()
+plt.savefig(figPath + model_name +
+            "_lfBysize20Bin_stack_through_time_100000.png",
+            dpi=300)
+plt.close()
+
+# Stacked area, contribution of size bins ~ time， 0 - 100 000, add negative
+plt.figure(figsize=(12, 5))
+plt.stackplot(times, lf_by_size_positive,
+              colors=size20colors,
+              labels=size_labels)
+plt.stackplot(times, lf_by_size_negative,
+              colors=size20colors,
+              labels="")
+plt.axhline(y=0, color="grey", linestyle="dotted")
+plt.xlabel("Generations after the environmental change")
+plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
 # plt.ylim(0, 1.4)
 plt.legend(loc=(1.03, -0.1),
            title="|Phenotypic effect size of mutations|",
@@ -449,7 +568,7 @@ plt.stackplot(times, lf_by_size_positive, labels=size_labels,
               colors=size20colors)
 plt.xlim(0, 10000)
 plt.xlabel("Generations after the environmental change")
-plt.ylabel("Contribution to local adaptation (sigma LF)")
+plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
 plt.legend(loc=(1.03, -0.1),
            title="|Phenotypic effect size of mutations|",
            reverse=True,
@@ -462,39 +581,39 @@ plt.close()
 
 
 
-# Allele frequencies ~ time
-unique_loci = set(df["pos"])
-# cmap = matplotlib.colormaps["viridis"]
-cmap = plt.cm.viridis
-abs_size = abs(df["effect_size"])
-max_size = max(abs_size)
-
-# fig, ax = plt.subplots()
-# setup the normalization and the colormap
-normalize = matplotlib.colors.Normalize(vmin=0, vmax=0.5)
-colormap = plt.cm.viridis
-for locus in unique_loci.copy():
-    # Remove alleles that were fixed or lost before the environmental change
-    if (sum(df["freq"][df["pos"] == locus]) == len(times) or
-        sum(df["freq"][df["pos"] == locus]) == 0):
-        unique_loci.remove(locus)
-    else:
-        x = df["time"][df["pos"] == locus]
-        y = df["freq"][df["pos"] == locus]
-        # allele_color = cmap(normalize(list(abs_size[df["pos"] == locus])[0]))
-        allele_color = cmap(list(abs_size[df["pos"] == locus])[0]*100)
-        plt.plot(x, y, color=allele_color,
-                alpha = 0.1)
-# scalarmappaple = plt.cm.ScalarMappable(norm=normalize, cmap=colormap)
-# scalarmappaple.set_array(np.sort(abs_size))
-# plt.colorbar()
-plt.axhline(0, color='grey', lw=1, dashes=(1, 1))
-plt.xlabel("Time")
-plt.ylabel("Allele frequency")
-plt.legend(loc="upper right")
-# ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
-plt.margins(x=0)
-plt.savefig(figPath+model_name+"_"+str(num_cat) + "bins"+
-            "_freq_by_time.png",
-            dpi=300)
-plt.close()
+# # Allele frequencies ~ time
+# unique_loci = set(df["pos"])
+# # cmap = matplotlib.colormaps["viridis"]
+# cmap = plt.cm.viridis
+# abs_size = abs(df["effect_size"])
+# max_size = max(abs_size)
+#
+# # fig, ax = plt.subplots()
+# # setup the normalization and the colormap
+# normalize = matplotlib.colors.Normalize(vmin=0, vmax=0.5)
+# colormap = plt.cm.viridis
+# for locus in unique_loci.copy():
+#     # Remove alleles that were fixed or lost before the environmental change
+#     if (sum(df["freq"][df["pos"] == locus]) == len(times) or
+#         sum(df["freq"][df["pos"] == locus]) == 0):
+#         unique_loci.remove(locus)
+#     else:
+#         x = df["time"][df["pos"] == locus]
+#         y = df["freq"][df["pos"] == locus]
+#         # allele_color = cmap(normalize(list(abs_size[df["pos"] == locus])[0]))
+#         allele_color = cmap(list(abs_size[df["pos"] == locus])[0]*100)
+#         plt.plot(x, y, color=allele_color,
+#                 alpha = 0.1)
+# # scalarmappaple = plt.cm.ScalarMappable(norm=normalize, cmap=colormap)
+# # scalarmappaple.set_array(np.sort(abs_size))
+# # plt.colorbar()
+# plt.axhline(0, color='grey', lw=1, dashes=(1, 1))
+# plt.xlabel("Time")
+# plt.ylabel("Allele frequency")
+# plt.legend(loc="upper right")
+# # ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
+# plt.margins(x=0)
+# plt.savefig(figPath+model_name+"_"+str(num_cat) + "bins"+
+#             "_freq_by_time.png",
+#             dpi=300)
+# plt.close()
