@@ -55,11 +55,16 @@ import glob  #for loading files
 # inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_seedseed3551754199028809169/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_seed3551754199028809169_tick"
 
 # Higher migration rate
-inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-06_seedseed1864282251322057274/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-06_seed1864282251322057274_tick"
+# inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-06_seedseed1864282251322057274/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-06_seed1864282251322057274_tick"
+
+# M2a/M2b with gradual env. changes
+inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seedseed4534624264597238764/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed4534624264597238764_tick"
+# inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_seedseed1046020927018857599/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_seed1046020927018857599_tick"
+# inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seedseed2795180817941888406/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed2795180817941888406_tick"
 
 model_name = "_".join(inPath_filePrefix.split("/")[-1].split("_")[0:-1])
 fileSuffix = "_functionalMut_table.txt"
-figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240613/18_samples/" +
+figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240809/" +
            model_name + "/")
 if not os.path.exists(figPath):
     os.makedirs(figPath)
@@ -68,13 +73,47 @@ if not os.path.exists(figPath):
 # times = np.array([50, 100, 200, 300, 400, 800, 1000, 2000, 4000, 10000, 20000,
 #                   40000, 100000])
 # 18 samples
-times = np.array([50, 100, 200, 300, 400, 800,
-                  1000, 2000, 4000, 6000, 8000,
-                  10000, 20000, 30000, 40000, 60000, 80000, 100000])
+# times = np.array([50, 100, 200, 300, 400, 800,
+#                   1000, 2000, 4000, 6000, 8000,
+#                   10000, 20000, 30000, 40000, 60000, 80000, 100000])
+
+# times = np.array([50, 100, 200, 300, 400, 800,
+#                   1000, 2000, 4000, 6000, 8000,
+#                   10000, 20000, 30000, 40000])
+
+# 22 samples
+# times = np.array([100, 200, 300, 400, 800, 1000,
+#                   1100, 1200, 1300, 1400, 1800,
+#                   2000, 4000, 6000, 8000,
+#                   10000, 20000, 30000, 40000, 60000, 80000, 100000])
+
+# 11 samples
+times = np.array([100, 400, 800,
+                  1000, 2000, 4000,
+                  10000, 20000, 40000,
+                  60000, 80000, 100000])
+# times = np.array([0, 100, 200, 400, 600, 800,
+#                   1000, 1200, 1400, 1600, 1800,
+#                   2000, 4000, 6000, 8000,
+#                   10000, 20000, 30000, 40000, 60000, 80000, 100000])
+
 # Zoom in
-# times2 = np.array([50, 100, 200, 300, 400, 800, 1000, 2000, 4000, 10000])
-times2 = np.array([50, 100, 200, 300, 400, 800,
-                   1000, 2000, 4000, 6000, 8000, 10000])
+# times2 = np.array([0, 100, 200, 400, 600, 800,
+#                   1000, 1200, 1400, 1600, 1800,
+#                   2000, 4000])
+# times2 = np.array([100, 200, 300, 400, 800, 1000,
+#                    1100, 1200, 1300, 1400, 1800,
+#                   2000, 4000, 6000, 8000,
+#                   10000])
+times2 = np.array([100, 400, 800,
+                  1000, 4000,
+                  10000])
+# times2 = np.array([0, 100, 200, 400, 600, 800,
+#                   1000, 1200, 1400, 1600, 1800,
+#                   2000, 4000, 6000, 8000,
+#                   10000])
+
+idx_zoom = [list(times).index(t) for t in list(times2)]
 history = 100000
 ticks = np.array([str(t + history) for t in times])
 dataTable = np.empty((7, 0))
@@ -118,37 +157,37 @@ df = pandas.DataFrame(data=dataTable_t,
                                "effect_size", "lf_mut", "time",
                                "relative_lf"])
 
-# median freq ~ time
-median_freqs = []
-for t in times:
-    focal_median = np.median(df[df["time"] == t]["freq"])
-    median_freqs.append(focal_median)
+# # median freq ~ time
+# median_freqs = []
+# for t in times:
+#     focal_median = np.median(df[df["time"] == t]["freq"])
+#     median_freqs.append(focal_median)
+#
+# plt.figure(figsize=(12,5))
+# plt.plot(times, median_freqs,
+#          marker="o", markersize=5, markerfacecolor="white",
+#          color="black")
+# plt.xlabel("Generations after the environmental change")
+# plt.ylabel("Median allele frequency of segregating functional mutations")
+# plt.savefig(figPath + model_name + "_medianFreq_through_time_100000.png",
+#             dpi=300)
+# plt.close()
 
-plt.figure(figsize=(12,5))
-plt.plot(times, median_freqs,
-         marker="o", markersize=5, markerfacecolor="white",
-         color="black")
-plt.xlabel("Generations after the environmental change")
-plt.ylabel("Median allele frequency of segregating functional mutations")
-plt.savefig(figPath + model_name + "_medianFreq_through_time_100000.png",
-            dpi=300)
-plt.close()
-
-# median absolute size ~ time
-median_sizes = []
-for t in times:
-    focal_median = np.median(abs(df[df["time"] == t]["effect_size"]))
-    median_sizes.append(focal_median)
-
-plt.figure(figsize=(12,5))
-plt.plot(times, median_sizes,
-         marker="o", markersize=5, markerfacecolor="white",
-         color="black")
-plt.xlabel("Generations after the environmental change")
-plt.ylabel("Median phenotypic effect size of segregating functional mutations")
-plt.savefig(figPath + model_name + "_medianAbsSize_through_time_100000.png",
-            dpi=300)
-plt.close()
+# # median absolute size ~ time
+# median_sizes = []
+# for t in times:
+#     focal_median = np.median(abs(df[df["time"] == t]["effect_size"]))
+#     median_sizes.append(focal_median)
+#
+# plt.figure(figsize=(12,5))
+# plt.plot(times, median_sizes,
+#          marker="o", markersize=5, markerfacecolor="white",
+#          color="black")
+# plt.xlabel("Generations after the environmental change")
+# plt.ylabel("Median phenotypic effect size of segregating functional mutations")
+# plt.savefig(figPath + model_name + "_medianAbsSize_through_time_100000.png",
+#             dpi=300)
+# plt.close()
 
 # LF ~ time
 plt.figure(figsize=(12,5))
@@ -249,19 +288,19 @@ plt.savefig(figPath + model_name + "_lfByFreq10Bin_stack_positiveAndNegative_thr
 plt.close()
 
 
-# Zoom in, 0 - 10 000
+# Zoom in,
 # Stacked area, contribution of frequency bins ~ time
 freq10colors = ["#d2ebf3FF", "#9dcde3FF", "#6899CEFF", "#4074cbFF", "#1839aaFF",
                 "#1624a1FF", "#523cb7FF", "#8f69caFF", "#c2a0dfFF", "#e5d0f0FF"]
 freq_labels = ["0-0.1", "0.1-0.2", "0.2-0.3", "0.3-0.4", "0.4-0.5",
                "0.5-0.6", "0.6-0.7", "0.7-0.8", "0.8-0.9", "0.9-1.0"]
-index10000 = int(np.where(times == 10000)[0])
-maxY = np.sum(lf_by_freq_positive, axis=0)[index10000] * 1.1
-plt.figure(figsize=(8, 5))
-plt.stackplot(times, lf_by_freq_positive, labels=freq_labels,
+# index10000 = int(np.where(times == 10000)[0])
+# maxY = np.sum(lf_by_freq_positive, axis=0)[index10000] * 1.1
+plt.figure(figsize=(12, 5))
+plt.stackplot(times2, lf_by_freq_positive[:, idx_zoom], labels=freq_labels,
               colors=freq10colors)
-plt.xlim(0, 10000)
-plt.ylim(0, maxY)
+# plt.xlim(0, 10000)
+# plt.ylim(0, maxY)
 plt.xlabel("Generations after the environmental change")
 plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
 plt.legend(loc=(1.01, 0.25),
@@ -269,7 +308,7 @@ plt.legend(loc=(1.01, 0.25),
            reverse=True,
            ncol=1, fontsize="medium")
 plt.tight_layout()
-plt.savefig(figPath + model_name + "_lfByFreq10Bin_stack_through_time_10000.png",
+plt.savefig(figPath + model_name + "_lfByFreq10Bin_stack_through_time_zoomIn.png",
             dpi=300)
 plt.close()
 
@@ -301,39 +340,39 @@ age20colors = ["#FCFDBF", "#FDE4A6", "#FECC8F", "#FEB37B", "#FD9A6A",
 age_labels = ["-".join([str(int(age_cats[i])), str(int(age_cats[i+1]))])
               for i in range(num_cat)]
 
-# Stacked area, contribution of frequency bins ~ time， 0 - 100 000
-plt.figure(figsize=(12, 5))
-plt.stackplot(times, lf_by_age_positive,
-              colors=age20colors,
-              labels=age_labels)
-plt.xlabel("Generations after the environmental change")
-plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
-# plt.ylim(0, 1.4)
-plt.legend(loc=(1.01, -0.1),
-           title="Allele age",
-           reverse=True,
-           ncol=1, fontsize="medium")
-plt.tight_layout()
-plt.savefig(figPath + model_name + "_relativelfByAge20Bin_stack_through_time_100000.png",
-            dpi=300)
-plt.close()
-
-# Zoom in, 0 - 10 000
-# Stacked area, contribution of AGE bins ~ time
-plt.figure(figsize=(12,5))
-plt.stackplot(times, lf_by_age_positive, labels=age_labels,
-              colors=age20colors)
-plt.xlim(0, 10000)
-plt.xlabel("Generations after the environmental change")
-plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
-plt.legend(loc=(1.01, -0.1),
-           title="Allele age",
-           reverse=True,
-           ncol=1, fontsize="medium")
-plt.tight_layout()
-plt.savefig(figPath + model_name + "_lfByAge20Bin_stack_through_time_10000.png",
-            dpi=300)
-plt.close()
+# # Stacked area, contribution of age bins ~ time， 0 - 100 000
+# plt.figure(figsize=(12, 5))
+# plt.stackplot(times, lf_by_age_positive,
+#               colors=age20colors,
+#               labels=age_labels)
+# plt.xlabel("Generations after the environmental change")
+# plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
+# # plt.ylim(0, 1.4)
+# plt.legend(loc=(1.01, -0.1),
+#            title="Allele age",
+#            reverse=True,
+#            ncol=1, fontsize="medium")
+# plt.tight_layout()
+# plt.savefig(figPath + model_name + "_relativelfByAge20Bin_stack_through_time_100000.png",
+#             dpi=300)
+# plt.close()
+#
+# # Zoom in,
+# # Stacked area, contribution of AGE bins ~ time
+# plt.figure(figsize=(12,5))
+# plt.stackplot(times, lf_by_age_positive, labels=age_labels,
+#               colors=age20colors)
+# plt.xlim(0, 10000)
+# plt.xlabel("Generations after the environmental change")
+# plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
+# plt.legend(loc=(1.01, -0.1),
+#            title="Allele age",
+#            reverse=True,
+#            ncol=1, fontsize="medium")
+# plt.tight_layout()
+# plt.savefig(figPath + model_name + "_lfByAge20Bin_stack_through_time_10000.png",
+#             dpi=300)
+# plt.close()
 
 
 
@@ -439,7 +478,7 @@ plt.legend(loc=(1.03, -0.1),
            reverse=True,
            ncol=1, fontsize="medium")
 plt.tight_layout()
-plt.savefig(figPath + model_name + "_lfByMutTime_20Bin_stack_through_time_10000.png",
+plt.savefig(figPath + model_name + "_lfByMutTime_20Bin_stack_through_time_zoomIN.png",
             dpi=300)
 plt.close()
 
@@ -480,7 +519,7 @@ plt.legend(loc=(1.03, -0.1),
            reverse=True,
            ncol=1, fontsize="medium")
 plt.tight_layout()
-plt.savefig(figPath + model_name + "_lfBylog10MutTime_20Bin_stack_through_time_10000.png",
+plt.savefig(figPath + model_name + "_lfBylog10MutTime_20Bin_stack_through_time_zoomIn.png",
             dpi=300)
 plt.close()
 

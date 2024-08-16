@@ -103,9 +103,17 @@
 #done
 
 # high mig
-for i in {1..10} #in 10 batches
+#for i in {1..10} #in 10 batches
+#do
+#    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M0a_glacialHistory_patchyMap_timeSeries_realistic.slim
+#done
+
+#for i in {1..4} #in 5 batches
+#do
+#    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_patchyMap_timeSeries_gradualExpansion_temp1.slim
+#done
+
+for i in {1..4} #in 5 batches
 do
-    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M0a_glacialHistory_patchyMap_timeSeries_realistic.slim
+    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2a_glacialHistory_clineMap_timeSeries_gradualExpansion_temp1.slim
 done
-
-

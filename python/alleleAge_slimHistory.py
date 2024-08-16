@@ -103,7 +103,7 @@ def LF_fitness(ind_x, ind_y, phenotype,
 
 ############################# program #########################################
 # M1b
-path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum0_timeSeries_4PolyLevels/M0b_lowMig_clineMap/Continuous_nonWF_M0b_glacialHistoryOptimum0_clineMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07_seed291124602772770173_tick110000.trees"
+# path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum0_timeSeries_4PolyLevels/M0b_lowMig_clineMap/Continuous_nonWF_M0b_glacialHistoryOptimum0_clineMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07_seed291124602772770173_tick110000.trees"
 
 # Values
 sigma_w = 0.4
@@ -187,12 +187,12 @@ short_model_name = "_".join(file_name.split("_")[0:-2])
 # inPath = "/home/tianlin/Documents/github/data/slim_data/glacial_history/M2b_highPoly_highMig_patchyMap/"
 # figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/"
 # figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240426/"
-figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240722/"
+figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240809/one_run/"
 # outPath = "/home/tianlin/Documents/github/data/tskit_data/output/"
 # outPath = "/home/tianlin/Documents/github/data/tskit_data/output/Continuous_nonWF_M2b_glacialHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.1_mateD0.2/"
 # outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/"
 # path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum_0/M2b_highPoly_lowMig_clineMap/batch1/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_seed166332697017507196_tick110000.trees"
-outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/"
+outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/"
 # outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum_0/test/"
 outPath = outBasePath+short_model_name+"/"
 if not os.path.exists(outPath):

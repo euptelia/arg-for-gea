@@ -155,9 +155,10 @@ path_file_basename = args.input
 model_name = "_".join(path_file_basename.split("/")[-1].split("_")[0:-2])
 seed = path_file_basename.split("_")[-2]
 # figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240605/"
-figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240613/"
-outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/"
-outPath = outBasePath + model_name + "_seed" + seed + "/"
+figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240809/one_run/"
+# outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/"
+outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/gradualEnvChange_timeSeries/"
+outPath = outBasePath + model_name + "_" + seed + "/"
 if not os.path.exists(outPath):
     os.makedirs(outPath)
 if not os.path.exists(figPath):
@@ -168,16 +169,25 @@ mean_lf_list = []
 #          20000, 40000, 100000]
 # times = [50, 100, 200, 300, 400, 800, 1000, 2000, 4000, 10000]
 # 18 samples
-times = np.array([50, 100, 200, 300, 400, 800,
-                  1000, 2000, 4000, 6000, 8000,
-                  10000, 20000, 30000, 40000, 60000, 80000, 100000])
-# temporary list for unfinished files
-# times = np.array([20000, 30000, 40000, 60000, 80000, 100000])
-# times = np.array([50, 100, 200, 300, 400, 800, 1000,
-#                   2000, 4000, 6000, 8000, 10000])
-corPE = []
+# times = np.array([50, 100, 200, 300, 400, 800,
+#                   1000, 2000, 4000, 6000, 8000,
+#                   10000, 20000, 30000, 40000, 60000, 80000, 100000])
+#22 samples
+# times = np.array([0, 100, 200, 400, 600, 800,
+#                   1000, 1200, 1400, 1600, 1800,
+#                   2000, 4000, 6000, 8000,
+#                   10000, 20000, 30000, 40000, 60000, 80000, 100000])
+# temporary list
+# times = np.array([100, 200, 300, 400])
+# times = np.array([800, 1000, 1100, 1200])
+# times = np.array([1300, 1400, 1800, 2000])
+# times = np.array([4000, 6000, 8000, 10000])
+# times = np.array([20000, 30000, 40000])
+times = np.array([0, 400, 800, 1000, 4000, 20000, 40000, 60000, 80000, 100000])
 LFs = []
 gea_goals = []
+fileid = 1
+corPE = []
 for i in times:
     path_file_name = path_file_basename + str(i + 100000) + ".trees"
     # Delete seed and tick information for making a directory
@@ -206,50 +216,51 @@ for i in times:
     mean_LF = np.mean(LF_cline)
     LFs.append(mean_LF)
 
-    # # The following part will take a long time:
-    # # Skip recapitation and adding neutral mutation steps
-    # # Phenotypic effect of each mutation
-    # mut_effect = []
-    # for mut in ts.mutations():
-    #     mut_effect.append(mut.metadata['mutation_list'][0]['selection_coeff'])
-    # mut_effect = np.array(mut_effect)
-    # # Age of each mutation
-    # age = ts.mutations_time
-    # # Frequency of each mutation
-    # freq = []
-    # num_samples = ts.num_samples
-    # for v in ts.variants():
-    #     for allele in np.arange(1, v.num_alleles):
-    #         focal_freq = np.count_nonzero(v.genotypes == allele) / num_samples
-    #         freq.append(focal_freq)
-    # # mean LF and LF_mut of each mutation: takes a long time
-    # mean_lf, delta_LF_mut = calculate_lfmut(ts, dist_mate, sigma_w)
-    # mean_lf_list.append(mean_lf)
-    # # Genomic position of mutations
-    # pos_by_mut = ts.sites_position[ts.mutations_site]
-    # # Save a table for each time point
-    # myTable = np.array([pos_by_mut,
-    #                     age,
-    #                     freq,
-    #                     mut_effect,
-    #                     delta_LF_mut])
-    # np.savetxt(outPath + model_name + "_" + seed + "_tick" + str(current_tick)
-    #            + "_functionalMut_table.txt",
-    #            myTable,
-    #            header="pos, allele_age, allele_freq, effect_size, lf_mut")
-    # # Minimum number of alleles for explaining at least 80% positive LF
-    # expected_explained_proportion = 0.8
-    # positive_lf_mut = delta_LF_mut[delta_LF_mut > 0]
-    # sorted_lf_mut = np.array(list(reversed(sorted(positive_lf_mut))))
-    # positiveTotal = sum(sorted_lf_mut)
-    # cumulative_lf = [0] + [sum(sorted_lf_mut[0:k + 1]) / positiveTotal
-    #                        for k in range(len(sorted_lf_mut))]
-    # # How many alleles do we need to account for 80% of current local adaptation?
-    # gea_goal = sum(np.array(cumulative_lf) < expected_explained_proportion)
-    # gea_goals.append(gea_goal)
+    # The following part will take a long time:
+    # Skip recapitation and adding neutral mutation steps
+    # Phenotypic effect of each mutation
+    mut_effect = []
+    for mut in ts.mutations():
+        mut_effect.append(mut.metadata['mutation_list'][0]['selection_coeff'])
+    mut_effect = np.array(mut_effect)
+    # Age of each mutation
+    age = ts.mutations_time
+    # Frequency of each mutation
+    freq = []
+    num_samples = ts.num_samples
+    for v in ts.variants():
+        for allele in np.arange(1, v.num_alleles):
+            focal_freq = np.count_nonzero(v.genotypes == allele) / num_samples
+            freq.append(focal_freq)
+    # mean LF and LF_mut of each mutation: takes a long time
+    mean_lf, delta_LF_mut = calculate_lfmut(ts, dist_mate, sigma_w)
+    mean_lf_list.append(mean_lf)
+    # Genomic position of mutations
+    pos_by_mut = ts.sites_position[ts.mutations_site]
+    # Save a table for each time point
+    myTable = np.array([pos_by_mut,
+                        age,
+                        freq,
+                        mut_effect,
+                        delta_LF_mut])
+    np.savetxt(outPath + model_name + "_" + seed + "_tick" + str(current_tick)
+               + "_functionalMut_table.txt",
+               myTable,
+               header="pos, allele_age, allele_freq, effect_size, lf_mut")
+    print(str(fileid) + " files processed")
+    # Minimum number of alleles for explaining at least 80% positive LF
+    expected_explained_proportion = 0.8
+    positive_lf_mut = delta_LF_mut[delta_LF_mut > 0]
+    sorted_lf_mut = np.array(list(reversed(sorted(positive_lf_mut))))
+    positiveTotal = sum(sorted_lf_mut)
+    cumulative_lf = [0] + [sum(sorted_lf_mut[0:k + 1]) / positiveTotal
+                           for k in range(len(sorted_lf_mut))]
+    # How many alleles do we need to account for 80% of current local adaptation?
+    gea_goal = sum(np.array(cumulative_lf) < expected_explained_proportion)
+    gea_goals.append(gea_goal)
 
 # cor(phe, env) ~ time
-plt.figure(figsize=(12,5))
+plt.figure(figsize=(12, 5))
 plt.plot(times, corPE,
          marker="o", markersize=5, markerfacecolor="white",
          color="black")

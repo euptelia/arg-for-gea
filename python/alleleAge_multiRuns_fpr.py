@@ -53,8 +53,8 @@ num_runs = 20
 # inPath = args.input
 # inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
 # inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
-inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
+inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
+# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
 short_model_name = inPath.split("/")[-3]
 
 figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240722/multiple_runs_fpr/" +
@@ -106,7 +106,7 @@ for f in fileList:
     dataTable = np.concatenate((dataTable, focalTable), axis=1)
     run += 1
 
-# Change to pandas dadaframe
+# Change to pandas dataframe
 dataTable_t = dataTable.transpose()
 df = pandas.DataFrame(data=dataTable_t,
                       columns=["id", "age", "freq",
@@ -114,54 +114,65 @@ df = pandas.DataFrame(data=dataTable_t,
                                "p",
                                "run_id", "p_rank"])
 
-# True positive rate, False negative rate, False discovery rate
-# True adaptive allele: account for more than LF_min percent of positve LF_mut
-# GEA significant: BH-adjusted p-value < 0.05
-LF_min = 0.01
-num_cat = 20
-cat_width = int(100/num_cat) if 100 % num_cat == 0 else 100/num_cat
-age_percentile = np.percentile(dataTable[1],
-                               np.append(np.arange(0, 100, cat_width),
-                                         100))
-event_percentile = stats.percentileofscore(dataTable[1], event_age)
-FPR = []
-for i in range(num_cat):
-    focal_age = np.logical_and(dataTable[1] > age_percentile[i],
-                               dataTable[1] <= age_percentile[i+1])
-    dataTable_category = dataTable[:, focal_age]
-    # num_allele = len(p_BH_category)
-    # proportion_sig.append(sum(p_BH_category < 0.05)/num_allele)
-    expP = dataTable_category[7] > LF_min
-    obsP = dataTable_category[6] < 0.05
-    TP = sum(expP & obsP)
-    FP = sum(~expP & obsP)
-    FN = sum(expP & ~obsP)
-    TN = sum(~expP & ~obsP)
-    FPR.append(FP/(TN+FP))
+# # True positive rate, False negative rate, False discovery rate
+# # True adaptive allele: account for more than LF_min percent of positve LF_mut
+# # GEA significant: BH-adjusted p-value < 0.05
+# LF_min = 0.01
+# num_cat = 20
+# cat_width = int(100/num_cat) if 100 % num_cat == 0 else 100/num_cat
+# age_percentile = np.percentile(dataTable[1],
+#                                np.append(np.arange(0, 100, cat_width),
+#                                          100))
+# event_percentile = stats.percentileofscore(dataTable[1], event_age)
+# FPR = []
+# for i in range(num_cat):
+#     focal_age = np.logical_and(dataTable[1] > age_percentile[i],
+#                                dataTable[1] <= age_percentile[i+1])
+#     dataTable_category = dataTable[:, focal_age]
+#     # num_allele = len(p_BH_category)
+#     # proportion_sig.append(sum(p_BH_category < 0.05)/num_allele)
+#     expP = dataTable_category[7] > LF_min
+#     obsP = dataTable_category[6] < 0.05
+#     TP = sum(expP & obsP)
+#     FP = sum(~expP & obsP)
+#     FN = sum(expP & ~obsP)
+#     TN = sum(~expP & ~obsP)
+#     FPR.append(FP/(TN+FP))
 
 #### Separate neutral alleles
 # mutation ID, allele age, allele frequency, mutation effect, LF_mut,
 # GEA Kendall's tau and corresponding p-value
 # Separate neutral alleles and remove lost or fixed alleles
+# Remove low-frequency alleles as in empirical studies
 df_neutral = df[(df["effect_size"] == 0) &
-                (df["freq"] != 0) &
-                (df["freq"] != 1)]
+                (df["freq"] >= 0.01) &
+                (df["freq"] <= 0.99)]
 num_neutral_muts = df_neutral.shape[0]
 
 # Check here before use
 num_cat = 10
 bin_width = 100/num_cat
 
-# False negative rate for NEUTRAL mutations among AGE categories
+# p,tau and false negative rate for NEUTRAL mutations among AGE categories
 # Equal numbers
 cat_width = int(100/num_cat) if 100 % num_cat == 0 else 100/num_cat
 age_percentile = np.percentile(df_neutral["age"],
                                np.append(np.arange(0, 100, cat_width),
                                          100))
 FPR_neutral_byAge = []
+p_median_byAge = []
+p_sd_byAge = []
+tau_absMedian_byAge = []
+tau_absSd_byAge = []
 for i in range(num_cat):
     p_category = df_neutral["p"][(df_neutral["age"] > age_percentile[i]) &
                                  (df_neutral["age"] <= age_percentile[i+1])]
+    tau_category = df_neutral["tau"][(df_neutral["age"] > age_percentile[i]) &
+                                 (df_neutral["age"] <= age_percentile[i + 1])]
+    p_median_byAge.append(np.median(p_category))
+    p_sd_byAge.append(np.std(p_category))
+    tau_absMedian_byAge.append(np.median(abs(tau_category)))
+    tau_absSd_byAge.append(np.std(abs(tau_category)))
     # Neutral mutations have no phenotypic effect and therefore no positive
     mut_in_cat = len(p_category)
     obsP_neutral = p_category < 0.05
@@ -169,18 +180,27 @@ for i in range(num_cat):
     FP = sum(obsP_neutral)
     FPR_neutral_byAge.append(FP/mut_in_cat)
 
-# False negative rate for NEUTRAL mutations among AGE categories
-# Equal width
+# False negative rate for NEUTRAL mutations among AGE categories: Equal intervals
 num_cat_age = 20
 max_age = tick
 cat_width_age = max_age/num_cat_age
 age_boundaries = np.append(np.arange(0, max_age, cat_width_age), max_age)
 FPR_neutral_byAge_equalWidth = []
-sample_size_age = []
+sample_size_age_equalWidth = []
+p_median_byAge_equalWidth = []
+p_sd_byAge_equalWidth = []
+tau_absMedian_byAge_equalWidth = []
+tau_absSd_byAge_equalWidth = []
 for i in range(num_cat_age):
     p_category = df_neutral["p"][(df_neutral["age"] > age_boundaries[i]) &
                                  (df_neutral["age"] <= age_boundaries[i+1])]
-    sample_size_age.append(len(p_category))
+    tau_category = df_neutral["tau"][(df_neutral["age"] > age_boundaries[i]) &
+                                 (df_neutral["age"] <= age_boundaries[i+1])]
+    sample_size_age_equalWidth.append(len(p_category))
+    p_median_byAge_equalWidth.append(np.median(p_category))
+    p_sd_byAge_equalWidth.append(np.std(p_category))
+    tau_absMedian_byAge_equalWidth.append(np.median(abs(tau_category)))
+    tau_absSd_byAge_equalWidth.append(np.std(abs(tau_category)))
     # Neutral mutations have no phenotypic effect and therefore no positive
     mut_in_cat = len(p_category)
     obsP_neutral = p_category < 0.05
@@ -195,13 +215,21 @@ cat_width = int(100/num_cat) if 100 % num_cat == 0 else 100/num_cat
 freq_percentile = np.percentile(df_neutral["freq"],
                                np.append(np.arange(0, 100, cat_width),100))
 FPR_neutral_byFreq = []
+p_median_byFreq = []
+p_sd_byFreq = []
+tau_absMedian_byFreq = []
+tau_absSd_byFreq = []
 for i in range(num_cat):
-    if freq_percentile[i] != freq_percentile[i+1]:
-        p_category = df_neutral["p"][(df_neutral["freq"] > freq_percentile[i]) &
-                                     (df_neutral["freq"] <= freq_percentile[i+1])]
-    else:
-        # The frequency of singletons exceed bin width: Use the all singletons
-        p_category = df_neutral["p"][df_neutral["age"] == age_percentile[i]]
+    p_category = df_neutral["p"][
+        (df_neutral["freq"] > freq_percentile[i]) &
+        (df_neutral["freq"] <= freq_percentile[i+1])]
+    tau_category = df_neutral["tau"][
+        (df_neutral["freq"] > freq_percentile[i]) &
+        (df_neutral["freq"] <= freq_percentile[i + 1])]
+    p_median_byFreq.append(np.median(p_category))
+    p_sd_byFreq.append(np.std(p_category))
+    tau_absMedian_byFreq.append(np.median(abs(tau_category)))
+    tau_absSd_byFreq.append(np.std(abs(tau_category)))
     # Neutral mutations have no phenotypic effect and therefore no positive
     mut_in_cat = len(p_category)
     obsP_neutral = p_category < 0.05
@@ -209,18 +237,28 @@ for i in range(num_cat):
     FP = sum(obsP_neutral)
     FPR_neutral_byFreq.append(FP/mut_in_cat)
 
-# False negative rate for NEUTRAL mutations among FREQ categories
-# Equal intervals
+# False negative rate for NEUTRAL mutations among FREQ categories: Equal intervals
 num_cat_freq = 20
 cat_width_freq = 1.0/num_cat_freq
 freq_boundaries = np.append(np.arange(0, 1.0, cat_width_freq), 1.0)
 FPR_neutral_byFreq_equalWidth = []
-sample_size_freq = []
+sample_size_freq_equalWidth = []
+p_median_byFreq_equalWidth = []
+p_sd_byFreq_equalWidth = []
+tau_absMedian_byFreq_equalWidth = []
+tau_absSd_byFreq_equalWidth = []
 for i in range(num_cat_freq):
     p_category = df_neutral["p"][(df_neutral["freq"] > freq_boundaries[i]) &
                                  (df_neutral["freq"] <= freq_boundaries[i+1])]
+    tau_category = df_neutral["tau"][(df_neutral["freq"] > freq_boundaries[i]) &
+                                 (df_neutral["freq"] <= freq_boundaries[
+                                     i + 1])]
     print(len(p_category))
-    sample_size_freq.append(len(p_category))
+    sample_size_freq_equalWidth.append(len(p_category))
+    p_median_byFreq_equalWidth.append(np.median(p_category))
+    p_sd_byFreq_equalWidth.append(np.std(p_category))
+    tau_absMedian_byFreq_equalWidth.append(np.median(abs(tau_category)))
+    tau_absSd_byFreq_equalWidth.append(np.std(abs(tau_category)))
     # Neutral mutations have no phenotypic effect and therefore no positive
     mut_in_cat = len(p_category)
     obsP_neutral = p_category < 0.05
@@ -228,101 +266,9 @@ for i in range(num_cat_freq):
     FP = sum(obsP_neutral)
     FPR_neutral_byFreq_equalWidth.append(FP/mut_in_cat)
 
+
+
 #### Plots ####
-# Neutral alleles: FPR ～ Allele age, equal number alleles per bin
-plt.plot(np.arange(100/num_cat, 101, 100/num_cat) + 0.5*bin_width,
-         FPR_neutral_byAge,
-         color="grey",
-         marker = "o")
-plt.xlabel("\n\nAllele age percentile bins")
-# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
-plt.ylabel("False positive rate of neutral alleles (FP/(FP+TN))")
-for i in range(num_cat + 1):
-    label = str(int(age_percentile[i]))
-    x = np.arange(100/num_cat, 101+bin_width, 100/num_cat)[i]
-    y = -0.06 * max(FPR_neutral_byAge)
-    # if i != 0:
-    #     y = (FPR_neutral_byFreq[i] + FPR_neutral_byFreq[i-1])/2
-    # else:
-    #     y = FPR_neutral_byFreq[i] / 2
-    plt.annotate(label,
-                 (x,y),
-                 textcoords="offset points",
-                 xytext=(-0.5*bin_width, -0.5*bin_width),
-                 annotation_clip=False,
-                 color="grey")
-    plt.xticks([], minor=False)
-plt.xticks(ticks=np.arange(100/num_cat, 101+bin_width, 100/num_cat),
-           labels=[str(int(i*cat_width)) for i in range(num_cat+1)])
-plt.tight_layout()
-plt.savefig(figPath+model_name +
-            str(num_cat)+"bins"+"_FPR_GEAp0.05_vs_age_neutralAllele.png",
-            dpi=300)
-plt.close()
-
-# Neutral alleles: FPR ～ Frequency, equal number alleles per bin
-plt_pos = np.arange(100/num_cat, 101, 100/num_cat) - 5
-plt.plot(plt_pos,
-         FPR_neutral_byFreq,
-         color="grey",
-         marker = "o")
-plt.xlabel("\n\n\nAllele frequency percentile bins")
-# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
-plt.ylabel("False positive rate of neutral alleles (FP/(FP+TN))")
-for i in range(num_cat + 1):
-    label = "{:.5f}".format(freq_percentile[i])
-    print(label)
-    x = np.arange(0, 101+bin_width, 100/num_cat)[i]
-    y = -0.30 * max(FPR_neutral_byFreq)
-    plt.annotate(label,
-                 (x,y),
-                 textcoords="offset points",
-                 xytext=(-1*bin_width, 0.5*bin_width),
-                 annotation_clip=False,
-                 color="grey",
-                 rotation = 45)
-    plt.xticks([], minor=False)
-plt.xticks(ticks=np.arange(0, 101, 100/num_cat),
-           labels=[str(int(i*cat_width)) for i in range(num_cat+1)])
-plt.tight_layout()
-plt.savefig(figPath+model_name +
-            str(num_cat)+"bins"+"_FPR_GEAp0.05_vs_freq_neutralAllele.png",
-            dpi=300)
-plt.close()
-
-# Neutral alleles: FPR ～ Allele age, equal intervals
-plt.plot(age_boundaries[0:-1] + cat_width_age/2,
-         FPR_neutral_byAge_equalWidth,
-         color="grey",
-         marker = "o")
-plt.xlabel("Allele age")
-# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
-plt.ylabel("False positive rate of neutral alleles (FP/(FP+TN))")
-plt.xticks(ticks=age_boundaries,
-           labels=[str(int(i)) for i in age_boundaries],
-           rotation=45)
-plt.tight_layout()
-plt.savefig(figPath+model_name +
-            str(num_cat_age)+"bins"+"_FPR_GEAp0.05_vs_age_neutralAllele_equalInterval.png",
-            dpi=300)
-plt.close()
-
-# Neutral alleles: FPR ～ Allele frequency, equal intervals
-plt.plot(freq_boundaries[0:-1] + cat_width_freq/2,
-         FPR_neutral_byFreq_equalWidth,
-         color="grey",
-         marker = "o")
-plt.xlabel("Allele frequency")
-# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
-plt.ylabel("False positive rate of neutral alleles (FP/(FP+TN))")
-plt.xticks(ticks=freq_boundaries,
-           labels=[str(round(i,2)) for i in freq_boundaries],
-           rotation=45)
-plt.tight_layout()
-plt.savefig(figPath + model_name +
-            str(num_cat_freq)+"bins"+"_FPR_GEAp0.05_vs_freq_neutralAllele_equalInterval.png",
-            dpi=300)
-plt.close()
 
 # Histogram of allele age of neutral alleles
 plt.hist(df_neutral["age"], bins=100,
@@ -342,12 +288,397 @@ plt.savefig(figPath+model_name+"_freq_hist_neutral.png",
             dpi=300)
 plt.close()
 
-# Histogram of allele freq of neutral alleles
-plt.hist(df["freq"], bins=100,
-         color="grey")
-plt.xlabel("Allele frequency")
-plt.ylabel("Count")
-plt.savefig(figPath+model_name+"_freq_hist.png",
+
+
+# Neutral alleles: FPR ～ Allele age, equal number alleles per bin
+x_ticks = np.append(np.arange(0, 100, cat_width),100)
+x_labels = [str(i)+"\n"+str(int(j)) for i,j in zip(x_ticks, age_percentile)]
+plt.plot(np.arange(100/num_cat, 101, 100/num_cat) - 0.5*bin_width,
+         FPR_neutral_byAge,
+         color="grey",
+         marker = "o")
+plt.xlabel("\nAllele age percentile bins")
+plt.ylabel("False positive rate of neutral alleles (FP/(FP+TN))")
+plt.xticks(ticks=x_ticks,
+           labels=x_labels)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_FPR_GEAp0.05_vs_age_neutralAllele_equalNumber.png",
             dpi=300)
 plt.close()
+
+# Neutral alleles: p_median ～ Allele age, equal number alleles per bin
+x_ticks = np.append(np.arange(0, 100, cat_width),100)
+x_labels = [str(i)+"\n"+str(int(j)) for i,j in zip(x_ticks, age_percentile)]
+plt.plot(np.arange(100/num_cat, 101, 100/num_cat) - 0.5*bin_width,
+         p_median_byAge,
+         color="grey",
+         marker = "o")
+plt.xlabel("\nAllele age percentile bins")
+plt.ylabel("Median p-values of neutral alleles")
+plt.xticks(ticks=x_ticks,
+           labels=x_labels)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_GEAmedianP_vs_age_neutralAllele_equalNumber.png",
+            dpi=300)
+plt.close()
+
+# Neutral alleles: p_sd ～ Allele age, equal number alleles per bin
+x_ticks = np.append(np.arange(0, 100, cat_width),100)
+x_labels = [str(i)+"\n"+str(int(j)) for i,j in zip(x_ticks, age_percentile)]
+plt.plot(np.arange(100/num_cat, 101, 100/num_cat) - 0.5*bin_width,
+         p_sd_byAge,
+         color="grey",
+         marker = "o")
+plt.xlabel("\nAllele age percentile bins")
+plt.ylabel("Standard deviation of p-values of neutral alleles")
+plt.xticks(ticks=x_ticks,
+           labels=x_labels)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_GEAsdP_vs_age_neutralAllele_equalNumber.png",
+            dpi=300)
+plt.close()
+
+# Neutral alleles: tau_abs_median ～ Allele age, equal number alleles per bin
+x_ticks = np.append(np.arange(0, 100, cat_width),100)
+x_labels = [str(i)+"\n"+str(int(j)) for i,j in zip(x_ticks, age_percentile)]
+plt.plot(np.arange(100/num_cat, 101, 100/num_cat) - 0.5*bin_width,
+         tau_absMedian_byAge,
+         color="grey",
+         marker = "o")
+plt.xlabel("\nAllele age percentile bins")
+plt.ylabel("Median |Kendall's tau| of neutral alleles")
+plt.xticks(ticks=x_ticks,
+           labels=x_labels)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_GEAmedianTau_vs_age_neutralAllele_equalNumber.png",
+            dpi=300)
+plt.close()
+
+
+# Neutral alleles: tau_abs_sd ～ Allele age, equal number alleles per bin
+x_ticks = np.append(np.arange(0, 100, cat_width),100)
+x_labels = [str(i)+"\n"+str(int(j)) for i,j in zip(x_ticks, age_percentile)]
+plt.plot(np.arange(100/num_cat, 101, 100/num_cat) - 0.5*bin_width,
+         tau_absSd_byAge,
+         color="grey",
+         marker = "o")
+plt.xlabel("\nAllele age percentile bins")
+plt.ylabel("Standard deviation of |Kendall's tau| of neutral alleles")
+plt.xticks(ticks=x_ticks,
+           labels=x_labels)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_GEAsdTau_vs_age_neutralAllele_equalNumber.png",
+            dpi=300)
+plt.close()
+
+
+
+
+
+
+# Neutral alleles: FPR ～ Frequency, equal number alleles per bin
+x_ticks = np.append(np.arange(0, 100, cat_width),100)
+x_labels = [str(i)+"\n"+str(round(j,2))
+            for i,j in zip(x_ticks, freq_percentile)]
+plt.plot(np.arange(100/num_cat, 101, 100/num_cat) - 0.5*bin_width,
+         FPR_neutral_byFreq,
+         color="grey",
+         marker = "o")
+plt.xlabel("\nAllele frequency percentile bins")
+plt.ylabel("False positive rate of neutral alleles (FP/(FP+TN))")
+plt.xticks(ticks=x_ticks,
+           labels=x_labels)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_FPR_GEAp0.05_vs_freq_neutralAllele_equalNumber.png",
+            dpi=300)
+plt.close()
+
+# Neutral alleles: p_median ～ Allele frequency, equal number alleles per bin
+x_ticks = np.append(np.arange(0, 100, cat_width),100)
+x_labels = [str(i)+"\n"+str(round(j,2)) for i,j in zip(x_ticks, freq_percentile)]
+plt.plot(np.arange(100/num_cat, 101, 100/num_cat) - 0.5*bin_width,
+         p_median_byFreq,
+         color="grey",
+         marker = "o")
+plt.xlabel("\nAllele frequency percentile bins")
+plt.ylabel("Median p-values of neutral alleles")
+plt.xticks(ticks=x_ticks,
+           labels=x_labels)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_GEAmedianP_vs_freq_neutralAllele_equalNumber.png",
+            dpi=300)
+plt.close()
+
+# Neutral alleles: p_sd ～ Allele frequency, equal number alleles per bin
+x_ticks = np.append(np.arange(0, 100, cat_width),100)
+x_labels = [str(i)+"\n"+str(round(j,2)) for i,j in zip(x_ticks, freq_percentile)]
+plt.plot(np.arange(100/num_cat, 101, 100/num_cat) - 0.5*bin_width,
+         p_sd_byFreq,
+         color="grey",
+         marker = "o")
+plt.xlabel("\nAllele frequency percentile bins")
+plt.ylabel("Standard deviation of p-values of neutral alleles")
+plt.xticks(ticks=x_ticks,
+           labels=x_labels)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_GEAsdP_vs_freq_neutralAllele_equalNumber.png",
+            dpi=300)
+plt.close()
+
+# Neutral alleles: tau_abs_median ～ Allele frequency, equal number alleles per bin
+x_ticks = np.append(np.arange(0, 100, cat_width),100)
+x_labels = [str(i)+"\n"+str(round(j,2)) for i,j in zip(x_ticks, freq_percentile)]
+plt.plot(np.arange(100/num_cat, 101, 100/num_cat) - 0.5*bin_width,
+         tau_absMedian_byFreq,
+         color="grey",
+         marker = "o")
+plt.xlabel("\nAllele frequency percentile bins")
+plt.ylabel("Median |Kendall's tau| of neutral alleles")
+plt.xticks(ticks=x_ticks,
+           labels=x_labels)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_GEAmedianTau_vs_freq_neutralAllele_equalNumber.png",
+            dpi=300)
+plt.close()
+
+# Neutral alleles: tau_abs_sd ～ Allele frequency, equal number alleles per bin
+x_ticks = np.append(np.arange(0, 100, cat_width),100)
+x_labels = [str(i)+"\n"+str(round(j,2)) for i,j in zip(x_ticks, freq_percentile)]
+plt.plot(np.arange(100/num_cat, 101, 100/num_cat) - 0.5*bin_width,
+         tau_absSd_byFreq,
+         color="grey",
+         marker = "o")
+plt.xlabel("\nAllele frequency percentile bins")
+plt.ylabel("Standard deviation of |Kendall's tau| of neutral alleles")
+plt.xticks(ticks=x_ticks,
+           labels=x_labels)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_GEAsdTau_vs_freq_neutralAllele_equalNumber.png",
+            dpi=300)
+plt.close()
+
+# # Neutral alleles: FPR ～ Frequency, equal number alleles per bin
+# plt_pos = np.arange(100/num_cat, 101, 100/num_cat) - 5
+# plt.plot(plt_pos,
+#          FPR_neutral_byFreq,
+#          color="grey",
+#          marker = "o")
+# plt.xlabel("\n\n\nAllele frequency percentile bins")
+# # plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
+# plt.ylabel("False positive rate of neutral alleles (FP/(FP+TN))")
+# for i in range(num_cat + 1):
+#     label = "{:.5f}".format(freq_percentile[i])
+#     print(label)
+#     x = np.arange(0, 101+bin_width, 100/num_cat)[i]
+#     y = -0.30 * max(FPR_neutral_byFreq)
+#     plt.annotate(label,
+#                  (x,y),
+#                  textcoords="offset points",
+#                  xytext=(-1*bin_width, 0.5*bin_width),
+#                  annotation_clip=False,
+#                  color="grey",
+#                  rotation = 45)
+#     plt.xticks([], minor=False)
+# plt.xticks(ticks=np.arange(0, 101, 100/num_cat),
+#            labels=[str(int(i*cat_width)) for i in range(num_cat+1)])
+# plt.tight_layout()
+# plt.savefig(figPath+model_name +
+#             str(num_cat)+"bins"+"_FPR_GEAp0.05_vs_freq_neutralAllele_equalNumber.png",
+#             dpi=300)
+# plt.close()
+
+# Neutral alleles: FPR ～ Allele age, equal intervals
+plt.plot(age_boundaries[0:-1] + cat_width_age/2,
+         FPR_neutral_byAge_equalWidth,
+         color="grey",
+         marker = "o")
+plt.xlabel("Allele age")
+# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
+plt.ylabel("False positive rate of neutral alleles (FP/(FP+TN))")
+plt.xticks(ticks=age_boundaries,
+           labels=[str(int(i)) for i in age_boundaries],
+           rotation=45)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat_age)+"bins"+"_FPR_GEAp0.05_vs_age_neutralAllele_equalInterval.png",
+            dpi=300)
+plt.close()
+
+# Neutral alleles: p_median ～ Allele age, equal width
+plt.plot(age_boundaries[0:-1] + cat_width_age/2,
+         p_median_byAge_equalWidth,
+         color="grey",
+         marker = "o")
+plt.xlabel("Allele age")
+plt.ylabel("Median p-values of neutral alleles")
+plt.xticks(ticks=age_boundaries,
+           labels=[str(int(i)) for i in age_boundaries],
+           rotation=45)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_GEAmedianP_vs_age_neutralAllele_equalInterval.png",
+            dpi=300)
+plt.close()
+
+# Neutral alleles: p_sd ～ Allele age, equal width
+plt.plot(age_boundaries[0:-1] + cat_width_age/2,
+         p_sd_byAge_equalWidth,
+         color="grey",
+         marker = "o")
+plt.xlabel("Allele age")
+plt.ylabel("Standard deviation of p-values of neutral alleles")
+plt.xticks(ticks=age_boundaries,
+           labels=[str(int(i)) for i in age_boundaries],
+           rotation=45)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_GEAsdP_vs_age_neutralAllele_equalInterval.png",
+            dpi=300)
+plt.close()
+
+# Neutral alleles: tau_abs_median ～ Allele age, equal width
+plt.plot(age_boundaries[0:-1] + cat_width_age/2,
+         tau_absMedian_byAge_equalWidth,
+         color="grey",
+         marker = "o")
+plt.xlabel("Allele age")
+plt.ylabel("Median |Kendall's tau| of neutral alleles")
+plt.xticks(ticks=age_boundaries,
+           labels=[str(int(i)) for i in age_boundaries],
+           rotation=45)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_GEAmedianTau_vs_age_neutralAllele_equalInterval.png",
+            dpi=300)
+plt.close()
+
+# Neutral alleles: tau_abs_sd ～ Allele age, equal width
+plt.plot(age_boundaries[0:-1] + cat_width_age/2,
+         tau_absSd_byAge_equalWidth,
+         color="grey",
+         marker = "o")
+plt.xlabel("Allele age")
+plt.ylabel("Standard deviation of |Kendall's tau| of neutral alleles")
+plt.xticks(ticks=age_boundaries,
+           labels=[str(int(i)) for i in age_boundaries],
+           rotation=45)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_GEAsdTau_vs_age_neutralAllele_equalInterval.png",
+            dpi=300)
+plt.close()
+
+
+
+# Neutral alleles: FPR ～ Allele frequency, equal intervals
+plt.plot(freq_boundaries[0:-1] + cat_width_freq/2,
+         FPR_neutral_byFreq_equalWidth,
+         color="grey",
+         marker = "o")
+plt.xlabel("Allele frequency")
+# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
+plt.ylabel("False positive rate of neutral alleles (FP/(FP+TN))")
+plt.xticks(ticks=freq_boundaries,
+           labels=[str(round(i,2)) for i in freq_boundaries],
+           rotation=45)
+plt.tight_layout()
+plt.savefig(figPath + model_name +
+            str(num_cat_freq)+"bins"+"_FPR_GEAp0.05_vs_freq_neutralAllele_equalInterval.png",
+            dpi=300)
+plt.close()
+
+# Neutral alleles: p_median ～ Allele freq, equal width
+plt.plot(freq_boundaries[0:-1] + cat_width_freq/2,
+         p_median_byFreq_equalWidth,
+         color="grey",
+         marker = "o")
+plt.xlabel("Allele frequency")
+plt.ylabel("Median p-values of neutral alleles")
+plt.xticks(ticks=freq_boundaries,
+           labels=[str(round(i,2)) for i in freq_boundaries],
+           rotation=45)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_GEAmedianP_vs_freq_neutralAllele_equalInterval.png",
+            dpi=300)
+plt.close()
+
+# Neutral alleles: p_sd ～ Allele freq, equal width
+plt.plot(freq_boundaries[0:-1] + cat_width_freq/2,
+         p_sd_byFreq_equalWidth,
+         color="grey",
+         marker = "o")
+plt.xlabel("Allele frequency")
+plt.ylabel("Standard deviation of p-values of neutral alleles")
+plt.xticks(ticks=freq_boundaries,
+           labels=[str(round(i,2)) for i in freq_boundaries],
+           rotation=45)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_GEAsdP_vs_freq_neutralAllele_equalInterval.png",
+            dpi=300)
+plt.close()
+
+# Neutral alleles: tau_abs_median ～ Allele freq, equal width
+plt.plot(freq_boundaries[0:-1] + cat_width_freq/2,
+         tau_absMedian_byFreq_equalWidth,
+         color="grey",
+         marker = "o")
+plt.xlabel("Allele frequency")
+plt.ylabel("Median |Kendall's tau| of neutral alleles")
+plt.xticks(ticks=freq_boundaries,
+           labels=[str(round(i,2)) for i in freq_boundaries],
+           rotation=45)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_GEAmedianTau_vs_freq_neutralAllele_equalInterval.png",
+            dpi=300)
+plt.close()
+
+# Neutral alleles: tau_abs_sd ～ Allele frequency, equal width
+plt.plot(freq_boundaries[0:-1] + cat_width_freq/2,
+         tau_absSd_byFreq_equalWidth,
+         color="grey",
+         marker = "o")
+plt.xlabel("Allele frequency")
+plt.ylabel("Standard deviation of |Kendall's tau| of neutral alleles")
+plt.xticks(ticks=freq_boundaries,
+           labels=[str(round(i,2)) for i in freq_boundaries],
+           rotation=45)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            "_GEAsdTau_vs_freq_neutralAllele_equalInterval.png",
+            dpi=300)
+plt.close()
+
+
+
 
