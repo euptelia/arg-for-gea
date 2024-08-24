@@ -11,17 +11,18 @@ tianlin.duan42@gmail.com
 ############################# modules #########################################
 import msprime
 import tskit
-import pyslim
+# import pyslim # for recapitation
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 from scipy.spatial import distance_matrix
 import numpy as np
-import pandas
+# import pandas
 import random
-from time import time
+import time
 import sys # for sys.exit()
 import allel # for allel.weir_cockerham_fst()
 import os # mkdir
+# import tracemalloc check memory usage
 
 ############################# options #############################
 import argparse
@@ -35,49 +36,49 @@ parser.add_argument('-p', '--plot',
 args = parser.parse_args()
 
 ############################# functions #######################################
-def tree_heights(treeSequences):
+def tree_heights(tree_sequences):
     kb = [0]
     mrca_t = []
-    for tree in treeSequences.trees():
+    for tree in tree_sequences.trees():
         kb.append(tree.interval.right / 1000)
         if tree.has_multiple_roots:
             # Use the maximum time when not coalesced
-            mrca_t.append(treeSequences.metadata["SLiM"]["tick"])
+            mrca_t.append(tree_sequences.metadata["SLiM"]["tick"])
         else:
             children = tree.children(tree.root)
             real_root = tree.root if len(children) > 1 else children[0]
             mrca_t.append(tree.time(real_root))
     return mrca_t, kb
 
-def tree_height(tree, max_tick):
+def tree_height(tree, maximum_tick):
     if tree.has_multiple_roots:
         # Use the maximum time when not coalesced
-        tmrca = (max_tick)
+        tmrca = maximum_tick
     else:
         children = tree.children(tree.root)
         real_root = tree.root if len(children) > 1 else children[0]
         tmrca = (tree.time(real_root))
     return tmrca
 
-def LF_fitness_loop(ind_x, ind_y, phenotype, optima, dist_mate, sigma_w):
-    """Takes x and y coordinates (array-like), phenotypes (array-like),
-        optima of the localtion of each individual(array-like),
-        a maximum distance for mating (single value),
-        and a standard deviation of fitness function (single value).
-    Return an array of the difference of average fitness of local and foreign individuals.
-    v1: memory efficient but not time efficient
-    """
-    w_foreign = []
-    w_local = []
-    for i in range(len(ind_x)):
-        dist = np.sqrt((ind_x - ind_x[i]) ** 2 + (ind_y - ind_y[i]) ** 2)
-        w_all = 1.0 + stats.norm.pdf(phenotype, optima[i], sigma_w)
-        w_relative = np.array(w_all / np.mean(w_all))
-        w_foreign.append(np.mean(w_relative[dist > dist_mate]))
-        w_local.append(np.mean(w_relative[dist <= dist_mate]))
-    return np.array(w_local), np.array(w_foreign)
+# def lf_fitness_loop(ind_x, ind_y, phenotype, optima, dist_mate, sigma_w):
+#     """Takes x and y coordinates (array-like), phenotypes (array-like),
+#         optima of the localtion of each individual(array-like),
+#         a maximum distance for mating (single value),
+#         and a standard deviation of fitness function (single value).
+#     Return an array of the difference of average fitness of local and foreign individuals.
+#     v1: memory efficient but not time efficient
+#     """
+#     w_foreign = []
+#     w_local = []
+#     for i in range(len(ind_x)):
+#         dist = np.sqrt((ind_x - ind_x[i]) ** 2 + (ind_y - ind_y[i]) ** 2)
+#         w_all = 1.0 + stats.norm.pdf(phenotype, optima[i], sigma_w)
+#         w_relative = np.array(w_all / np.mean(w_all))
+#         w_foreign.append(np.mean(w_relative[dist > dist_mate]))
+#         w_local.append(np.mean(w_relative[dist <= dist_mate]))
+#     return np.array(w_local), np.array(w_foreign)
 
-def LF_fitness(ind_x, ind_y, phenotype,
+def lf_fitness(ind_x, ind_y, phenotype,
                optima, dist_mate, sigma_w):
     """Takes x and y coordinates (array-like), phenotypes (array-like),
         environmental optima (array-like), a maximum distance for mating (single value),
@@ -102,103 +103,34 @@ def LF_fitness(ind_x, ind_y, phenotype,
     return w_local, w_foreign
 
 ############################# program #########################################
-# M1b
-# path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum0_timeSeries_4PolyLevels/M0b_lowMig_clineMap/Continuous_nonWF_M0b_glacialHistoryOptimum0_clineMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07_seed291124602772770173_tick110000.trees"
-
 # Values
 sigma_w = 0.4
-# sigma_w = 1.0
-# sigma_w = 2.0
 dist_mate = 0.12
+history = 100000 # number of generations before the focal model
 
 #User input arguments:
 path_file_name = args.input
+# path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M2b_smallLowVm_lowMig_clineMap/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed55381568486983757_tick110000.trees"
+# Test with a smaller file
+# path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum0_timeSeries_gradualChange/M2b_smallLowVm_highMig_clineMap/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_seed142788750963570601_tick100400.trees"
+
 # Remove paths
 file_name = path_file_name.split("/")[-1]
 model_name = file_name[0:-6]  # Assuming the file name extension is .trees
 # Delete seed and tick information for making a directory
 short_model_name = "_".join(file_name.split("_")[0:-2])
 
-#M2b
-# model_name = "Continuous_nonWF_M2b_mu1.0e-09_sigmaM0.4_sigmaW0.4_seed4211585214153878784_tick20000"
-# model_name = "Continuous_nonWF_M2b_mu1.0e-09_sigmaM0.4_sigmaW0.4_seed4211585214153878784_tick10400"
-# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW2.0_seed2186716867923388027_tick20000"
-# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW0.1_seed2805110583194452015_tick20000"
-# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW0.4_seed1207239118116064755_tick20000"
-# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.01_sigmaW2.0_seed674562876216857337_tick20000"
-# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW0.4_seed420342970716621951_tick20000"
-# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW0.4_seed4094191535017385840_tick20000"
-# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.01_sigmaW1.0_seed41659979142462089_tick20000"
-# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_sigmaM0.001_sigmaW1.0_seed3792290627629629913_tick14000"
-# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_sigmaM0.001_sigmaW4.0_seed1214813491260327418_tick14000"
-
-
-#Set 1: sigmaM0.1, sigmaW2.0
-#M0a
-# model_name = "Continuous_nonWF_M0a_mu1.0e-09_sigmaM0.1_seed159493640993233401_tick20000"
-#M0b
-# model_name = "Continuous_nonWF_M0b_neutralHistory_mu1.0e-09_sigmaM0.1_seed4262922979799227249_tick20000"
-#M1a
-# model_name = "Continuous_nonWF_M1a_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW2.0_seed2043775523926582509_tick20000"
-#M1b
-# model_name = "Continuous_nonWF_M1b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW2.0_seed1704698170862545749_tick20000"
-#M2a
-# model_name = "Continuous_nonWF_M2a_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW2.0_seed432632840517966805_tick20000"
-#M2b
-# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_sigmaM0.1_sigmaW2.0_seed443882937971756522_tick20000"
-
-
-# For polygenic level
-# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4_seed4558024080115874106_tick20000"
-# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-09_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed2644576448062051676_tick10000"
-# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed2576810709553405081_tick10000"
-# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed752867212612127483_tick400"
-# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed752867212612127483_tick10000"
-# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed2630909755192467016_tick400"
-
-
-# For lower Fst
-# model_name = "Continuous_nonWF_M2b_neutralHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4sigmaD0.1_mateD0.2_seed589982169230488297_tick20000"
-
-# Environmental optima data added
-# model_name = "Continuous_nonWF_M2b_msprimeHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed1182060949244852873_tick10000"
-# model_name = "Continuous_nonWF_M2b_msprimeHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed1182060949244852873_tick400"
-# model_name = "Continuous_nonWF_M2a_msprimeHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed875191216119940727_tick100"
-# model_name = "Continuous_nonWF_M2a_msprimeHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed875191216119940727_tick400"
-# model_name = "Continuous_nonWF_M2a_msprimeHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.02_mateD0.1_seed875191216119940727_tick10000"
-# model_name = "Continuous_nonWF_M2b_msprimeHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.1_mateD0.2_seed2135186399283767611_tick400"
-# model_name = "Continuous_nonWF_M2b_msprimeHistory_mu1.0e-08_r1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.1_mateD0.2_seed2135186399283767611_tick10000"
-
-
-# Test "no standing variation problem"
-# model_name = "Continuous_nonWF_M2a_msprimeHistory_mu1.0e-09_r1.0e-07_sigmaM0.1_sigmaW0.4_sigmaD0.02_mateD0.1_seed1455097569078309823_tick100"
-
-# Test glacial model
-# model_name = "Continuous_nonWF_M2b_glacialHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4_seed4459818163778896215_tick110000"
-# model_name="Continuous_nonWF_M2b_glacialHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4_seed3619471502973802965_tick100800"
-
-# inPath = "/home/tianlin/Documents/github/data/slim_data/"
-# inPath = "/home/tianlin/Documents/github/data/slim_data/m2b_mu1e-7_m0.1_w0.4/test/"
-# inPath = "/home/tianlin/Documents/github/data/slim_data/glacial_history/highPoly_highMig_clineMap/"
-# inPath = "/home/tianlin/Documents/github/data/slim_data/glacial_history/highPoly_middleMig_patchyMap/"
-# inPath = "/home/tianlin/Documents/github/data/slim_data/glacial_history/M2b_highPoly_highMig_patchyMap/"
-# figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/"
-# figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240426/"
-figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240809/one_run/"
-# outPath = "/home/tianlin/Documents/github/data/tskit_data/output/"
-# outPath = "/home/tianlin/Documents/github/data/tskit_data/output/Continuous_nonWF_M2b_glacialHistory_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.1_mateD0.2/"
-# outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/"
-# path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum_0/M2b_highPoly_lowMig_clineMap/batch1/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_seed166332697017507196_tick110000.trees"
+figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240822/one_run/"
+#Figure path for the current run
+figPath = figPath + model_name + "/"
+if not os.path.exists(figPath):
+    os.mkdir(figPath)
 outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/"
-# outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum_0/test/"
 outPath = outBasePath+short_model_name+"/"
 if not os.path.exists(outPath):
     os.makedirs(outPath)
 if not os.path.exists(figPath):
     os.makedirs(figPath)
-
-# current_tick = int(model_name.split("_")[-1][4:]) # hard coded for a specific name pattern, not ideal
-history = 100000 # number of generations before the focal model
 
 # Tree-sequence file from SLiM
 ts = tskit.load(path_file_name)
@@ -222,16 +154,17 @@ mapValues = np.array(ts.metadata['SLiM']['user_metadata']['mapValues'])
 #                              random_seed=1)
 #
 # (tmrca_recap, kb_recap) = tree_heights(ts_recap)
-ts_recap = ts
+# ts_recap = ts
 
 # Add neutral mutations
 mutation_seed = random.randint(1, 2**31)
 mut_model1 = msprime.SLiMMutationModel(type=1)
-mts = msprime.sim_mutations(ts_recap,
+mts = msprime.sim_mutations(ts,
                             rate=5e-8,
                             random_seed=mutation_seed,
                             model=mut_model1,
                             keep=True) #keep the existing mutations
+del ts
 
 # Phenotypic effect of each mutation
 # 1-dimensional
@@ -249,7 +182,7 @@ for site in mts.sites():
     mut_effect_lists.append(effect_site)
 
 # Observed extent of local adaptation (local-foreign contrast (LF))
-(w_local, w_foreign) = LF_fitness(ind_x, ind_y, ind_z,
+(w_local, w_foreign) = lf_fitness(ind_x, ind_y, ind_z,
                                   optima, dist_mate, sigma_w)
 LF_cline = w_local - w_foreign
 mean_LF = np.mean(LF_cline)
@@ -260,9 +193,11 @@ mean_LF = np.mean(LF_cline)
 # Contribution of each mutation to LF
 # Version 2: randomizing the distribution of the mutation
 # Skip calculation for neutral mutations
+print("LF_mut calculation")
+print(time.ctime())
 shuffle_replicates = 1
 LF_shuffle = []
-t = time()
+t1 = time.time()
 index_site = 0
 # traverse sites with mutations
 for v in mts.variants():
@@ -295,13 +230,11 @@ for v in mts.variants():
             while r < shuffle_replicates:
                 effect_mut_ind_shuffle = list(effect_mut_ind)  # shallow copy
                 np.random.shuffle(effect_mut_ind_shuffle)
-                # print(list(effect_mut_ind))
-                # print(effect_mut_ind_shuffle)
                 # Phenotype with shuffled mut =
                 # phenotypes of each ind - effect of the focal mutation in each ind
                 # + effect of the focal mutation in each ind after shuffling
                 phenotype_shuffle = phenotype_without_mut + effect_mut_ind_shuffle
-                (w_local, w_foreign) = LF_fitness(ind_x, ind_y, phenotype_shuffle,
+                (w_local, w_foreign) = lf_fitness(ind_x, ind_y, phenotype_shuffle,
                                                   optima, dist_mate, sigma_w)
                 LF_shuffle_mut[r] = np.mean(w_local - w_foreign)
                 r += 1
@@ -312,10 +245,10 @@ for v in mts.variants():
         print(f"{index_site} sites processed")
 delta_LF_mut = mean_LF-LF_shuffle
 # Elapsed Time
-timer = time() - t
-print(timer/60)
-# for 1 replicate, 373377 neutral sites and 200 functional sites take 4 minutes
-# for 1 replicate, 333977 neutral sites and 200 functional sites take 28 minutes
+timer = time.time() - t1
+print(str(round((timer/60),2) )+ " minutes used for LF_mut calculation.")
+print(time.ctime())
+# 49 min for a typical M2b run with around 350000 sites
 
 # # Save the contribution of each mutation to LF
 # with open(outPath+model_name + "delta_LF_shuffle" +
@@ -335,9 +268,6 @@ age = mts.mutations_time
 pos_by_mut = mts.sites_position[mts.mutations_site]
 
 # Mutation effects by mutation coordinates
-effect_by_mut = np.full(shape=mts.num_mutations,
-                        fill_value=np.nan)
-
 effect_by_mut = []
 for site in mts.sites():
     for mut in site.mutations:
@@ -352,21 +282,17 @@ for v in mts.variants():
         focal_freq = np.count_nonzero(v.genotypes == allele)/num_samples
         freq.append(focal_freq)
 
-# TMRCA of all samples at the position of each mutation
-# # t0 = time()
-# t0 = time()
+# # TMRCA of all samples at the position of each mutation
 # tmrca_mut = []
 # for p in pos_by_mut:
 #     tmrca_mut.append(tree_height(mts.at(p), max_tick))
-# timer = time() - t0
-# print(timer)
-
-tmrca_mut = np.full(shape=mts.num_mutations,
-                    fill_value=np.nan)
-i = 0
-for p in pos_by_mut:
-    tmrca_mut[i] = tree_height(mts.at(p), max_tick)
-    i += 1
+#
+# tmrca_mut = np.full(shape=mts.num_mutations,
+#                     fill_value=np.nan)
+# i = 0
+# for p in pos_by_mut:
+#     tmrca_mut[i] = tree_height(mts.at(p), max_tick)
+#     i += 1
 
 # Remove negative LF values and 0 allele age for some plots
 age_positveLFandAge = age[np.logical_and(delta_LF_mut > 0, age > 0)]
@@ -376,6 +302,8 @@ age_positveLFandAge_log = np.log(age_positveLFandAge)
 delta_LF_mut_positveLFandAge_log = np.log(delta_LF_mut_positveLFandAge)
 
 #### cor Freq-Env as a proximation of GEA
+print("Starting correlation tests")
+print(time.ctime())
 # Divide the population into 10x10 subpopulations, for each subpopulation,
 # calculate the correlation between allele frequency of each mutation
 # and average local environmental variable(optima)
@@ -442,7 +370,7 @@ for focal_pop_id in np.arange(num_sample_pop):
             # if index_mut == 10000:
             #     test2 = v
             # print(v.genotypes)
-            derived_freq = np.count_nonzero(v.genotypes==index_gt)/len(focal_genome_list)
+            derived_freq = (np.count_nonzero(v.genotypes==index_gt) / len(focal_genome_list))
             # print(len(focal_ind_list))
             # print(v.frequencies())
             # print(derived_freq)
@@ -463,35 +391,52 @@ for i in np.arange(mts.num_mutations):
         #                                                env_sample_pop)
         (cor_GE[0][i], cor_GE[1][i]) = stats.kendalltau(freq_sample_pop[i],
                                                         env_sample_pop)
+print("Correlation tests finished")
+print(time.ctime())
 
+# #### Save the data table:
+# # Method 1, np table, takes a lot of memory (~16 Gb for a typical table)
+# # mutation ID, allele age, allele frequency, mutation effect, LF_mut,
+# # GEA Kendall's tau and corresponding p-value
+# myTable = np.array([np.arange(mts.num_mutations),
+#                     age,
+#                     freq,
+#                     mut_effect,
+#                     delta_LF_mut,
+#                     cor_GE[0],
+#                     cor_GE[1]])
+# np.savetxt(outPath + model_name + "_fst" + str(round(fst,4)) +
+#            "_withNeutralMut_mutSeed" +
+#            str(mutation_seed) + "_table.txt",
+#            myTable,
+#            header="ID, allele_age, allele_freq, effect_size, lf_mut, tau, p")
 
-# Fst
-g = mts.genotype_matrix().reshape(mts.num_sites, mts.num_individuals, 2)
-subpops = [inds_subpop[i] for i in range(100)]
-a, b, c = allel.weir_cockerham_fst(g, subpops)
-fst_pop = a / (a + b + c)
-fst = np.sum(a) / (np.sum(a) + np.sum(b) + np.sum(c))
-print(fst)
-
-#Figure path for the current run
-figPath = figPath + model_name+ "_fst_" + str(round(fst,4)) +"/"
-os.mkdir(figPath)
-
-#### Save the data table: quite large, perhaps not a good idea
+# Method 2, loops
 # mutation ID, allele age, allele frequency, mutation effect, LF_mut,
 # GEA Kendall's tau and corresponding p-value
-myTable = np.array([np.arange(mts.num_mutations),
-                    age,
-                    freq,
-                    mut_effect,
-                    delta_LF_mut,
-                    cor_GE[0],
-                    cor_GE[1]])
-np.savetxt(outPath + model_name + "_fst" + str(round(fst,4)) +
-           "_withNeutralMut_mutSeed" +
-           str(mutation_seed) + "_table.txt",
-           myTable,
-           header="ID, allele_age, allele_freq, effect_size, lf_mut, tau, p")
+print("Saving the table...")
+print(time.ctime())
+out_path_file = (outPath + model_name +
+                 "_withNeutralMut_mutSeed" + str(mutation_seed) +
+                 "_table.txt")
+header = "\t".join(["id", "age", "freq",
+                    "mut_effect","delta_LF_mut",
+                    "tau","p"]) + "\n"
+with open(out_path_file, "w") as fout:
+    fout.write(header)
+    for i in range(len(age)):
+        words = [pos_by_mut[i],
+                        age[i],
+                        freq[i],
+                        mut_effect[i],
+                        delta_LF_mut[i],
+                        cor_GE[0][i],
+                        cor_GE[1][i]]
+        words = [str(i) for i in words]
+        outLine = "\t".join(words) + "\n"
+        fout.write(outLine)
+print("The table has been saved.")
+print(time.ctime())
 
 # Display the average fitness of local and foreign populations
 plt.figure(1)
@@ -529,6 +474,9 @@ plt.annotate(str(gea_goal), xy=(gea_goal+1, explained),
 plt.savefig(figPath + model_name + "_LFcumulative_positive.png",
             dpi=300)
 plt.close()
+
+print("Selected figures saved")
+print(time.ctime())
 
 # # p-value adjusted by the Benjamini-Hochberg method
 # # temporarily remove nan values
@@ -611,7 +559,7 @@ plt.close()
 # # False negative rate for NEUTRAL mutations among AGE categories
 # # Equal width
 # num_cat_age = 10
-# max_age = ts.metadata['SLiM']['tick']
+# max_age = mts.metadata['SLiM']['tick']
 # cat_width_age = max_age/num_cat_age
 # age_boundaries = np.append(np.arange(0, max_age, cat_width_age), max_age)
 # FPR_neutral_byAge_equalWidth = []
@@ -666,8 +614,6 @@ plt.close()
 #     # All positives are false positives
 #     FP = sum(obsP_neutral)
 #     FPR_neutral_byFreq_equalWidth.append(FP/mut_in_cat)
-
-
 
 
 #### More Plots ####
@@ -810,35 +756,6 @@ plt.savefig(figPath+model_name+"_lfmut_gea_by_pos.png",
             dpi=300)
 plt.close()
 
-# # positive LF ~ allele age
-# tempx = age_positveLFandAge_log
-# tempy = delta_LF_mut_positveLFandAge_log
-# res = stats.linregress(tempx, tempy)
-# rsquared = round(res.rvalue ** 2, 3)
-# linearp = '{:0.2e}'.format(res.pvalue)
-# spr = stats.spearmanr(age, delta_LF_mut)
-# spr_positive = stats.spearmanr(age_positveLFandAge, tempy)
-#
-# plt.figure(1)
-# plt.plot(tempx, tempy,
-#          marker="o", linestyle="",
-#          color="saddlebrown", alpha=0.1)
-# plt.plot(sorted(tempx),
-#          res.intercept + np.array(sorted(tempx))*res.slope,
-#          color = "cornflowerblue")
-# plt.text(0, min(tempy)+(max(tempy)-min(tempy))*0.9,
-#          "$r^{2}$="+str(rsquared)+"\n" + "p-value=" + str(linearp),
-#          color = "cornflowerblue")
-# # plt.axline((0,res.intercept),
-# #            slope=res.slope, color="cornflowerblue",
-# #            label = "")
-# # plt.title("With local adapation")
-# plt.xlabel("ln(Mutation age)")
-# plt.ylabel("ln(Positive $LF_{mut})$")
-# plt.savefig(figPath+model_name+"_ageAndLF_ln.png",
-#             dpi=300)
-# plt.close()
-
 # # non-0 |LF| ~ allele age
 # tempx = np.log(age[np.logical_and(delta_LF_mut != 0, age != 0)])
 # tempy = np.log(np.abs(delta_LF_mut[np.logical_and(delta_LF_mut != 0, age != 0)]))
@@ -864,7 +781,6 @@ plt.close()
 # plt.savefig(figPath+model_name+"_non0ageAndAbsoluteNon0LF_ln.png",
 #             dpi=300)
 # plt.close()
-
 
 
 # Histogram of GEA p-values

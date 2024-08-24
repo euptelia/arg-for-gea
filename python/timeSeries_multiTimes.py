@@ -58,9 +58,23 @@ import glob  #for loading files
 # inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-06_seedseed1864282251322057274/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-07_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-06_seed1864282251322057274_tick"
 
 # M2a/M2b with gradual env. changes
-inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seedseed4534624264597238764/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed4534624264597238764_tick"
+# inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seedseed4534624264597238764/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed4534624264597238764_tick"
 # inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_seedseed1046020927018857599/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_seed1046020927018857599_tick"
 # inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seedseed2795180817941888406/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed2795180817941888406_tick"
+
+#M2a cline low mig
+# inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/gradualEnvChange_timeSeries/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed403506375666946264/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed403506375666946264_tick"
+#M2a cline high mig
+# inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/gradualEnvChange_timeSeries/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_seed112936597863955824/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_seed112936597863955824_tick"
+#M2b cline low mig
+# inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/gradualEnvChange_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed48589015031672953/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed48589015031672953_tick"
+#M2b cline high mig
+# inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/gradualEnvChange_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_seed142788750963570601/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_seed142788750963570601_tick"
+#M2b patchy low mig
+inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/gradualEnvChange_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed94358478394647367/Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed94358478394647367_tick"
+#M2b patchy high mig
+# inPath_filePrefix = "/home/tianlin/Documents/github/data/tskit_data/output/table/gradualEnvChange_timeSeries/Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_seed54950713657696579/Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_seed54950713657696579_tick"
+
 
 model_name = "_".join(inPath_filePrefix.split("/")[-1].split("_")[0:-1])
 fileSuffix = "_functionalMut_table.txt"
@@ -88,10 +102,8 @@ if not os.path.exists(figPath):
 #                   10000, 20000, 30000, 40000, 60000, 80000, 100000])
 
 # 11 samples
-times = np.array([100, 400, 800,
-                  1000, 2000, 4000,
-                  10000, 20000, 40000,
-                  60000, 80000, 100000])
+times = np.array([0, 400, 800, 1000, 4000, 10000,
+                  20000, 40000, 60000, 80000, 100000])
 # times = np.array([0, 100, 200, 400, 600, 800,
 #                   1000, 1200, 1400, 1600, 1800,
 #                   2000, 4000, 6000, 8000,
@@ -105,7 +117,7 @@ times = np.array([100, 400, 800,
 #                    1100, 1200, 1300, 1400, 1800,
 #                   2000, 4000, 6000, 8000,
 #                   10000])
-times2 = np.array([100, 400, 800,
+times2 = np.array([0, 400, 800,
                   1000, 4000,
                   10000])
 # times2 = np.array([0, 100, 200, 400, 600, 800,

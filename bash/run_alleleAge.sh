@@ -174,12 +174,12 @@
 #   python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory.py -i ${file}
 #done
 
-batchNumber=1
-inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum0_timeSeries_gradualChange/M2a_smallLowVm_highMig_clineMap/tick110000/batch${batchNumber}"
-for file in ${inPath}/*.trees
-do
-   python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory.py -i ${file}
-done
+#batchNumber=1
+#inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum0_timeSeries_gradualChange/M2a_smallLowVm_highMig_clineMap/tick110000/batch${batchNumber}"
+#for file in ${inPath}/*.trees
+#do
+#   python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory.py -i ${file}
+#done
 
 #batchNumber=1
 #inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum0_timeSeries_gradualChange/M2a_smallLowVm_lowMig_clineMap/tick110000/batch${batchNumber}"
@@ -187,4 +187,20 @@ done
 #do
 #   python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory.py -i ${file}
 #done
+
+#batchNumber=10
+#echo $batchNumber
+#inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M2a_smallLowVm_lowMig_clineMap/batch${batchNumber}"
+#for file in ${inPath}/*.trees
+#do
+#   python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory.py -i ${file}
+#done
+
+batchNumber=10
+echo $batchNumber
+inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M2a_smallLowVm_lowMig_clineMap/batch${batchNumber}"
+for file in ${inPath}/*.trees
+do
+   python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory.py -i ${file} -p 0
+done
 

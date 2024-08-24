@@ -83,7 +83,7 @@ pc = pca(genoFileName,
 tw = tracy.widom(pc) 
 tw
 # plot the percentage of variance explained by each component
-setwd("/home/tianlin/Documents/github/data/R/20240507/figures")
+setwd("/home/tianlin/Documents/github/data/R/202408/figures")
 png(file = paste(runName, "_pca_percentage.png", sep = ""),
     height = 800,
     width = 1200,

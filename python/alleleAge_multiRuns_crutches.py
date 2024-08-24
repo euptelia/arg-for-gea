@@ -7,7 +7,6 @@ tianlin.duan42@gmail.com
 ############################# modules #########################################
 import matplotlib
 import msprime
-import pandas
 import tskit
 import pyslim
 import matplotlib
@@ -21,7 +20,7 @@ import sys # for sys.exit()
 import allel # for allel.weir_cockerham_fst()
 import glob #for loading files
 from collections import Counter
-import pandas #dataframe
+import pandas as pd#dataframe
 import os #mkdir
 # matplotlib.use("qt5agg") # Not work
 import matplotlib.pyplot as plt
@@ -51,25 +50,7 @@ args = parser.parse_args()
 # dist_mate = 0.12
 num_runs = 100
 # inPath = args.input
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
-
-#M2a
-inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
-
-# short_model_name = "m2b_highPoly_lowMig_clineMap"
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/Continuous_nonWF_M2b_glacialHistory_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12/tick101000/"
-
-# short_model_name = "m2b_highPoly_lowMig_clineMap"
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/Continuous_nonWF_M2b_glacialHistory_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12/tick110000/"
-
-# short_model_name = "m2b_highPoly_lowMig_clineMap"
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/Continuous_nonWF_M2b_glacialHistory_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12/tick110000/"
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum_0/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12/tick101000/"
-# short_model_name = args.name
+inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/gradualEnvChange_timeSeries/test/tick110000/"
 short_model_name = inPath.split("/")[-3]
 
 figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240809/" +
@@ -99,63 +80,52 @@ event_age = tick - 100000
 # dataTable[8]     relative to sum of delta_LF_mut (delta_LF_mut/sum of LF_mut )
 # dataTable[9]     temperary run ID 0,1,2...(number of files-1)
 # dataTable[10]    rank of p-values
-dataTable = np.empty((11, 0))
+df = pd.DataFrame()
 # Load results of multiple runs from file
 fileList = glob.glob(inPath + "*.txt")
 run = 0
-lf_sums = []
 for f in fileList:
-    focalTable = np.loadtxt(f)
-    # Add relative positive delta_LF_mut (delta_LF_mut/sum of positive LF_mut)
-    relative_positive_lf_mut = focalTable[4]/sum(focalTable[4][focalTable[4]>0])
-    lf_sum = sum(focalTable[4])
-    lf_sums.append(lf_sum)
-    relative_lf_mut = focalTable[4] / sum(focalTable[4])
-    p_rank = focalTable[6].argsort().argsort()
-    # Add relative delta_LF_mut ,temporary run ID, and rank of p-values
-    focalTable = np.concatenate((focalTable,
-                                 [relative_positive_lf_mut],
-                                 [relative_lf_mut],
-                                 np.full(shape=(1, len(focalTable[0])),
-                                         fill_value=run),
-                                 [p_rank]),
-                                axis=0)
-    dataTable = np.concatenate((dataTable, focalTable), axis=1)
+    df_focal = pd.read_csv(f, sep='\t', header=0)
+    # Add relative delta_LF_mut,temporary run ID, and rank of p-values
+    lf_sum_positive = sum(df_focal.loc[df_focal["delta_LF_mut"]>0,"delta_LF_mut"])
+    lf_sum = sum(df_focal["delta_LF_mut"])
+    df_focal["relative_positive_lf"] = (df_focal["delta_LF_mut"] /
+                                              lf_sum_positive)
+    df_focal["relative_lf"] = df_focal["delta_LF_mut"] / lf_sum
+    df_focal["run_id"] = np.full(shape=(df_focal.shape[0], 1),
+                                         fill_value=run)
+    # df_focal["p_rank"] = df_focal["p"].argsort().argsort()
+    df_focal["p_rank"] = df_focal["p"].rank(ascending=True, pct=True)
+    df = pd.concat([df, df_focal], axis=0)
     run += 1
+print(str(run) + " files have been loaded.")
+# Columns: "id", "age", "freq", "mut_effect","delta_LF_mut",
+#          "tau", "p", "relative_positive_lf", "relative_lf", "run_id",
+#          "p_rank"
 
-print(max(dataTable[9]))
-
-# Change to pandas dadaframe
-dataTable_t = dataTable.transpose()
-df = pandas.DataFrame(data=dataTable_t,
-                      columns=["id", "age", "freq",
-                               "mut_effect","delta_LF_mut","tau",
-                               "p", "relative_positive_lf", "relative_lf",
-                               "run_id", "p_rank"])
-
-# Not used
+# No MAF filter: Not used
 # True positive rate, False negative rate, False discovery rate in all alleles
 # True adaptive allele: account for more than LF_min percent of positve LF_mut
 # GEA significant: BH-adjusted p-value < 0.05
 LF_min = 0.01
 num_cat = 20
 cat_width = int(100/num_cat) if 100 % num_cat == 0 else 100/num_cat
-age_percentile = np.percentile(dataTable[1],
+age_percentile = np.percentile(df["age"],
                                np.append(np.arange(0, 100, cat_width),
                                          100))
-event_percentile = stats.percentileofscore(dataTable[1], event_age)
+event_percentile = stats.percentileofscore(df["age"], event_age)
 TPR = []
 FPR = []
 FDR = []
 
 for i in range(num_cat):
-    focal_age = np.logical_and(dataTable[1] > age_percentile[i],
-                               dataTable[1] <= age_percentile[i+1])
-    dataTable_category = dataTable[:, focal_age]
+    focal_age = np.logical_and(df["age"] > age_percentile[i],
+                               df["age"] <= age_percentile[i+1])
+    df_category = df.loc[focal_age,:]
     # num_allele = len(p_BH_category)
     # proportion_sig.append(sum(p_BH_category < 0.05)/num_allele)
-    expP = dataTable_category[7] > LF_min
-    obsP = dataTable_category[6] < 0.05
+    expP = df_category["relative_lf"] > LF_min
+    obsP = df_category["p"] < 0.05
     TP = sum(expP & obsP)
     FP = sum(~expP & obsP)
     FN = sum(expP & ~obsP)
@@ -829,13 +799,11 @@ plt.close()
 
 #### Cumulative plot of LF_mut ####
 expected_explained_proportion = 0.8
-num_mut_runs = Counter(dataTable[9]).values()
-
 cumulative_lf_list = []
 gea_goal = []
 explained = []
 for i in range(num_runs):
-    focal_relative_lf_mut = dataTable[7][dataTable[9] == i]
+    focal_relative_lf_mut = df.loc[df["run_id"] == i, "relative_positive_lf"]
     relative_positive_lf_mut = focal_relative_lf_mut[focal_relative_lf_mut > 0]
     sorted_lfmut = np.array(list(reversed(sorted(relative_positive_lf_mut))))
     # Trim the tails with near-0 contributions to ensure all runs have the same

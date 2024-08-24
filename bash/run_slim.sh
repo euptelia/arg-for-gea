@@ -113,7 +113,48 @@
 #    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_patchyMap_timeSeries_gradualExpansion_temp1.slim
 #done
 
-for i in {1..4} #in 5 batches
+#for i in {1..4} #in 5 batches
+#do
+#    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2a_glacialHistory_clineMap_timeSeries_gradualExpansion_temp1.slim
+#done
+
+#for i in {1..10} #in 8 batches
+#do
+#    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2a_glacialHistory_clineMap_gradualChange.slim
+#done
+
+# for i in {1..5} 
+#do
+#    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2a_glacialHistory_patchyMap_timeSeries_gradualExpansion_temp1.slim
+#done
+
+#for i in {1..20} 
+#do
+#    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_clineMap_gradualExpansion.slim
+#done
+
+#for i in {1..20} 
+#do
+#    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_clineMap_gradualExpansion_temp1.slim
+#done
+
+#for i in {1..20} 
+#do
+#    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_patchyMap_gradualExpansion.slim
+#done
+
+#for i in {1..100} 
+#do
+#    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_patchyMap_gradualExpansion_temp1.slim
+#done
+
+#for i in {1..100} 
+#do
+#    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2a_glacialHistory_clineMap_gradualChange_temp1.slim
+#done
+
+for i in {1..100} 
 do
-    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2a_glacialHistory_clineMap_timeSeries_gradualExpansion_temp1.slim
+    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2a_glacialHistory_patchyMap_gradualChange_temp1.slim
 done
+
