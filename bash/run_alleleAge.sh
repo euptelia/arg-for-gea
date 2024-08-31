@@ -196,11 +196,75 @@
 #   python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory.py -i ${file}
 #done
 
-batchNumber=10
-echo $batchNumber
-inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M2a_smallLowVm_lowMig_clineMap/batch${batchNumber}"
+#batchNumber=10
+#echo $batchNumber
+#inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M2a_smallLowVm_lowMig_clineMap/batch${batchNumber}"
+#for file in ${inPath}/*.trees
+#do
+#   python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory.py -i ${file} -p 0
+#done
+
+#batchNumber=2
+#inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M2b_smallLowVm_lowMig_clineMap/tick110000/batch${batchNumber}"
+#echo $inPath
+#for file in ${inPath}/*.trees
+#do
+#   python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory_crutches.py -i ${file} -p 0
+#done
+
+#batchNumber=4
+#inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M0a_smallLowVm_lowMig_clineMap/tick110000/batch${batchNumber}"
+#echo $inPath
+#for file in ${inPath}/*.trees
+#do
+#   printf "Start making a table with \n %s" $file
+#   python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory_fpr.py -i ${file} -p 0
+#done
+
+#batchNumber=4
+#inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M2b_smallLowVm_lowMig_patchyMap/tick110000/batch${batchNumber}"
+#echo $inPath
+#for file in ${inPath}/*.trees
+#do
+#   printf "Start making a table with \n %s" $file
+#   python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory_crutches.py -i ${file} -p 0
+#done
+
+##Subsample 500 genomes: -s 1
+#batchNumber=1
+#inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M0a_smallLowVm_lowMig_clineMap/tick110000/batch${batchNumber}"
+#echo $inPath
+#for file in ${inPath}/*.trees
+#do
+#   printf "Start making a table with \n %s" $file
+#   python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory_subsample.py -i ${file} -p 0 -s 1
+#done
+
+##Subsample 500 genomes: -s 1
+#batchNumber=4
+#inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M0a_smallLowVm_highMig_clineMap/tick110000/batch${batchNumber}"
+#echo $inPath
+#for file in ${inPath}/*.trees
+#do
+#   printf "Start making a table with \n %s" $file
+#   python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory_m0_crutches.py -i ${file} -p 0
+#done
+
+
+# One batch
+#inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M0b_smallLowVm_lowMig_clineMap/tick110000/"
+#echo $inPath
+#for file in ${inPath}/*.trees
+#do
+#   printf "Start making a table with \n %s" $file
+#   python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory_m0_crutches.py -i ${file} -p 0
+#done
+
+inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M0a_smallLowVm_lowMig_clineMap/tick110000/"
+echo $inPath
 for file in ${inPath}/*.trees
 do
-   python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory.py -i ${file} -p 0
+   printf "Start making a table with \n %s" $file
+   python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory_m0_crutches.py -i ${file} -p 0
 done
 

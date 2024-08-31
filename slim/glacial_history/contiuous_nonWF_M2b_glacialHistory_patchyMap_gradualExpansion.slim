@@ -12,7 +12,7 @@ initialize() {
 	// carrying capacity density: capacity when uniformly distributed
 	// Observed N: ~4800 diploid individual
 	defineConstant("K", 17000); //
-//	defineConstant("K", 40000); //
+	//	defineConstant("K", 40000); //
 	//  reproduction rate
 	defineConstant("R", 0.2);
 	// Sd of mutation effect size on trait value
@@ -29,7 +29,7 @@ initialize() {
 	defineConstant("mateD", 0.12);
 	// Max strength for competition
 	defineConstant("maxCompStrength", 1.0);
-//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/");
+	//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/");
 	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M2b_smallLowVm_lowMig_patchyMap/");
 	//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/m2b_mu1e-7_m0.1_w0.4/");
 	
@@ -142,9 +142,9 @@ mutationEffect(m2) {
 	p0.individuals.y = runif(p0.individualCount);
 	p0.individuals.z = p0.individuals.sumOfMutationsOfType(m2);
 	// Homogeneous stabilizing selection in the initial envrionment
-//	defineConstant("mapValues", matrix(c(0,0,0,0), ncol=2));
-//	defineGlobal("mapValues", matrix(c(0.5,0.5,0.5,0.5), ncol=2));
-   defineGlobal("mapValues", matrix(c(0,0,0,0), ncol=2));
+	//	defineConstant("mapValues", matrix(c(0,0,0,0), ncol=2));
+	//	defineGlobal("mapValues", matrix(c(0.5,0.5,0.5,0.5), ncol=2));
+	defineGlobal("mapValues", matrix(c(0,0,0,0), ncol=2));
 	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,
 		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
 }
@@ -340,11 +340,11 @@ mutationEffect(m2) {
 //
 102000 late() {
 	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
-	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
-	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
-	"_sigmaD" + sigma_D + "_mateD" + mateD +
-	"_K" + K + "_r" + r +
-	"_seed" + seed + "_tick" + sim.cycle + ".trees",
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" +
+		"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W +
+		"_sigmaD" + sigma_D + "_mateD" + mateD +
+		"_K" + K + "_r" + r +
+		"_seed" + seed + "_tick" + sim.cycle + ".trees",
 		metadata = Dictionary("indsOptimum", optimum,
 		"mapValues", mapValues));
 }
@@ -384,26 +384,27 @@ mutationEffect(m2) {
 
 110000 late() {
 	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
-	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
-	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
-	"_sigmaD" + sigma_D + "_mateD" + mateD +
-	"_K" + K + "_r" + r +
-	"_seed" + seed + "_tick" + sim.cycle + ".trees",
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" +
+		"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W +
+		"_sigmaD" + sigma_D + "_mateD" + mateD +
+		"_K" + K + "_r" + r +
+		"_seed" + seed + "_tick" + sim.cycle + ".trees",
 		metadata = Dictionary("indsOptimum", optimum,
 		"mapValues", mapValues));
+	sim.simulationFinished();
 }
 
-120000 late() {
-	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
-	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
-	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
-	"_sigmaD" + sigma_D + "_mateD" + mateD +
-	"_K" + K + "_r" + r +
-	"_seed" + seed + "_tick" + sim.cycle + ".trees",
-		metadata = Dictionary("indsOptimum", optimum,
-		"mapValues", mapValues));
-		sim.simulationFinished();
-}
+//120000 late() {
+//	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
+//	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
+//	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
+//	"_sigmaD" + sigma_D + "_mateD" + mateD +
+//	"_K" + K + "_r" + r +
+//	"_seed" + seed + "_tick" + sim.cycle + ".trees",
+//		metadata = Dictionary("indsOptimum", optimum,
+//		"mapValues", mapValues));
+//
+//}
 
 //140000 late() {
 //	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));

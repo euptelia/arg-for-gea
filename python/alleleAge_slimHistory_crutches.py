@@ -419,7 +419,7 @@ print(time.ctime())
 out_path_file = (outPath + model_name +
                  "_withNeutralMut_mutSeed" + str(mutation_seed) +
                  "_table.txt")
-header = "\t".join(["id", "age", "freq",
+header = "\t".join(["pos", "age", "freq",
                     "mut_effect","delta_LF_mut",
                     "tau","p"]) + "\n"
 with open(out_path_file, "w") as fout:
@@ -438,45 +438,10 @@ with open(out_path_file, "w") as fout:
 print("The table has been saved.")
 print(time.ctime())
 
-# Display the average fitness of local and foreign populations
-plt.figure(1)
-plt.boxplot([w_local, w_foreign],
-            labels=["Local", "Foreign"])
-plt.xlabel("Groups")
-plt.ylabel("Average relative fitness")
-# plt.show()
-plt.savefig(figPath + str(model_name) + "_test_localAdapt.png",
-            dpi=300)
-plt.close()
-
-# Cumulative plot of LF_mut
-expected_explained_proportion = 0.8
-sorted_lfmut = np.array(list(reversed(sorted(delta_LF_mut_positveLFandAge))))
-positiveTotal = sum(sorted_lfmut)
-cumulative_lf = [0] + [sum(sorted_lfmut[0:k+1])/positiveTotal
-                       for k in range(len(sorted_lfmut))]
-# How many alleles do we need to account for 80% of current local adaptation?
-gea_goal = sum(np.array(cumulative_lf) < expected_explained_proportion)
-explained = cumulative_lf[gea_goal]
-plt.plot(range(len(sorted_lfmut)+1), cumulative_lf,
-         color="lightseagreen")
-plt.xlabel("Mutations sorted in descending order of $LF_{mut}$")
-plt.ylabel("Cumulative proportion of positive LF")
-# plt.axvline(x=gea_goal, color="firebrick", linestyle="dotted")
-# plt.axhline(y=explained, color="firebrick", linestyle="dotted")
-plt.plot([gea_goal, gea_goal], [0, explained],
-         color="firebrick", linestyle="dotted")
-plt.plot([0, gea_goal], [explained, explained],
-         color="firebrick", linestyle="dotted")
-plt.annotate(str(gea_goal), xy=(gea_goal+1, explained),
-             xytext=(gea_goal + 1 + len(cumulative_lf)/40, 0),
-             color="firebrick")
-plt.savefig(figPath + model_name + "_LFcumulative_positive.png",
-            dpi=300)
-plt.close()
-
-print("Selected figures saved")
-print(time.ctime())
+# Skip the following lines and end the program if "--plot" is 0
+if not bool(args.plot):
+    print("Program finished. No plot will be generated as --plot is 0.")
+    sys.exit(0)
 
 # # p-value adjusted by the Benjamini-Hochberg method
 # # temporarily remove nan values
@@ -617,10 +582,6 @@ print(time.ctime())
 
 
 #### More Plots ####
-# Skip the following lines and end the program if "--plot" is 0
-if not bool(args.plot):
-    print("Program finished. No plot will be generated as --plot is 0.")
-    sys.exit(0)
 
 # Histogram of non-0 LF_mut
 plt.hist(delta_LF_mut[delta_LF_mut != 0], bins=100,
@@ -630,6 +591,46 @@ plt.ylabel("Count")
 plt.savefig(figPath+model_name+"_non0LFhist.png",
             dpi=300)
 plt.close()
+
+# Display the average fitness of local and foreign populations
+plt.figure(1)
+plt.boxplot([w_local, w_foreign],
+            labels=["Local", "Foreign"])
+plt.xlabel("Groups")
+plt.ylabel("Average relative fitness")
+# plt.show()
+plt.savefig(figPath + str(model_name) + "_test_localAdapt.png",
+            dpi=300)
+plt.close()
+
+# Cumulative plot of LF_mut
+expected_explained_proportion = 0.8
+sorted_lfmut = np.array(list(reversed(sorted(delta_LF_mut_positveLFandAge))))
+positiveTotal = sum(sorted_lfmut)
+cumulative_lf = [0] + [sum(sorted_lfmut[0:k+1])/positiveTotal
+                       for k in range(len(sorted_lfmut))]
+# How many alleles do we need to account for 80% of current local adaptation?
+gea_goal = sum(np.array(cumulative_lf) < expected_explained_proportion)
+explained = cumulative_lf[gea_goal]
+plt.plot(range(len(sorted_lfmut)+1), cumulative_lf,
+         color="lightseagreen")
+plt.xlabel("Mutations sorted in descending order of $LF_{mut}$")
+plt.ylabel("Cumulative proportion of positive LF")
+# plt.axvline(x=gea_goal, color="firebrick", linestyle="dotted")
+# plt.axhline(y=explained, color="firebrick", linestyle="dotted")
+plt.plot([gea_goal, gea_goal], [0, explained],
+         color="firebrick", linestyle="dotted")
+plt.plot([0, gea_goal], [explained, explained],
+         color="firebrick", linestyle="dotted")
+plt.annotate(str(gea_goal), xy=(gea_goal+1, explained),
+             xytext=(gea_goal + 1 + len(cumulative_lf)/40, 0),
+             color="firebrick")
+plt.savefig(figPath + model_name + "_LFcumulative_positive.png",
+            dpi=300)
+plt.close()
+
+# print("Selected figures saved")
+# print(time.ctime())
 
 # # Histogram of positive LF
 # plt.hist(delta_LF_mut[delta_LF_mut > 0], bins=100,
@@ -1098,9 +1099,6 @@ plt.tight_layout()
 plt.savefig(figPath+model_name+"_corGEpvalue_vs_LF_mut_freqColor.png",
             dpi=300)
 plt.close()
-
-
-
 
 # # TPR ～ Allele age
 # plt.plot(np.arange(100/num_cat, 101, 100/num_cat),
