@@ -118,7 +118,7 @@
 #    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2a_glacialHistory_clineMap_timeSeries_gradualExpansion_temp1.slim
 #done
 
-#for i in {1..10} #in 8 batches
+#for i in {1..4} 
 #do
 #    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2a_glacialHistory_clineMap_gradualChange.slim
 #done
@@ -148,12 +148,12 @@
 #    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_patchyMap_gradualExpansion_temp1.slim
 #done
 
-#for i in {1..100} 
+#for i in {1..4} 
 #do
 #    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2a_glacialHistory_clineMap_gradualChange_temp1.slim
 #done
 
-#for i in {1..100} 
+#for i in {1..14} 
 #do
 #    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2a_glacialHistory_patchyMap_gradualChange_temp1.slim
 #done
@@ -174,9 +174,9 @@
 #    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M0b_glacialHistory_patchyMap_gradualExpansion.slim
 #done
 
-#for i in {1..17} 
+#for i in {1..7} 
 #do
-#    printf "Start the %s/20 run of M0a, high migration, patchy map\n" $i
+#    printf "Start the %s/7 run of M0a, high migration, patchy map\n" $i
 #    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M0a_glacialHistory_patchyMap_temp1.slim
 #done
 
@@ -186,9 +186,14 @@
 #    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M0b_glacialHistory_clineMap_gradualExpansion_temp1.slim
 #done
 
-for i in {1..40} 
+#for i in {1..10} 
+#do
+#    printf "Start the %s/10 run of M0b, high migration, patchy map\n" $i
+#    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M0b_glacialHistory_patchyMap_gradualExpansion_temp1.slim
+#done
+
+for i in {1..13} 
 do
-    printf "Start the %s/40 run of M0b, high migration, patchy map\n" $i
-    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M0b_glacialHistory_patchyMap_gradualExpansion_temp1.slim
+    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2a_glacialHistory_patchyMap_gradualChange.slim
 done
 

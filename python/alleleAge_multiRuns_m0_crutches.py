@@ -24,14 +24,16 @@ import pandas as pd #dataframe
 import os #mkdir
 # matplotlib.use("qt5agg") # Not work
 import matplotlib.pyplot as plt
+# import seaborn
 import scipy.stats as stats
 import sys # for sys.exit()
 import allel # for allel.weir_cockerham_fst()
 import matplotlib.patches as mpatches # manually make legends
-import seaborn as sns
+import seaborn as sns # for density histplot
 
 ############################# options #############################
 import argparse
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--input',
                     help='Path the the input tables',
@@ -48,13 +50,31 @@ args = parser.parse_args()
 # Values
 # sigma_w = 0.4
 # dist_mate = 0.12
-num_runs = 20
+num_runs = 100
 # inPath = args.input
-inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
+mytitle = "M0a, low migration, cline map"
+inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
+# mytitle = "M0a, high migration, cline map"
+# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
+# mytitle = "M0a, low migration, patchy map"
+# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
+# mytitle = "M0a, high migration, patchy map"
+# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
+# mytitle = "M0b, low migration, cline map"
+# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
+# mytitle = "M0b, high migration, cline map"
+# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
+# mytitle = "M0b, low migration, patchy map"
+# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
+# mytitle = "M0b, high migration, patchy map"
+# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
+
+# mytitle = "M0a, high migration, cline map"
+# inPath = ""
 short_model_name = inPath.split("/")[-3]
 
 figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240822/" +
-           short_model_name + "/" + str(num_runs) + "runs_" +
+           short_model_name + "/" + str(num_runs) + "runs_" + "cat100_" +
            inPath.split("/")[-2]+"/")
 # outPath = ("/home/tianlin/Documents/github/data/tskit_data/output/multiple_runs/" +
 #            short_model_name + "/100runs_" + inPath.split("/")[-2]+"/")
@@ -136,7 +156,7 @@ df_rare = df_neutral[(df_neutral["freq"] <= thresholdRare) |
 # num_neutral_muts = df_neutral.shape[0]
 
 # Check here before use
-num_cat = 20
+num_cat = 100
 bin_width = 100/num_cat
 
 # # p,tau and false negative rate for NEUTRAL mutations among AGE categories
@@ -167,7 +187,7 @@ bin_width = 100/num_cat
 #     FPR_neutral_byAge.append(FP/mut_in_cat)
 
 # False negative rate for NEUTRAL mutations among AGE categories: Equal intervals
-num_cat_age = 20
+num_cat_age = 100
 max_age = tick
 cat_width_age = max_age/num_cat_age
 age_boundaries = np.append(np.arange(0, max_age, cat_width_age), max_age)
@@ -224,7 +244,7 @@ for i in range(num_cat_age):
 #     FPR_neutral_byFreq.append(FP/mut_in_cat)
 
 # False negative rate for NEUTRAL mutations among FREQ categories: Equal intervals
-num_cat_freq = 20
+num_cat_freq = 100
 cat_width_freq = 1.0/num_cat_freq
 freq_boundaries = np.append(np.arange(0, 1.0, cat_width_freq), 1.0)
 FPR_neutral_byFreq_equalWidth = []
@@ -251,6 +271,38 @@ for i in range(num_cat_freq):
     # All positives are false positives
     FP = sum(obsP_neutral)
     FPR_neutral_byFreq_equalWidth.append(FP/mut_in_cat)
+
+# False negative rate for NEUTRAL mutations among FREQ categories:
+# log10 Equal intervals
+num_cat_freq = 20
+cat_width_freq_log10 = 4.0/num_cat_freq
+freq_boundaries_log10 = 10**(np.append(np.arange(-4.0, 0,
+                                                 cat_width_freq_log10),
+                                       0))
+FPR_neutral_byFreq_equalWidth_log10 = []
+sample_size_freq_equalWidth_log10 = []
+p_median_byFreq_equalWidth_log10 = []
+p_sd_byFreq_equalWidth_log10 = []
+tau_absMedian_byFreq_equalWidth_log10 = []
+tau_absSd_byFreq_equalWidth_log10 = []
+for i in range(num_cat_freq):
+    p_category = df_neutral["p-tau"][(df_neutral["freq"] > freq_boundaries_log10[i]) &
+                                 (df_neutral["freq"] <= freq_boundaries_log10[i+1])]
+    tau_category = df_neutral["tau"][(df_neutral["freq"] > freq_boundaries_log10[i]) &
+                                 (df_neutral["freq"] <= freq_boundaries_log10[
+                                     i + 1])]
+    print(len(p_category))
+    sample_size_freq_equalWidth_log10.append(len(p_category))
+    p_median_byFreq_equalWidth_log10.append(np.nanmedian(p_category))
+    p_sd_byFreq_equalWidth_log10.append(np.nanstd(p_category))
+    tau_absMedian_byFreq_equalWidth_log10.append(np.nanmedian(abs(tau_category)))
+    tau_absSd_byFreq_equalWidth_log10.append(np.nanstd(abs(tau_category)))
+    # Neutral mutations have no phenotypic effect and therefore no positive
+    mut_in_cat = len(p_category)
+    obsP_neutral = p_category < 0.05
+    # All positives are false positives
+    FP = sum(obsP_neutral)
+    FPR_neutral_byFreq_equalWidth_log10.append(FP/mut_in_cat)
 
 
 
@@ -489,8 +541,12 @@ for i in range(num_cat_freq):
 
 
 #### Equal intervals ####
+# age_fig_size = (8,5) # 20 bins
+age_fig_size = (15,5) # 100 bins
+
 # Neutral alleles: FPR ～ Allele age, equal intervals
-plt.figure(figsize=(8,5))
+plt.figure(figsize=age_fig_size)
+# plt.figure(figsize=(15,5)) # 100 bins
 plt.plot(age_boundaries[0:-1] + cat_width_age/2,
          FPR_neutral_byAge_equalWidth,
          color="grey",
@@ -509,7 +565,8 @@ plt.savefig(figPath+model_name +
 plt.close()
 
 # Neutral alleles: p_median ～ Allele age, equal width
-plt.figure(figsize=(8,5))
+plt.figure(figsize=age_fig_size)
+# plt.figure(figsize=(15,5)) # 100 bins
 plt.plot(age_boundaries[0:-1] + cat_width_age/2,
          p_median_byAge_equalWidth,
          color="grey",
@@ -529,7 +586,8 @@ plt.savefig(figPath+model_name +
 plt.close()
 
 # Neutral alleles: p_sd ～ Allele age, equal width
-plt.figure(figsize=(8,5))
+plt.figure(figsize=age_fig_size)
+# plt.figure(figsize=(15,5)) # 100 bins
 plt.plot(age_boundaries[0:-1] + cat_width_age/2,
          p_sd_byAge_equalWidth,
          color="grey",
@@ -549,7 +607,8 @@ plt.savefig(figPath+model_name +
 plt.close()
 
 # Neutral alleles: tau_abs_median ～ Allele age, equal width
-plt.figure(figsize=(8,5))
+plt.figure(figsize=age_fig_size)
+# plt.figure(figsize=(15,5)) # 100 bins
 plt.plot(age_boundaries[0:-1] + cat_width_age/2,
          tau_absMedian_byAge_equalWidth,
          color="grey",
@@ -569,7 +628,8 @@ plt.savefig(figPath+model_name +
 plt.close()
 
 # Neutral alleles: tau_abs_sd ～ Allele age, equal width
-plt.figure(figsize=(8,5))
+plt.figure(figsize=age_fig_size)
+# plt.figure(figsize=(15,5)) # 100 bins
 plt.plot(age_boundaries[0:-1] + cat_width_age/2,
          tau_absSd_byAge_equalWidth,
          color="grey",
@@ -591,7 +651,8 @@ plt.close()
 
 
 # Neutral alleles: FPR ～ Allele frequency, equal intervals
-freq_fig_size = (8,5)
+freq_fig_size = (8,5) # 20 bins
+# freq_fig_size = (15,5) # 100 bins
 freq_axis_size = 14
 label_rotation = 80
 
@@ -611,6 +672,7 @@ plt.xticks(ticks=freq_boundaries,
 plt.tight_layout()
 plt.savefig(figPath + model_name +
             str(num_cat_freq)+"bins"+"_FPR_GEAp0.05_vs_freq_neutralAllele_equalInterval.png",
+            # str(num_cat_freq) + "bins" + "_FPR_GEAp0.05_vs_freq_neutralAllele_equalInterval_log10cat.png",
             dpi=300)
 plt.close()
 
@@ -631,8 +693,60 @@ plt.tight_layout()
 plt.savefig(figPath+model_name +
             str(num_cat)+"bins" +
             "_GEAmedianP_vs_freq_neutralAllele_equalInterval.png",
+            # "_GEAmedianP_vs_freq_neutralAllele_equalInterval_log10cat.png",
             dpi=300)
 plt.close()
+
+# log10 freq
+# Neutral alleles: FPR ～ Allele frequency, equal intervals
+freq_fig_size = (8,5) # 20 bins
+# freq_fig_size = (15,5) # 100 bins
+freq_axis_size = 14
+label_rotation = 80
+
+plt.figure(figsize=freq_fig_size)
+plt.plot(np.log10(freq_boundaries_log10[0:-1]),
+         FPR_neutral_byFreq_equalWidth_log10,
+         color="grey",
+         marker = "o")
+plt.xlabel("Log10(allele frequency)",
+           fontsize=freq_axis_size)
+# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
+plt.ylabel("False positive rate of neutral alleles \n (FP/(FP+TN))",
+           fontsize=freq_axis_size)
+# plt.xticks(ticks=freq_boundaries,
+#            labels=[str(round(i,2)) for i in freq_boundaries],
+#            rotation=label_rotation)
+plt.tight_layout()
+plt.savefig(figPath + model_name +
+            # str(num_cat_freq)+"bins"+"_FPR_GEAp0.05_vs_freq_neutralAllele_equalInterval.png",
+            str(num_cat_freq) + "bins" + "_FPR_GEAp0.05_vs_freq_neutralAllele_equalInterval_log10cat.png",
+            dpi=300)
+plt.close()
+
+# log10 freq
+# Neutral alleles: p_median ～ Allele freq, equal width
+plt.figure(figsize=freq_fig_size)
+plt.plot(np.log10(freq_boundaries_log10[0:-1]),
+         p_median_byFreq_equalWidth_log10,
+         color="grey",
+         marker = "o")
+plt.xlabel("Log10(allele frequency)",
+           fontsize=freq_axis_size)
+plt.ylabel("Median p-values of neutral alleles",
+           fontsize=freq_axis_size)
+# plt.xticks(ticks=freq_boundaries,
+#            labels=[str(round(i,2)) for i in freq_boundaries],
+#            rotation=label_rotation)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat)+"bins" +
+            # "_GEAmedianP_vs_freq_neutralAllele_equalInterval.png",
+            "_GEAmedianP_vs_freq_neutralAllele_equalInterval_log10cat.png",
+            dpi=300)
+plt.close()
+
+
 
 # Neutral alleles: p_sd ～ Allele freq, equal width
 plt.figure(figsize=freq_fig_size)
@@ -746,7 +860,6 @@ plt.close()
 
 # Combine plots
 # Frequency
-mytitle = "M0a, high migration, cline map"
 myfigsize = (7, 6)
 histColors = ["lightblue", "mediumslateblue", "mediumvioletred"]
 freq_axis_size = 10
@@ -812,6 +925,95 @@ plt.savefig(figPath + model_name +
             str(num_cat_freq)+"bins"+"_freq_fourPlots.png",
             dpi=300)
 plt.close()
+
+# Only histograms of p-values
+worktitle = mytitle + "\n"
+myfigsize = (7, 4)
+histColors = ["lightblue", "mediumslateblue", "mediumvioletred"]
+freq_axis_size = 10
+
+fig, (ax0, ax1) = plt.subplots(nrows=1, ncols=2,
+                                 figsize=myfigsize)
+fig.suptitle(worktitle)
+# Subplot: histgrams of p-values
+# Kendall's tau
+ax0.hist([df_rare["p-tau"],df_low["p-tau"],df_high["p-tau"]],
+         bins=my_bins,
+         color=histColors, alpha=my_alpha,
+         histtype='bar', #histtype="step",
+         label=["0<MAF<0.01", "0.01<MAF<0.05", "0.05<MAF<1"],
+         density=True)
+ax0.set_xlabel(r"P-value for Kendall's $\tau$")
+ax0.set_ylabel("Density")
+# ax0.legend()
+# Pearson's rho
+ax1.hist([df_rare["p-rho"],df_low["p-rho"],df_high["p-rho"]],
+         bins=my_bins,
+         color=histColors, alpha=my_alpha,
+         histtype='bar', #histtype="step",
+         label=["0<MAF<0.01", "0.01<MAF<0.05", "0.05<MAF<1"],
+        density=True)
+ax1.set_xlabel("P-value for Pearson's r")
+ax1.set_ylabel("Density")
+handles, labels = ax1.get_legend_handles_labels()
+fig.legend(handles, labels, loc=(0.15,0.85),
+           ncol=3)
+fig.tight_layout()
+plt.savefig(figPath + model_name +
+            str(num_cat_freq)+"bins"+"_pHist_2Plots.png",
+            dpi=300)
+plt.close()
+
+# # Only histograms of p-values
+# # Seaborn version
+# d = {"values": df_rare["p-tau"]+df_low["p-tau"]+df_high["p-tau"],
+#      "labels": (["0.05<MAF<1"]*len(df_rare["p-tau"]) +
+#                 ["0.01<MAF<0.05"]*len(df_low["p-tau"])+
+#                 ["0.05<MAF<1"]*len(df_high["p-tau"]))}
+# df_plot = pd.date_range(data=d)
+# worktitle = mytitle + "\n"
+# myfigsize = (7, 4)
+# histColors = ["lightblue", "mediumslateblue", "mediumvioletred"]
+# freq_axis_size = 10
+#
+# fig, (ax0, ax1) = plt.subplots(nrows=1, ncols=2,
+#                                  figsize=myfigsize)
+# fig.suptitle(worktitle)
+# # Subplot: histgrams of p-values
+# # Kendall's tau
+# ax0.hist([df_rare["p-tau"],df_low["p-tau"],df_high["p-tau"]],
+#          bins=my_bins,
+#          color=histColors, alpha=my_alpha,
+#          histtype='bar', #histtype="step",
+#          label=["0<MAF<0.01", "0.01<MAF<0.05", "0.05<MAF<1"],
+#          density=True)
+# ax0.set_xlabel(r"P-value for Kendall's $\tau$")
+# ax0.set_ylabel("Density")
+# # ax0.legend()
+# # Pearson's rho
+# # ax1.hist([df_rare["p-rho"],df_low["p-rho"],df_high["p-rho"]],
+# #          bins=my_bins,
+# #          color=histColors, alpha=my_alpha,
+# #          histtype='bar', #histtype="step",
+# #          label=["0<MAF<0.01", "0.01<MAF<0.05", "0.05<MAF<1"],
+# #         density=True)
+# seaborn.histplot([df_rare["p-rho"],df_low["p-rho"],df_high["p-rho"]],
+#          bins=my_bins,
+#          color=histColors, alpha=my_alpha,
+#          # histtype='bar', #histtype="step",
+#          # label=["0<MAF<0.01", "0.01<MAF<0.05", "0.05<MAF<1"],
+#         stat="probability",
+#                  ax=ax1)
+# ax1.set_xlabel("P-value for Pearson's r")
+# ax1.set_ylabel("Density")
+# handles, labels = ax1.get_legend_handles_labels()
+# fig.legend(handles, labels, loc=(0.15,0.85),
+#            ncol=3)
+# fig.tight_layout()
+# plt.savefig(figPath + model_name +
+#             str(num_cat_freq)+"bins"+"_pHist_2Plots.png",
+#             dpi=300)
+# plt.close()
 
 
 

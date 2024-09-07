@@ -67,7 +67,7 @@ def LF_fitness(ind_x, ind_y, phenotype,
 sigma_w = 0.4
 # sigma_w = 1.0
 # sigma_w = 2.0
-dist_mate = 0.12
+dist_mate = 0.15
 sample_size = 500
 
 #User input arguments:

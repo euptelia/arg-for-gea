@@ -105,7 +105,7 @@ def lf_fitness(ind_x, ind_y, phenotype,
 ############################# program #########################################
 # Values
 sigma_w = 0.4
-dist_mate = 0.12
+dist_mate = 0.15
 history = 100000 # number of generations before the focal model
 
 #User input arguments:
