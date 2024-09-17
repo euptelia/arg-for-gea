@@ -52,12 +52,12 @@ args = parser.parse_args()
 # dist_mate = 0.12
 num_runs = 100
 # inPath = args.input
-mytitle = "M0a, low migration, cline map"
-inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
+# mytitle = "M0a, low migration, cline map"
+# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
 # mytitle = "M0a, high migration, cline map"
 # inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
-# mytitle = "M0a, low migration, patchy map"
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
+mytitle = "M0a, low migration, patchy map"
+inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
 # mytitle = "M0a, high migration, patchy map"
 # inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
 # mytitle = "M0b, low migration, cline map"
@@ -73,7 +73,7 @@ inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_
 # inPath = ""
 short_model_name = inPath.split("/")[-3]
 
-figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240822/" +
+figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240909/" +
            short_model_name + "/" + str(num_runs) + "runs_" + "cat100_" +
            inPath.split("/")[-2]+"/")
 # outPath = ("/home/tianlin/Documents/github/data/tskit_data/output/multiple_runs/" +
@@ -187,7 +187,8 @@ bin_width = 100/num_cat
 #     FPR_neutral_byAge.append(FP/mut_in_cat)
 
 # False negative rate for NEUTRAL mutations among AGE categories: Equal intervals
-num_cat_age = 100
+num_cat_age = 40
+p_threshold = 0.0001
 max_age = tick
 cat_width_age = max_age/num_cat_age
 age_boundaries = np.append(np.arange(0, max_age, cat_width_age), max_age)
@@ -209,7 +210,7 @@ for i in range(num_cat_age):
     tau_absSd_byAge_equalWidth.append(np.nanstd(abs(tau_category)))
     # Neutral mutations have no phenotypic effect and therefore no positive
     mut_in_cat = len(p_category)
-    obsP_neutral = p_category < 0.05
+    obsP_neutral = p_category < p_threshold
     # All positives are false positives
     FP = sum(obsP_neutral)
     FPR_neutral_byAge_equalWidth.append(FP/mut_in_cat)
@@ -244,7 +245,8 @@ for i in range(num_cat_age):
 #     FPR_neutral_byFreq.append(FP/mut_in_cat)
 
 # False negative rate for NEUTRAL mutations among FREQ categories: Equal intervals
-num_cat_freq = 100
+num_cat_freq = 40
+p_threshold = 0.0001
 cat_width_freq = 1.0/num_cat_freq
 freq_boundaries = np.append(np.arange(0, 1.0, cat_width_freq), 1.0)
 FPR_neutral_byFreq_equalWidth = []
@@ -267,7 +269,7 @@ for i in range(num_cat_freq):
     tau_absSd_byFreq_equalWidth.append(np.nanstd(abs(tau_category)))
     # Neutral mutations have no phenotypic effect and therefore no positive
     mut_in_cat = len(p_category)
-    obsP_neutral = p_category < 0.05
+    obsP_neutral = p_category < p_threshold
     # All positives are false positives
     FP = sum(obsP_neutral)
     FPR_neutral_byFreq_equalWidth.append(FP/mut_in_cat)
@@ -299,7 +301,7 @@ for i in range(num_cat_freq):
     tau_absSd_byFreq_equalWidth_log10.append(np.nanstd(abs(tau_category)))
     # Neutral mutations have no phenotypic effect and therefore no positive
     mut_in_cat = len(p_category)
-    obsP_neutral = p_category < 0.05
+    obsP_neutral = p_category < p_threshold
     # All positives are false positives
     FP = sum(obsP_neutral)
     FPR_neutral_byFreq_equalWidth_log10.append(FP/mut_in_cat)
@@ -542,7 +544,8 @@ for i in range(num_cat_freq):
 
 #### Equal intervals ####
 # age_fig_size = (8,5) # 20 bins
-age_fig_size = (15,5) # 100 bins
+age_fig_size = (8,5) # 40 bins
+# age_fig_size = (15,5) # 100 bins
 
 # Neutral alleles: FPR ～ Allele age, equal intervals
 plt.figure(figsize=age_fig_size)
@@ -560,7 +563,8 @@ plt.xticks(ticks=age_boundaries,
            rotation=90)
 plt.tight_layout()
 plt.savefig(figPath+model_name +
-            str(num_cat_age)+"bins"+"_FPR_GEAp0.05_vs_age_neutralAllele_equalInterval.png",
+            str(num_cat_age)+"bins"+"_FPR_GEAp" + str(p_threshold) +
+            "_vs_age_neutralAllele_equalInterval.png",
             dpi=300)
 plt.close()
 
@@ -671,7 +675,8 @@ plt.xticks(ticks=freq_boundaries,
            rotation=label_rotation)
 plt.tight_layout()
 plt.savefig(figPath + model_name +
-            str(num_cat_freq)+"bins"+"_FPR_GEAp0.05_vs_freq_neutralAllele_equalInterval.png",
+            str(num_cat_freq)+"bins"+"_FPR_GEAp" + str(p_threshold) +
+            "_vs_freq_neutralAllele_equalInterval.png",
             # str(num_cat_freq) + "bins" + "_FPR_GEAp0.05_vs_freq_neutralAllele_equalInterval_log10cat.png",
             dpi=300)
 plt.close()

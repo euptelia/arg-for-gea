@@ -48,12 +48,13 @@ args = parser.parse_args()
 # Values
 # sigma_w = 0.4
 # dist_mate = 0.12
-num_runs = 100
+num_runs = 200
 # inPath = args.input
-inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/gradualEnvChange_timeSeries/test/tick110000/"
+# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
+inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
 short_model_name = inPath.split("/")[-3]
 
-figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240809/" +
+figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240909/" +
            short_model_name + "/" + str(num_runs) + "runs_" +
            inPath.split("/")[-2]+"/")
 # outPath = ("/home/tianlin/Documents/github/data/tskit_data/output/multiple_runs/" +
@@ -103,36 +104,36 @@ print(str(run) + " files have been loaded.")
 #          "tau", "p", "relative_positive_lf", "relative_lf", "run_id",
 #          "p_rank"
 
-# No MAF filter: Not used
-# True positive rate, False negative rate, False discovery rate in all alleles
-# True adaptive allele: account for more than LF_min percent of positve LF_mut
-# GEA significant: BH-adjusted p-value < 0.05
-LF_min = 0.01
-num_cat = 20
-cat_width = int(100/num_cat) if 100 % num_cat == 0 else 100/num_cat
-age_percentile = np.percentile(df["age"],
-                               np.append(np.arange(0, 100, cat_width),
-                                         100))
-event_percentile = stats.percentileofscore(df["age"], event_age)
-TPR = []
-FPR = []
-FDR = []
-
-for i in range(num_cat):
-    focal_age = np.logical_and(df["age"] > age_percentile[i],
-                               df["age"] <= age_percentile[i+1])
-    df_category = df.loc[focal_age,:]
-    # num_allele = len(p_BH_category)
-    # proportion_sig.append(sum(p_BH_category < 0.05)/num_allele)
-    expP = df_category["relative_lf"] > LF_min
-    obsP = df_category["p"] < 0.05
-    TP = sum(expP & obsP)
-    FP = sum(~expP & obsP)
-    FN = sum(expP & ~obsP)
-    TN = sum(~expP & ~obsP)
-    TPR.append(TP/(TP+FN))
-    FPR.append(FP/(TN+FP))
-    FDR.append(FP/(TP+FP))
+# # No MAF filter: Not used
+# # True positive rate, False negative rate, False discovery rate in all alleles
+# # True adaptive allele: account for more than LF_min percent of positve LF_mut
+# # GEA significant: BH-adjusted p-value < 0.05
+# LF_min = 0.01
+# num_cat = 20
+# cat_width = int(100/num_cat) if 100 % num_cat == 0 else 100/num_cat
+# age_percentile = np.percentile(df["age"],
+#                                np.append(np.arange(0, 100, cat_width),
+#                                          100))
+# event_percentile = stats.percentileofscore(df["age"], event_age)
+# TPR = []
+# FPR = []
+# FDR = []
+#
+# for i in range(num_cat):
+#     focal_age = np.logical_and(df["age"] > age_percentile[i],
+#                                df["age"] <= age_percentile[i+1])
+#     df_category = df.loc[focal_age,:]
+#     # num_allele = len(p_BH_category)
+#     # proportion_sig.append(sum(p_BH_category < 0.05)/num_allele)
+#     expP = df_category["relative_lf"] > LF_min
+#     obsP = df_category["p"] < 0.05
+#     TP = sum(expP & obsP)
+#     FP = sum(~expP & obsP)
+#     FN = sum(expP & ~obsP)
+#     TN = sum(~expP & ~obsP)
+#     TPR.append(TP/(TP+FN))
+#     FPR.append(FP/(TN+FP))
+#     FDR.append(FP/(TP+FP))
 
 
 
@@ -140,8 +141,8 @@ for i in range(num_cat):
 # Exclude alleles with minor allele frequency < 0.05
 freq_cutoff = 0.05
 # empirical_p_threshold = 0.0005
-# empirical_p_threshold = 0.05
-empirical_p_threshold = 0.0001
+empirical_p_threshold = 0.05
+# empirical_p_threshold = 0.0001
 print_empirical_p_threshold = "{:.02e}".format(empirical_p_threshold)
 # empirical_p_threshold = 0.05
 # Define real positive: relative_LFmut > 0.01
@@ -481,32 +482,32 @@ plt.close()
 # plt.boxplot(TPR_cohort_runlist)
 
 
-# Histogram of detectable positives
-positive_age = df_mafPassed.loc[df.loc[:, "relative_lf"] > LF_min, "age"]
-negative_age = df_mafPassed.loc[df.loc[:, "relative_lf"] < LF_min, "age"]
-plt.hist(positive_age, bins=500, stacked=True,
-         color="mediumaquamarine")
-plt.xlabel("Allele age")
-plt.ylabel("Counts")
-plt.title("Relative LF_mut>" + str(LF_min) + ", n=" + str(len(positive_age)))
-plt.savefig(figPath + model_name +
-            "_MAF0.05_histRealPositives_by_age" +
-            "_LFmut" + str(LF_min) +
-            ".png",
-            dpi=300)
-plt.close()
-
-plt.hist(negative_age, bins=500, stacked=True,
-         color="grey")
-plt.xlabel("Allele age")
-plt.ylabel("Counts")
-plt.title("Relative LF_mut<" + str(LF_min) + ", n=" + str(len(negative_age)))
-plt.savefig(figPath + model_name +
-            "_MAF0.05_histNegative_by_age" +
-            "_LFmut" + str(LF_min) +
-            ".png",
-            dpi=300)
-plt.close()
+# # Histogram of detectable positives
+# positive_age = df_mafPassed.loc[df.loc[:, "relative_lf"] > LF_min, "age"]
+# negative_age = df_mafPassed.loc[df.loc[:, "relative_lf"] < LF_min, "age"]
+# plt.hist(positive_age, bins=500, stacked=True,
+#          color="mediumaquamarine")
+# plt.xlabel("Allele age")
+# plt.ylabel("Counts")
+# plt.title("Relative LF_mut>" + str(LF_min) + ", n=" + str(len(positive_age)))
+# plt.savefig(figPath + model_name +
+#             "_MAF0.05_histRealPositives_by_age" +
+#             "_LFmut" + str(LF_min) +
+#             ".png",
+#             dpi=300)
+# plt.close()
+#
+# plt.hist(negative_age, bins=500, stacked=True,
+#          color="grey")
+# plt.xlabel("Allele age")
+# plt.ylabel("Counts")
+# plt.title("Relative LF_mut<" + str(LF_min) + ", n=" + str(len(negative_age)))
+# plt.savefig(figPath + model_name +
+#             "_MAF0.05_histNegative_by_age" +
+#             "_LFmut" + str(LF_min) +
+#             ".png",
+#             dpi=300)
+# plt.close()
 
 
 #
@@ -712,89 +713,89 @@ plt.close()
 #     plt.close()
 
 
-num_cat = 20
-# TPR ～ Allele age
-# plt.plot(np.arange(100/num_cat, 101, 100/num_cat),
-plt.plot(np.arange(0, num_cat, 1),
-         TPR,
-         color="grey",
-         marker="o")
-# Event start
-plt.axvline(num_cat*event_percentile/100,
-            color='firebrick', lw=1, dashes=(2,1))
-plt.xlabel("Allele age percentile bins")
-# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
-plt.ylabel("True positive rate (TP/(TP+FN))")
-# plt.xticks(ticks=np.arange(100/num_cat, 101, 100/num_cat),
-#            labels=[(str(i*cat_width)+"-"+str((i+1)*cat_width))
-#                    for i in range(num_cat)])
-plt.xticks(ticks=np.arange(0, num_cat, 1),
-           labels=[str(i)
-                   for i in range(num_cat)])
-plt.tick_params(axis='x', rotation=45)
-# plt.savefig(figPath+model_name+"_proportionGEABHp_vs_age.png",
-#             dpi=300)
-plt.tight_layout()
-plt.savefig(figPath+model_name+str(num_cat)+"_minLF"+str(LF_min)+"_"+
-            str(num_cat)+"bins"+"_TPR_lfmut1percent_GEABHp0.05_vs_age.png",
-            dpi=300)
-plt.close()
-
-# FPR ～ Allele age
-# plt.plot(np.arange(100/num_cat, 101, 100/num_cat),
-plt.plot(np.arange(0, num_cat, 1),
-         FPR,
-         color="grey",
-         marker="o")
-# Event start
-plt.axvline(num_cat*event_percentile/100,
-            color='firebrick', lw=1, dashes=(2,1))
-plt.xlabel("Allele age percentile bins")
-# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
-plt.ylabel("False positive rate (FP/(FP+TN)))")
-# plt.xticks(ticks=np.arange(100/num_cat, 101, 100/num_cat),
-#            labels=[(str(i*cat_width)+"-"+str((i+1)*cat_width))
-#                    for i in range(num_cat)])
-plt.xticks(ticks=np.arange(0, num_cat, 1),
-           labels=[str(i)
-                   for i in range(num_cat)])
-plt.tick_params(axis='x', rotation=45)
-# plt.savefig(figPath+model_name+"_proportionGEABHp_vs_age.png",
-#             dpi=300)
-plt.tight_layout()
-plt.savefig(figPath+model_name+str(num_cat)+"_minLF"+str(LF_min)+"_"+
-            str(num_cat)+"bins"+"_FPR_lfmut1percent_GEABHp0.05_vs_age.png",
-            dpi=300)
-plt.close()
-
-
-# FDR ～ Allele age
-plt.plot(np.arange(0, num_cat, 1),
-# plt.plot(np.arange(50/num_cat, 101, 100/num_cat),
-         FDR,
-         color="grey",
-         marker="o")
-# Event start
-plt.axvline(num_cat*event_percentile/100,
-            color='firebrick', lw=1, dashes=(2,1))
+# num_cat = 20
+# # TPR ～ Allele age
+# # plt.plot(np.arange(100/num_cat, 101, 100/num_cat),
+# plt.plot(np.arange(0, num_cat, 1),
+#          TPR,
+#          color="grey",
+#          marker="o")
+# # Event start
+# plt.axvline(num_cat*event_percentile/100,
+#             color='firebrick', lw=1, dashes=(2,1))
 # plt.xlabel("Allele age percentile bins")
-plt.xlabel("Allele age rank bins")
-# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
-plt.ylabel("False discovery rate (FP/(FP+TP)))")
-# plt.xticks(ticks=np.arange(0, 101, 100/num_cat),
-# labels=[str(i*cat_width)
-#         for i in range(num_cat)])
-plt.xticks(ticks=np.arange(0, num_cat, 1),
-           labels=[str(i)
-                   for i in range(num_cat)])
-plt.tick_params(axis='x', rotation=45)
-# plt.savefig(figPath+model_name+"_proportionGEABHp_vs_age.png",
+# # plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
+# plt.ylabel("True positive rate (TP/(TP+FN))")
+# # plt.xticks(ticks=np.arange(100/num_cat, 101, 100/num_cat),
+# #            labels=[(str(i*cat_width)+"-"+str((i+1)*cat_width))
+# #                    for i in range(num_cat)])
+# plt.xticks(ticks=np.arange(0, num_cat, 1),
+#            labels=[str(i)
+#                    for i in range(num_cat)])
+# plt.tick_params(axis='x', rotation=45)
+# # plt.savefig(figPath+model_name+"_proportionGEABHp_vs_age.png",
+# #             dpi=300)
+# plt.tight_layout()
+# plt.savefig(figPath+model_name+str(num_cat)+"_minLF"+str(LF_min)+"_"+
+#             str(num_cat)+"bins"+"_TPR_lfmut1percent_GEABHp0.05_vs_age.png",
 #             dpi=300)
-plt.tight_layout()
-plt.savefig(figPath+model_name+str(num_cat)+"_minLF"+str(LF_min)+"_"+
-            str(num_cat)+"bins"+"_FDR_lfmut1percent_GEABHp0.05_vs_age.png",
-            dpi=300)
-plt.close()
+# plt.close()
+#
+# # FPR ～ Allele age
+# # plt.plot(np.arange(100/num_cat, 101, 100/num_cat),
+# plt.plot(np.arange(0, num_cat, 1),
+#          FPR,
+#          color="grey",
+#          marker="o")
+# # Event start
+# plt.axvline(num_cat*event_percentile/100,
+#             color='firebrick', lw=1, dashes=(2,1))
+# plt.xlabel("Allele age percentile bins")
+# # plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
+# plt.ylabel("False positive rate (FP/(FP+TN)))")
+# # plt.xticks(ticks=np.arange(100/num_cat, 101, 100/num_cat),
+# #            labels=[(str(i*cat_width)+"-"+str((i+1)*cat_width))
+# #                    for i in range(num_cat)])
+# plt.xticks(ticks=np.arange(0, num_cat, 1),
+#            labels=[str(i)
+#                    for i in range(num_cat)])
+# plt.tick_params(axis='x', rotation=45)
+# # plt.savefig(figPath+model_name+"_proportionGEABHp_vs_age.png",
+# #             dpi=300)
+# plt.tight_layout()
+# plt.savefig(figPath+model_name+str(num_cat)+"_minLF"+str(LF_min)+"_"+
+#             str(num_cat)+"bins"+"_FPR_lfmut1percent_GEABHp0.05_vs_age.png",
+#             dpi=300)
+# plt.close()
+#
+#
+# # FDR ～ Allele age
+# plt.plot(np.arange(0, num_cat, 1),
+# # plt.plot(np.arange(50/num_cat, 101, 100/num_cat),
+#          FDR,
+#          color="grey",
+#          marker="o")
+# # Event start
+# plt.axvline(num_cat*event_percentile/100,
+#             color='firebrick', lw=1, dashes=(2,1))
+# # plt.xlabel("Allele age percentile bins")
+# plt.xlabel("Allele age rank bins")
+# # plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
+# plt.ylabel("False discovery rate (FP/(FP+TP)))")
+# # plt.xticks(ticks=np.arange(0, 101, 100/num_cat),
+# # labels=[str(i*cat_width)
+# #         for i in range(num_cat)])
+# plt.xticks(ticks=np.arange(0, num_cat, 1),
+#            labels=[str(i)
+#                    for i in range(num_cat)])
+# plt.tick_params(axis='x', rotation=45)
+# # plt.savefig(figPath+model_name+"_proportionGEABHp_vs_age.png",
+# #             dpi=300)
+# plt.tight_layout()
+# plt.savefig(figPath+model_name+str(num_cat)+"_minLF"+str(LF_min)+"_"+
+#             str(num_cat)+"bins"+"_FDR_lfmut1percent_GEABHp0.05_vs_age.png",
+#             dpi=300)
+# plt.close()
 
 
 #### Cumulative plot of LF_mut ####
@@ -812,10 +813,10 @@ for i in range(num_runs):
     # positiveTotal = sum(sorted_lfmut)
     focal_cumulative_lf = [0] + [sum(sorted_lfmut[0:k+1])
                                  for k in range(len(sorted_lfmut))]
-    print(focal_cumulative_lf)
+    #print(focal_cumulative_lf)
     # How many alleles do we need to account for 80% of current local adaptation?
     focal_gea_goal = sum(np.array(focal_cumulative_lf) < expected_explained_proportion)
-    print(focal_gea_goal)
+    #print(focal_gea_goal)
     focal_explained = focal_cumulative_lf[focal_gea_goal]
     cumulative_lf_list.append(focal_cumulative_lf)
     gea_goal.append(focal_gea_goal)
@@ -950,6 +951,7 @@ plt.close()
 #             dpi=300)
 # plt.close()
 
+# Sum of LF of the size class ~ |phenotypic effect size|, separating positive and negative parts
 # Methods 2: relative to the total LF of each run
 num_cat = 20 # Number of categories for phenotypic effect
 abs_effect = abs(df["mut_effect"])
@@ -1168,7 +1170,7 @@ plt.bar(x, y2, color="saddlebrown",
        label="Negative",
        width=0.035)
 # plt.ylim(-0.1, 0.2) #temperary use
-plt.ylim(0, 0.35) # A value for all 8 combinations
+plt.ylim(-0.25, 0.35) # A value for all 8 combinations
 plt.axhline(0, color='grey', lw=1, dashes=(1,1))
 # plt.xticks(ticks=np.arange(0, max(x), 1),
 #            labels=['{:0.2e}'.format(i)
@@ -1188,7 +1190,7 @@ plt.close()
 
 
 
-# Three way relationship among allele freq, effect size and contribution to LF
+# Three-way relationship among allele freq, effect size and contribution to LF
 df_polymorphic = df[(df["freq"] != 1) & (df["freq"] != 0)]
 max_lf = max(df_polymorphic["delta_LF_mut"])
 min_lf = min(df_polymorphic["delta_LF_mut"])
@@ -1211,89 +1213,89 @@ for f in df_polymorphic["freq"]:
         minor_freq.append(1-f)
 minor_freq = np.array(minor_freq)
 
-# # Dot plots that look good but not useful
-maf_mafPassed = 0.5-abs(df_mafPassed["freq"]-0.5)
-plt.scatter(abs(df_mafPassed["mut_effect"]), df_mafPassed["relative_lf"],
-            marker="o", c=df_mafPassed["freq"],
-            alpha=0.1, s=20)
-plt.xlabel("|Mutation phenotypic effect size|")
-plt.ylabel("Relative $LF_{mut}$")
-# plt.xlim(left=0,
-#          right=0.05)
-# plt.ylim(bottom=-0.004, top=0.016)
-plt.colorbar().set_label("Minor allele Frequency")
-plt.tight_layout()
-plt.savefig(figPath+model_name+"_relativeLFmut_by_effectSize_frequencyColor.png",
-            dpi=300)
-plt.close()
-
-# p-rank ~ relative lf_mut, colored by MAF
-plt.scatter(df_mafPassed["relative_lf"],
-            -np.log10(df_mafPassed["p_rank_mafPassed"]),
-            marker="o", c=maf_mafPassed,
-            alpha=0.1, s=20)
-plt.xlabel("Relative $LF_{mut}$")
-plt.ylabel("-log10(Relative ranks of p-values among all alleles with MAF > 0.05)")
-# plt.xlim(left=0,
-#          right=0.05)
-# plt.ylim(bottom=-0.004, top=0.016)
-plt.colorbar().set_label("Minor allele Frequency")
-plt.tight_layout()
-plt.savefig(figPath+model_name+
-            "_log10pRank_MAFpassed_by_relativeLF_minorFrequencyColor.png",
-            dpi=300)
-plt.close()
-
-# p-rank ~ |phenotypic effect size|, colored by MAF
-plt.scatter(abs(df_mafPassed["mut_effect"]),
-            -np.log10(df_mafPassed["p_rank_mafPassed"]),
-            marker="o", c=maf_mafPassed,
-            alpha=0.1, s=20)
-plt.xlabel("|Mutation phenotypic effect size|")
-plt.ylabel("-log10(Relative ranks of p-values among all alleles with MAF > 0.05)")
-# plt.xlim(left=0,
-#          right=0.05)
-# plt.ylim(bottom=-0.004, top=0.016)
-plt.colorbar().set_label("Minor allele Frequency")
-plt.tight_layout()
-plt.savefig(figPath+model_name+
-            "_log10pRank_MAFpassed_by_absEffectSize_minorFrequencyColor.png",
-            dpi=300)
-plt.close()
-
-# p-rank ~ relative lf_mut, colored by log age
-plt.scatter(df_mafPassed["relative_lf"],
-            -np.log10(df_mafPassed["p_rank_mafPassed"]),
-            marker="o", c=np.log10(df_mafPassed["age"]),
-            alpha=0.1, s=20)
-plt.xlabel("Relative $LF_{mut}$")
-plt.ylabel("-log10(Relative ranks of p-values among all alleles with MAF > 0.05)")
-# plt.xlim(left=0,
-#          right=0.05)
-# plt.ylim(bottom=-0.004, top=0.016)
-plt.colorbar().set_label("Log10(allele age)")
-plt.tight_layout()
-plt.savefig(figPath+model_name+
-            "_log10pRank_MAFpassed_by_relativeLF_log10AgeColor.png",
-            dpi=300)
-plt.close()
-
-# p-rank ~ |phenotypic effect size|, colored by log age
-plt.scatter(abs(df_mafPassed["mut_effect"]),
-            -np.log10(df_mafPassed["p_rank_mafPassed"]),
-            marker="o", c=np.log10(df_mafPassed["age"]),
-            alpha=0.1, s=20)
-plt.xlabel("|Mutation phenotypic effect size|")
-plt.ylabel("-log10(Relative ranks of p-values among all alleles with MAF > 0.05)")
-# plt.xlim(left=0,
-#          right=0.05)
-# plt.ylim(bottom=-0.004, top=0.016)
-plt.colorbar().set_label("Allele age")
-plt.tight_layout()
-plt.savefig(figPath+model_name+
-            "_log10pRank_MAFpassed_by_absEffectSize_log10AgeColor.png",
-            dpi=300)
-plt.close()
+# # # Dot plots that look good but not useful
+# maf_mafPassed = 0.5-abs(df_mafPassed["freq"]-0.5)
+# plt.scatter(abs(df_mafPassed["mut_effect"]), df_mafPassed["relative_lf"],
+#             marker="o", c=df_mafPassed["freq"],
+#             alpha=0.1, s=20)
+# plt.xlabel("|Mutation phenotypic effect size|")
+# plt.ylabel("Relative $LF_{mut}$")
+# # plt.xlim(left=0,
+# #          right=0.05)
+# # plt.ylim(bottom=-0.004, top=0.016)
+# plt.colorbar().set_label("Minor allele Frequency")
+# plt.tight_layout()
+# plt.savefig(figPath+model_name+"_relativeLFmut_by_effectSize_frequencyColor.png",
+#             dpi=300)
+# plt.close()
+#
+# # p-rank ~ relative lf_mut, colored by MAF
+# plt.scatter(df_mafPassed["relative_lf"],
+#             -np.log10(df_mafPassed["p_rank_mafPassed"]),
+#             marker="o", c=maf_mafPassed,
+#             alpha=0.1, s=20)
+# plt.xlabel("Relative $LF_{mut}$")
+# plt.ylabel("-log10(Relative ranks of p-values among all alleles with MAF > 0.05)")
+# # plt.xlim(left=0,
+# #          right=0.05)
+# # plt.ylim(bottom=-0.004, top=0.016)
+# plt.colorbar().set_label("Minor allele Frequency")
+# plt.tight_layout()
+# plt.savefig(figPath+model_name+
+#             "_log10pRank_MAFpassed_by_relativeLF_minorFrequencyColor.png",
+#             dpi=300)
+# plt.close()
+#
+# # p-rank ~ |phenotypic effect size|, colored by MAF
+# plt.scatter(abs(df_mafPassed["mut_effect"]),
+#             -np.log10(df_mafPassed["p_rank_mafPassed"]),
+#             marker="o", c=maf_mafPassed,
+#             alpha=0.1, s=20)
+# plt.xlabel("|Mutation phenotypic effect size|")
+# plt.ylabel("-log10(Relative ranks of p-values among all alleles with MAF > 0.05)")
+# # plt.xlim(left=0,
+# #          right=0.05)
+# # plt.ylim(bottom=-0.004, top=0.016)
+# plt.colorbar().set_label("Minor allele Frequency")
+# plt.tight_layout()
+# plt.savefig(figPath+model_name+
+#             "_log10pRank_MAFpassed_by_absEffectSize_minorFrequencyColor.png",
+#             dpi=300)
+# plt.close()
+#
+# # p-rank ~ relative lf_mut, colored by log age
+# plt.scatter(df_mafPassed["relative_lf"],
+#             -np.log10(df_mafPassed["p_rank_mafPassed"]),
+#             marker="o", c=np.log10(df_mafPassed["age"]),
+#             alpha=0.1, s=20)
+# plt.xlabel("Relative $LF_{mut}$")
+# plt.ylabel("-log10(Relative ranks of p-values among all alleles with MAF > 0.05)")
+# # plt.xlim(left=0,
+# #          right=0.05)
+# # plt.ylim(bottom=-0.004, top=0.016)
+# plt.colorbar().set_label("Log10(allele age)")
+# plt.tight_layout()
+# plt.savefig(figPath+model_name+
+#             "_log10pRank_MAFpassed_by_relativeLF_log10AgeColor.png",
+#             dpi=300)
+# plt.close()
+#
+# # p-rank ~ |phenotypic effect size|, colored by log age
+# plt.scatter(abs(df_mafPassed["mut_effect"]),
+#             -np.log10(df_mafPassed["p_rank_mafPassed"]),
+#             marker="o", c=np.log10(df_mafPassed["age"]),
+#             alpha=0.1, s=20)
+# plt.xlabel("|Mutation phenotypic effect size|")
+# plt.ylabel("-log10(Relative ranks of p-values among all alleles with MAF > 0.05)")
+# # plt.xlim(left=0,
+# #          right=0.05)
+# # plt.ylim(bottom=-0.004, top=0.016)
+# plt.colorbar().set_label("Allele age")
+# plt.tight_layout()
+# plt.savefig(figPath+model_name+
+#             "_log10pRank_MAFpassed_by_absEffectSize_log10AgeColor.png",
+#             dpi=300)
+# plt.close()
 
 # plt.scatter(abs(df_polymorphic["mut_effect"]), df_polymorphic["delta_LF_mut"],
 #             marker="o", c=minor_freq,
@@ -1383,7 +1385,7 @@ plt.close()
 # plt.close()
 
 
-#Three way relationship 1
+#Three-way relationship 1
 # Sum of LF from the age class ~ Allele age Colored by |effect size|
 num_age_cat = 25 # Number of categories for allele age
 num_size_cat = 5 # Number of categories for allele age

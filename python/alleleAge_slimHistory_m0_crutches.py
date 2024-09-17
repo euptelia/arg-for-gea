@@ -11,14 +11,14 @@ tianlin.duan42@gmail.com
 ############################# modules #########################################
 import msprime
 import tskit
-import pyslim
+# import pyslim
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 from scipy.spatial import distance_matrix
 import numpy as np
-import pandas
+# import pandas
 import random
-from time import time
+# from time import time
 import sys # for sys.exit()
 # import allel # for allel.weir_cockerham_fst()
 import os # mkdir

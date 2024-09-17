@@ -1,5 +1,5 @@
 """
-Calculate population fst for all .trees files in a folder.
+Calculate population fst (Weir and Cockman) for all .trees files in a folder.
 Save results in a table
 Typically needs about 16 Gb memory
 tianlin.duan42@gmail.com
@@ -16,7 +16,6 @@ import numpy as np
 # import pandas
 import random
 import time
-import sys # for sys.exit()
 import allel # for allel.weir_cockerham_fst()
 import os # mkdir
 # import tracemalloc check memory usage
@@ -26,22 +25,25 @@ import glob #for loading files
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--inPath',
-                    help='Absolute path to a folder with input .trees files',
+                    help='Absolute path to the folder with input .trees files',
                     type=str)
 parser.add_argument('-o', '--outPath',
                     help='Absolute path for an output table',
-                    type=int, default=1)
+                    type=str)
 args = parser.parse_args()
 
 ############################# functions #######################################
 inPath = args.inPath
 outPath = args.outPath
 fileList = glob.glob(inPath + "*.trees")
+if not os.path.exists(outPath):
+    os.makedirs(outPath)
 output = outPath + "fst.tab"
 fout = open(output, "w")
 for file in fileList:
     # print("Fst calculation started")
     # print(time.ctime())
+    file_name = file.split("/")[-1]
     t1 = time.time()
     # Tree-sequence file from SLiM
     ts = tskit.load(file)
@@ -109,7 +111,7 @@ for file in fileList:
     a, b, c = allel.weir_cockerham_fst(g, subpops)
     # fst_pop = a / (a + b + c)
     fst = np.sum(a) / (np.sum(a) + np.sum(b) + np.sum(c))
-    fout.write(str(round(fst, 4)) + "\t")
+    fout.write(file_name + "\t" + str(round(fst, 4)) + "\n")
     print("Fst:" + str(round(fst, 4)))
     del g, a, b, c, subpops
     print("Fst calculation finished")
