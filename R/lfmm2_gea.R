@@ -1,11 +1,15 @@
 #Try lfmm2 for GEA, using package LEA
 # Following instructions from
 # http://membres-timc.imag.fr/Olivier.Francois/LEA/files/LEA_github.pdf
+# install.packages("gert")
+# install.packages("miniUI")
 # install.packages("devtools")
-# devtools::install_github("bcm-uga/LEA")
+devtools::install_github("bcm-uga/LEA")
 library(LEA)
 library(ggplot2)
-setwd("/home/tianlin/Documents/github/data/R/20240507/")
+# setwd("/home/tianlin/Documents/github/data/R/20240507/")
+setwd("/home/tianlin/ubc/data/R/lfmm/")
+outPath="/home/tianlin/ubc/data/R/lfmm/output/"
 # sample_size = 500
 #### PCA ####
 # # Memory error for the whole dataset
@@ -47,8 +51,9 @@ setwd("/home/tianlin/Documents/github/data/R/20240507/")
 # runName = "Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-09_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_seed110027493345619720_tick101000_mutSeed495925480"
 # shortName = "LowPoly_LowMig_ClineMap_101000"
 
-runName = "Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-09_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_seed101863569341019597_tick101000_mutSeed116934221"
-shortName = "LowPoly_HighMig_ClineMap_101000"
+runName = "Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07_seed124259352499469434_tick110000_mutSeed210311634"
+# shortName = "LowPoly_HighMig_ClineMap_101000"
+shortName = runName
 
 genoFileName = paste(runName, "_500Inds.geno", sep="")
 envFileName =  paste(runName, "_500Inds.env", sep="")
@@ -83,7 +88,7 @@ pc = pca(genoFileName,
 tw = tracy.widom(pc) 
 tw
 # plot the percentage of variance explained by each component
-setwd("/home/tianlin/Documents/github/data/R/202408/figures")
+setwd(outPath)
 png(file = paste(runName, "_pca_percentage.png", sep = ""),
     height = 800,
     width = 1200,
