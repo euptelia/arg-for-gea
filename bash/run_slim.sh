@@ -192,8 +192,20 @@
 #    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M0b_glacialHistory_patchyMap_gradualExpansion_temp1.slim
 #done
 
-for i in {1..13} 
+#for i in {1..13} 
+#do
+#    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2a_glacialHistory_patchyMap_gradualChange.slim
+#done
+
+#for i in {1..25} 
+#do
+#    printf "Start the %s/10 run of M2b, low migration, patchy map\n" $i
+#    slim /home/tianlin/ubc/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_patchyMap_gradualExpansion_variedRefugia.slim
+#done
+
+for i in {1..50} 
 do
-    slim /home/tianlin/Documents/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2a_glacialHistory_patchyMap_gradualChange.slim
+    printf "Start the %s/10 run of M2b, low migration, patchy map\n" $i
+    slim /home/tianlin/ubc/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_patchyMap_gradualExpansion_variedRefugia_temp1.slim
 done
 

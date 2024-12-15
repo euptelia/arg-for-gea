@@ -400,7 +400,7 @@
 #    printf "file %s / 50 \n" $i 
 #    printf "Start making a table with \n %s" $file
 #    python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory_crutches.py -i ${file} -p 0
-#    i=${i}+1
+#    i=$((${i}+1))
 #done
 
 #batchNumber=4
@@ -412,7 +412,7 @@
 #    printf "file %s / 50 \n" $i 
 #    printf "Start making a table with \n %s" $file
 #    python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory_crutches.py -i ${file} -p 0
-#    i=${i}+1
+#    i=$((${i}+1))
 #done
 
 #batchNumber=4
@@ -424,18 +424,42 @@
 #    printf "file %s / 50 \n" $i 
 #    printf "Start making a table with \n %s" $file
 #    python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory_crutches.py -i ${file} -p 0
-#    i=${i}+1
+#    i=$((${i}+1))
 #done
 
-batchNumber=4
-inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M2b_smallLowVm_lowMig_patchyMap/tick102000/batch${batchNumber}"
+#batchNumber=4
+#inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M2b_smallLowVm_lowMig_patchyMap/tick102000/batch${batchNumber}"
+#i=1
+#echo $inPath
+#for file in ${inPath}/*.trees
+#do
+#    printf "file %s / 50 \n" $i 
+#    printf "Start making a table with \n %s" $file
+#    python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory_crutches.py -i ${file} -p 0
+#    i=$((${i}+1))
+#done
+    
+#batchNumber=6
+#inPath="/home/tianlin/ubc/data/slim/20241127variedrefugia/m2b_patchy_highMig_variedRefugia/tick110000/batch${batchNumber}"
+#j=1
+#echo $inPath
+#for file in ${inPath}/*.trees
+#do
+#    printf "file %s / 50 \n" $j 
+#    printf "Start making a table with \n %s" $file
+#    python3 /home/tianlin/ubc/arg-for-gea/python/alleleAge_slimHistory_crutches.py -i ${file} -p 0
+#    j=$((${j}+1))
+#done
+
+batchNumber=6
+inPath="/home/tianlin/ubc/data/slim/20241127variedrefugia/m2b_patchy_lowMig_variedRefugia/tick110000/batch${batchNumber}"
 i=1
 echo $inPath
 for file in ${inPath}/*.trees
 do
     printf "file %s / 50 \n" $i 
     printf "Start making a table with \n %s" $file
-    python3 /home/tianlin/Documents/github/arg-for-gea/python/alleleAge_slimHistory_crutches.py -i ${file} -p 0
-    i=${i}+1
+    python3 /home/tianlin/ubc/arg-for-gea/python/alleleAge_slimHistory_crutches_temp.py -i ${file} -p 0
+    i=$((${i}+1))
 done
 
