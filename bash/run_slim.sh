@@ -203,9 +203,39 @@
 #    slim /home/tianlin/ubc/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_patchyMap_gradualExpansion_variedRefugia.slim
 #done
 
-for i in {1..50} 
+#for i in {1..50} 
+#do
+#    printf "Start the %s/10 run of M2b, low migration, patchy map\n" $i
+#    slim /home/tianlin/ubc/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_patchyMap_gradualExpansion_variedRefugia_temp1.slim
+#done
+
+#for i in {1..32} 
+#do
+#    printf "Start the %s/10 run of M3b, low migration, cline map\n" $i
+#    slim /home/anadem/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M3b_glacialHistory_clineMap_recurrentChange.slim
+#done
+
+#for i in {1..20} 
+#do
+#    printf "Start the %s/10 run of M3b, low migration, cline map\n" $i
+#    slim /home/anadem/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M3a_glacialHistory_clineMap_recurrentChange.slim
+#done
+
+#for i in {1..20} 
+#do
+#    printf "Start the %s/20 run of M3b, low migration, cline map\n" $i
+#    slim /home/anadem/github/arg-for-gea/slim/glacial_history/time_series/contiuous_nonWF_M3b_glacialHistory_clineMap_recurrentChange_timeSeries.slim
+#done
+
+#for i in {1..25} 
+#do
+#    printf "Start the %s/25 run of M3b, high migration, cline map\n" $i
+#    slim /home/anadem/github/arg-for-gea/slim/glacial_history/time_series/contiuous_nonWF_M3b_glacialHistory_clineMap_recurrentChange_timeSeries_temp.slim
+#done
+
+for i in {1..25} 
 do
-    printf "Start the %s/10 run of M2b, low migration, patchy map\n" $i
-    slim /home/tianlin/ubc/arg-for-gea/slim/glacial_history/contiuous_nonWF_M2b_glacialHistory_patchyMap_gradualExpansion_variedRefugia_temp1.slim
+    printf "Start the %s/25 run of M3a, high migration, cline map\n" $i
+    slim /home/anadem/github/arg-for-gea/slim/glacial_history/time_series/contiuous_nonWF_M3a_glacialHistory_clineMap_recurrentChange_timeSeries_temp.slim
 done
 

@@ -105,7 +105,7 @@ def lf_fitness(ind_x, ind_y, phenotype,
 ############################# program #########################################
 # Values
 sigma_w = 0.4
-dist_mate = 0.15
+dist_mate = 0.12
 history = 100000 # number of generations before the focal model
 
 #User input arguments:
@@ -121,14 +121,16 @@ model_name = file_name[0:-6]  # Assuming the file name extension is .trees
 short_model_name = "_".join(file_name.split("_")[0:-2])
 
 # figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20241201/"
-figPath = "/home/tianlin/ubc/data/tskit_data/figure/20241201/"
+# figPath = "/home/tianlin/ubc/data/tskit_data/figure/20241201/"
+figPath = "/home/anadem/github/data/tskit_data/figure/20241201/"
 #Figure path for the current run
 figPath = figPath + model_name + "/"
 if not os.path.exists(figPath):
     os.mkdir(figPath)
 # outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/"
-outBasePath = "/home/tianlin/ubc/data/tskit_data/output/table/realistic_fpr_comparisons/"
-outPath = outBasePath+short_model_name+"/"
+# outBasePath = "/home/tianlin/ubc/data/tskit_data/output/table/realistic_fpr_comparisons/"
+outBasePath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/"
+outPath = outBasePath+short_model_name+"/timeSeries"
 if not os.path.exists(outPath):
     os.makedirs(outPath)
 if not os.path.exists(figPath):

@@ -31,18 +31,18 @@ import matplotlib.patches as mpatches # manually make legends
 import seaborn as sns
 
 ############################# options #############################
-import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument('-i', '--input',
-                    help='Path the the input tables',
-                    type=str)
-# parser.add_argument('-n', '--name',
-#                     help='Short model name',
+# import argparse
+# parser = argparse.ArgumentParser()
+# parser.add_argument('-i', '--input',
+#                     help='Path the the input tables',
 #                     type=str)
-# parser.add_argument('-p', '--plot',
-#                     help='1 for generating plots and 0 for not plotting',
-#                     type=int, default=1)
-args = parser.parse_args()
+# # #parser.add_argument('-n', '--name',
+# #                     help='Short model name',
+# #                     type=str)
+# # #parser.add_argument('-p', '--plot',
+# #                     help='1 for generating plots and 0 for not plotting',
+# #                     type=int, default=1)
+# args = parser.parse_args()
 
 ############################# program #########################################
 # Values
@@ -51,12 +51,20 @@ args = parser.parse_args()
 num_runs = 200
 # inPath = args.input
 # inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
-inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
+# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
+#inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
+# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
+inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
 short_model_name = inPath.split("/")[-3]
-
-figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240909/" +
+figPath = ("/home/anadem/github/data/tskit_data/figure/20250109/" +
            short_model_name + "/" + str(num_runs) + "runs_" +
            inPath.split("/")[-2]+"/")
+# figPath = ("/home/anadem/github/data/tskit_data/figure/20250114_m3_200runs/" +
+#            short_model_name + "/" + str(num_runs) + "runs_" +
+#            inPath.split("/")[-2]+"/")
+# figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240909/" +
+#            short_model_name + "/" + str(num_runs) + "runs_" +
+#            inPath.split("/")[-2]+"/")
 # outPath = ("/home/tianlin/Documents/github/data/tskit_data/output/multiple_runs/" +
 #            short_model_name + "/100runs_" + inPath.split("/")[-2]+"/")
 # if not os.path.exists(outPath):
@@ -517,7 +525,8 @@ plt.close()
 # Rare alleles excluded
 # p,tau and false negative rate among AGE categories
 # Equal numbers
-raw_p_threshold = 0.00000000000001
+# raw_p_threshold = 0.00000000000001
+raw_p_threshold = 0.000000000001
 print_raw_p_threshold = "{:.02e}".format(raw_p_threshold)
 cat_width = int(100/num_cat) if 100 % num_cat == 0 else 100/num_cat
 age_percentile = np.percentile(df_mafPassed["age"],
@@ -586,7 +595,7 @@ plt.plot(np.arange(100/num_cat, 101, 100/num_cat) - 0.5*cat_width,
          color="grey",
          marker = "o")
 plt.xlabel("\nAllele age percentile bins")
-plt.ylabel("False discovery rate (FP/(FP+TP)))")
+plt.ylabel("False discovery rate (FP/(FP+TP))")
 plt.title("Raw p-value threshold " + str(print_raw_p_threshold))
 plt.xticks(ticks=x_ticks,
            labels=x_labels,
@@ -752,7 +761,7 @@ plt.close()
 #             color='firebrick', lw=1, dashes=(2,1))
 # plt.xlabel("Allele age percentile bins")
 # # plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
-# plt.ylabel("False positive rate (FP/(FP+TN)))")
+# plt.ylabel("False positive rate (FP/(FP+TN))")
 # # plt.xticks(ticks=np.arange(100/num_cat, 101, 100/num_cat),
 # #            labels=[(str(i*cat_width)+"-"+str((i+1)*cat_width))
 # #                    for i in range(num_cat)])
@@ -781,7 +790,7 @@ plt.close()
 # # plt.xlabel("Allele age percentile bins")
 # plt.xlabel("Allele age rank bins")
 # # plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
-# plt.ylabel("False discovery rate (FP/(FP+TP)))")
+# plt.ylabel("False discovery rate (FP/(FP+TP))")
 # # plt.xticks(ticks=np.arange(0, 101, 100/num_cat),
 # # labels=[str(i*cat_width)
 # #         for i in range(num_cat)])

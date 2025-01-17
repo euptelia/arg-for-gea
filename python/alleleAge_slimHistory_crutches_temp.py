@@ -110,9 +110,7 @@ history = 100000 # number of generations before the focal model
 
 #User input arguments:
 path_file_name = args.input
-# path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M2b_smallLowVm_lowMig_clineMap/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed55381568486983757_tick110000.trees"
-# Test with a smaller file
-# path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum0_timeSeries_gradualChange/M2b_smallLowVm_highMig_clineMap/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_seed142788750963570601_tick100400.trees"
+# path_file_name = "/home/anadem/github/data/slim_data/glacial_history/recurrentChange/M3b_smallLowVm_lowMig_clineMap/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed2605221004011493129_tick110000.trees"
 
 # Remove paths
 file_name = path_file_name.split("/")[-1]
@@ -121,13 +119,16 @@ model_name = file_name[0:-6]  # Assuming the file name extension is .trees
 short_model_name = "_".join(file_name.split("_")[0:-2])
 
 # figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20241201/"
-figPath = "/home/tianlin/ubc/data/tskit_data/figure/20241201/"
+# figPath = "/home/tianlin/ubc/data/tskit_data/figure/20241201/"
+figPath = "/home/anadem/github/data/tskit_data/figure/20250109/"
 #Figure path for the current run
 figPath = figPath + model_name + "/"
 if not os.path.exists(figPath):
     os.mkdir(figPath)
 # outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/"
-outBasePath = "/home/tianlin/ubc/data/tskit_data/output/table/realistic_fpr_comparisons/"
+# outBasePath = "/home/tianlin/ubc/data/tskit_data/output/table/realistic_fpr_comparisons/"
+# outBasePath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/"
+outBasePath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/"
 outPath = outBasePath+short_model_name+"/"
 if not os.path.exists(outPath):
     os.makedirs(outPath)
