@@ -155,9 +155,10 @@ path_file_basename = args.input
 model_name = "_".join(path_file_basename.split("/")[-1].split("_")[0:-2])
 seed = path_file_basename.split("_")[-2]
 # figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240605/"
-figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240809/one_run/"
+figPath = "/home/anadem/github/data/tskit_data/figure/20250122MultiTimesTest/"
 # outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/"
-outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/gradualEnvChange_timeSeries/"
+# outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/gradualEnvChange_timeSeries/"
+outBasePath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/timeSeries/"
 outPath = outBasePath + model_name + "_" + seed + "/"
 if not os.path.exists(outPath):
     os.makedirs(outPath)
@@ -172,14 +173,19 @@ mean_lf_list = []
 # times = np.array([50, 100, 200, 300, 400, 800,
 #                   1000, 2000, 4000, 6000, 8000,
 #                   10000, 20000, 30000, 40000, 60000, 80000, 100000])
+#21 samples
+times = np.array([0, 200, 300, 400, 800,
+                  1000, 1100, 1200, 1300, 1400, 1800,
+                  2000, 4000, 6000, 8000,
+                  10000, 20000, 40000, 60000, 80000, 100000])
 #22 samples
 # times = np.array([0, 100, 200, 400, 600, 800,
 #                   1000, 1200, 1400, 1600, 1800,
 #                   2000, 4000, 6000, 8000,
 #                   10000, 20000, 30000, 40000, 60000, 80000, 100000])
 
-times = np.array([0, 400, 800, 1000, 4000, 10000,
-                  20000, 40000, 60000, 80000, 100000])
+# times = np.array([0, 400, 800, 1000, 4000, 10000,
+#                   20000, 40000, 60000, 80000, 100000])
 # times = np.array([10000])
 # times = np.array([1000, 4000, 20000, 40000, 60000, 80000, 100000])
 LFs = []

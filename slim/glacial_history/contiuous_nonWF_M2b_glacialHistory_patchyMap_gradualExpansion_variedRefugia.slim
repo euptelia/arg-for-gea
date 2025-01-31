@@ -31,7 +31,8 @@ initialize() {
 	defineConstant("maxCompStrength", 1.0);
 	//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/");
 //	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M2b_smallLowVm_lowMig_patchyMap/");
-	defineConstant("outDir", "/home/tianlin/ubc/data/slim/20241127variedrefugia/");
+//	defineConstant("outDir", "/home/tianlin/ubc/data/slim/20241127variedrefugia/");
+	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/20241127variedrefugia/");
 	//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/m2b_mu1e-7_m0.1_w0.4/");
 	
 	// defineConstant("outDir", "D:/UBC_office/slim/output/");
@@ -148,8 +149,11 @@ mutationEffect(m2) {
 	//	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,
 	//		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
 	// Keep the environmental map during the glacial maxium
-	loadMap = readCSV("/home/tianlin/ubc/arg-for-gea/map/random_map1.csv",
-		colNames = F, colTypes = "f").asMatrix();
+//	loadMap = readCSV("/home/tianlin/ubc/arg-for-gea/map/random_map1.csv",
+//		colNames = F, colTypes = "f").asMatrix();
+		loadMap = readCSV("/home/anadem/github/arg-for-gea/map/random_map1.csv",
+		colNames = F, colTypes = "f").asMatrix();	
+		
 	defineGlobal("mapValues", loadMap);
 	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,
 		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));

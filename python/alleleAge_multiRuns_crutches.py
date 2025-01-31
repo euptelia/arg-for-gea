@@ -55,8 +55,11 @@ num_runs = 200
 #inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
 inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
+# inPath = "/media/anadem/PortableSSD/UBC_dell_20240917/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
+# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
+# inPath = "/media/anadem/PortableSSD/UBC_dell_20240917/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
 short_model_name = inPath.split("/")[-3]
-figPath = ("/home/anadem/github/data/tskit_data/figure/20250109/" +
+figPath = ("/home/anadem/github/data/tskit_data/figure/20250109/variedRefugia/" +
            short_model_name + "/" + str(num_runs) + "runs_" +
            inPath.split("/")[-2]+"/")
 # figPath = ("/home/anadem/github/data/tskit_data/figure/20250114_m3_200runs/" +
