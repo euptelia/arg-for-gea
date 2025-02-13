@@ -233,9 +233,28 @@
 #    slim /home/anadem/github/arg-for-gea/slim/glacial_history/time_series/contiuous_nonWF_M3b_glacialHistory_clineMap_recurrentChange_timeSeries_temp.slim
 #done
 
-for i in {1..25} 
+#for i in {1..25} 
+#do
+#    printf "Start the %s/25 run of M3a, high migration, cline map\n" $i
+#    slim /home/anadem/github/arg-for-gea/slim/glacial_history/time_series/contiuous_nonWF_M3a_glacialHistory_clineMap_recurrentChange_timeSeries_temp.slim
+#done
+
+## 4 hours per file on office dell
+#for i in {1..50} 
+#do
+#    printf "Start the %s/20 run of M3a, high migration, cline map\n" $i
+#    slim /home/anadem/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M3a_glacialHistory_clineMap_recurrentChange.slim
+#done
+
+#for i in {1..50} 
+#do
+#    printf "Start the %s/50 run of M3a, high migration, cline map, large mutations\n" $i
+#    slim /home/anadem/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M3a_glacialHistory_clineMap_recurrentChange_temp1.slim
+#done
+
+for i in {1..50} 
 do
-    printf "Start the %s/25 run of M3a, high migration, cline map\n" $i
-    slim /home/anadem/github/arg-for-gea/slim/glacial_history/time_series/contiuous_nonWF_M3a_glacialHistory_clineMap_recurrentChange_timeSeries_temp.slim
+    printf "Start the %s/50 run of M3b, high migration, low Vm, large mutation, cline map, large mutations\n" $i
+    slim /home/anadem/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M3b_glacialHistory_clineMap_recurrentChange_temp1.slim
 done
 

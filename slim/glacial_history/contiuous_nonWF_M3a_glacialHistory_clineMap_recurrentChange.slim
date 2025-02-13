@@ -20,13 +20,13 @@ initialize() {
 	// Sd of fitness function (selection curve)
 	defineConstant("sigma_W", 0.4);
 	// Sd of dispersion (centered on parent 1): low 0.03; high: 0.06
-	defineConstant("sigma_D", 0.03);
+	defineConstant("sigma_D", 0.06);
 	//	// Competition kernal width: compD/3
 	//	defineConstant("S", 1e-2);
 	// Max distance for competition: 30m/3km
 	defineConstant("compD", 3e-2);
 	// Max distance for mate choice: low 0.12; high: 0.15
-	defineConstant("mateD", 0.12);
+	defineConstant("mateD", 0.15);
 	// Max strength for competition
 	defineConstant("maxCompStrength", 1.0);
 	// Length of the period of each environmental cycle
@@ -34,8 +34,8 @@ initialize() {
 	// Current extreme limit of habitat; Starts from 0.1
 	defineGlobal("extremeEnv", 0.1);
 	//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/");
-	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/recurrentChange/M3a_smallLowVm_lowMig_clineMap/");
-	//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/M2a_mu1e-7_m0.1_w0.4/");
+//	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/recurrentChange/M3a_smallLowVm_lowMig_clineMap/");
+	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/recurrentChange/M3a_smallLowVm_highMig_clineMap/");
 	
 	// defineConstant("outDir", "D:/UBC_office/slim/output/");
 	
@@ -271,16 +271,16 @@ mutationEffect(m2) {
 //		"mapValues", mapValues));
 //}
 
-//101000 late() {
-//	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
-//	sim.treeSeqOutput(outDir + "Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_" + 
-//	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
-//	"_sigmaD" + sigma_D + "_mateD" + mateD +
-//	"_K" + K + "_r" + r +
-//	"_seed" + seed + "_tick" + sim.cycle + ".trees",
-//		metadata = Dictionary("indsOptimum", optimum,
-//		"mapValues", mapValues));
-//}
+101000 late() {
+	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_" + 
+	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
+	"_sigmaD" + sigma_D + "_mateD" + mateD +
+	"_K" + K + "_r" + r +
+	"_seed" + seed + "_tick" + sim.cycle + ".trees",
+		metadata = Dictionary("indsOptimum", optimum,
+		"mapValues", mapValues));
+}
 
 //101200 late() {
 //	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));

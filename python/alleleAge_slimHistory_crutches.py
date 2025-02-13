@@ -105,7 +105,7 @@ def lf_fitness(ind_x, ind_y, phenotype,
 ############################# program #########################################
 # Values
 sigma_w = 0.4
-dist_mate = 0.12
+dist_mate = 0.15
 history = 100000 # number of generations before the focal model
 
 #User input arguments:
@@ -122,19 +122,18 @@ short_model_name = "_".join(file_name.split("_")[0:-2])
 
 # figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20241201/"
 # figPath = "/home/tianlin/ubc/data/tskit_data/figure/20241201/"
-figPath = "/home/anadem/github/data/tskit_data/figure/20241201/"
+# figPath = "/home/anadem/github/data/tskit_data/figure/20241201/"
+figPath = "/home/anadem/github/data/tskit_data/figure/20250131m3ab/"
 #Figure path for the current run
 figPath = figPath + model_name + "/"
-if not os.path.exists(figPath):
-    os.mkdir(figPath)
+
 # outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/"
 # outBasePath = "/home/tianlin/ubc/data/tskit_data/output/table/realistic_fpr_comparisons/"
 outBasePath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/"
-outPath = outBasePath+short_model_name+"/timeSeries/"
+outPath = outBasePath+short_model_name+"/"
 if not os.path.exists(outPath):
     os.makedirs(outPath)
-if not os.path.exists(figPath):
-    os.makedirs(figPath)
+
 
 # Tree-sequence file from SLiM
 ts = tskit.load(path_file_name)
@@ -418,6 +417,8 @@ print(time.ctime())
 # Method 2, loops
 # mutation ID, allele age, allele frequency, mutation effect, LF_mut,
 # GEA Kendall's tau and corresponding p-value
+if not os.path.exists(outPath):
+    os.makedirs(outPath)
 print("Saving the table...")
 print(time.ctime())
 out_path_file = (outPath + model_name +
@@ -446,6 +447,9 @@ print(time.ctime())
 if not bool(args.plot):
     print("Program finished. No plot will be generated as --plot is 0.")
     sys.exit(0)
+
+if not os.path.exists(figPath):
+    os.makedirs(figPath)
 
 # # p-value adjusted by the Benjamini-Hochberg method
 # # temporarily remove nan values
