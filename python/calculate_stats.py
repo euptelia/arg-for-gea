@@ -1,9 +1,14 @@
 """
-Calculate population fst (Weir and Cockman) for all .trees files in a folder.
+For all .trees files in a folder,
+calculate:
+    population fst (Weir and Cockman)
+    LF (average contrast between local and foreign mean fitness)
 Save results in a table
 Typically needs about 16 Gb memory
 tianlin.duan42@gmail.com
 2024.08.24
+Last modified
+2025.03.18
 """
 ############################# modules #########################################
 import msprime
@@ -33,13 +38,52 @@ parser.add_argument('-o', '--outPath',
 args = parser.parse_args()
 
 ############################# functions #######################################
+def lf_fitness(ind_x, ind_y, phenotype,
+               optima, dist_mate, sigma_w):
+    """Takes x and y coordinates (array-like), phenotypes (array-like),
+        environmental optima (array-like), a maximum distance for mating (single value),
+        and a standard deviation of fitness function (single value).
+    Return two arrays of the average fitness of local and foreign individuals, respectively.
+    v2: time efficient but not memory efficient.
+    Try the other version when the number of individuals is large.
+    """
+    optima=np.array(optima)
+    coord = list(zip(ind_x, ind_y))
+    dist_matrix = distance_matrix(coord, coord)
+    isLocal_matrix = dist_matrix <= dist_mate
+    # Calculate fitness matrix (w_matrix[i][j]: individual j at location i) with broadcast
+    w_matrix = 1.0 + stats.norm.pdf(np.array(phenotype),
+                                    np.array(optima)[:, np.newaxis],
+                                    sigma_w)
+    # relative fitness
+    w_matrix = w_matrix / np.mean(w_matrix, 1)[:, np.newaxis]
+    #Average relative fitness of local and foreign individuals
+    w_local = np.mean(np.ma.masked_array(w_matrix, np.invert(isLocal_matrix)), 1)
+    w_foreign = np.mean(np.ma.masked_array(w_matrix, isLocal_matrix), 1)
+    return w_local, w_foreign
+
+############################# program #########################################
+#Values
+sigma_w = 0.4
+dist_mate = 0.15
+
 inPath = args.inPath
 outPath = args.outPath
-fileList = glob.glob(inPath + "*.trees")
-if not os.path.exists(outPath):
-    os.makedirs(outPath)
-output = outPath + "fst.tab"
-fout = open(output, "w")
+fileList = glob.glob(inPath + "/*.trees")
+model_name = fileList[0].split("/")[-1].split(".trees")[0]
+if not os.path.exists(outPath+"/fst/"):
+    os.makedirs(outPath+"/fst/")
+    os.makedirs(outPath+"/lf/")
+    os.makedirs(outPath+"/summary/")
+output_fst = outPath + "/fst/" + model_name +"_Fst.tab"
+output_lf = outPath + "/lf/" + model_name +"_LF.tab"
+output_avrg = outPath + "/summary/" + model_name + "_averageFst_averageLF.tab"
+fout_fst = open(output_fst, "w")
+fout_lf = open(output_lf, "w")
+fout_avrg = open(output_avrg, "w")
+
+fst_list = []
+lf_list = []
 for file in fileList:
     # print("Fst calculation started")
     # print(time.ctime())
@@ -55,6 +99,8 @@ for file in fileList:
     max_tick = ts.metadata["SLiM"]["tick"]
     # Number of diploid individuals
     N = ts.num_individuals
+    #Location (x,y) and phenotype (z)
+    ind_x, ind_y, ind_z = zip(*ts.individuals_location)
     # Environmental optima
     optima = np.array(ts.metadata['SLiM']['user_metadata']['indsOptimum'])
     mapValues = np.array(ts.metadata['SLiM']['user_metadata']['mapValues'])
@@ -77,6 +123,16 @@ for file in fileList:
         for mut in site.mutations:
             effect_site.append(mut.metadata['mutation_list'][0]['selection_coeff'])
         mut_effect_lists.append(effect_site)
+
+    # Observed extent of local adaptation (local-foreign contrast (LF))
+    # average LF is equivalent to LA
+    (w_local, w_foreign) = lf_fitness(ind_x, ind_y, ind_z,
+                                      optima, dist_mate, sigma_w)
+    LF_cline = w_local - w_foreign
+    mean_LF = np.mean(LF_cline)
+    # fout_lf.write(file_name + "\t" + str(round(mean_LF, 4)) + "\n")
+    fout_lf.write(str(round(mean_LF, 4)) + "\n")
+    lf_list.append(mean_LF)
 
     # A collection of individual IDs for each subpopulation
     inds_subpop = {}
@@ -111,11 +167,24 @@ for file in fileList:
     a, b, c = allel.weir_cockerham_fst(g, subpops)
     # fst_pop = a / (a + b + c)
     fst = np.sum(a) / (np.sum(a) + np.sum(b) + np.sum(c))
-    fout.write(file_name + "\t" + str(round(fst, 4)) + "\n")
+    fst_list.append(fst)
+    # fout_fst.write(file_name + "\t" + str(round(fst, 4)) + "\n")
+    fout_fst.write(str(round(fst, 4)) + "\n")
     print("Fst:" + str(round(fst, 4)))
     del g, a, b, c, subpops
     print("Fst calculation finished")
     print(time.ctime())
     timer = time.time() - t1
     print(str(round((timer/60),2) )+ " minutes used for calculation.")
-fout.close()
+#Header for the average file
+header = "\t".join(["model",
+                    "fst_mean", "fst_sd",
+                    "lf_mean", "lf_sd"])
+fout_avrg.write(header + "\n")
+words = [model_name,
+         str(round(np.mean(fst_list),4)), str(round(np.std(fst_list),4)),
+         str(round(np.mean(lf_list),4)), str(round(np.std(lf_list),4))]
+fout_avrg.write("\t".join(words) + "\n")
+fout_fst.close()
+fout_lf.close()
+fout_avrg.close()

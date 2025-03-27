@@ -51,39 +51,24 @@ args = parser.parse_args()
 # dist_mate = 0.12
 num_runs = 200
 inPath = args.input
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
-#inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
-# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
-# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
-# inPath = "/media/anadem/PortableSSD/UBC_dell_20240917/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
-# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
-# inPath = "/media/anadem/PortableSSD/UBC_dell_20240917/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
-# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
+# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
+# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
 
 short_model_name = inPath.split("/")[-3]
-# figPath = ("/home/anadem/github/data/tskit_data/figure/20250109/variedRefugia/" +
-#            short_model_name + "/" + str(num_runs) + "runs_" +
-#            inPath.split("/")[-2]+"/")
-figPath = ("/home/anadem/github/data/tskit_data/figure/20250131m3ab/" +
+
+figPath = ("/home/anadem/github/data/tskit_data/figure/202503/" +
            short_model_name + "/" + str(num_runs) + "runs_" +
            inPath.split("/")[-2]+"/")
-# figPath = ("/home/anadem/github/data/tskit_data/figure/20250114_m3_200runs/" +
-#            short_model_name + "/" + str(num_runs) + "runs_" +
-#            inPath.split("/")[-2]+"/")
-# figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240909/" +
-#            short_model_name + "/" + str(num_runs) + "runs_" +
-#            inPath.split("/")[-2]+"/")
-# outPath = ("/home/tianlin/Documents/github/data/tskit_data/output/multiple_runs/" +
-#            short_model_name + "/100runs_" + inPath.split("/")[-2]+"/")
-# if not os.path.exists(outPath):
-#     os.makedirs(outPath)
 if not os.path.exists(figPath):
     os.makedirs(figPath)
+outPath = ("/home/anadem/github/data/tskit_data/output/mutiRuns/k80" +
+           short_model_name + "/200runs_" + inPath.split("/")[-2]+"/")
+if not os.path.exists(outPath):
+    os.makedirs(outPath)
 
 # Check this before use!
-model_name = "_".join(inPath.split("/")[-3:-1] + ["100runs"])
+model_name = "_".join(inPath.split("/")[-3:-1] + [str(num_runs)+"runs"])
 tick = int(inPath.split("/")[-2].split("tick")[-1])
 event_age = tick - 100000
 
@@ -109,7 +94,7 @@ for f in fileList:
     lf_sum_positive = sum(df_focal.loc[df_focal["delta_LF_mut"]>0,"delta_LF_mut"])
     lf_sum = sum(df_focal["delta_LF_mut"])
     df_focal["relative_positive_lf"] = (df_focal["delta_LF_mut"] /
-                                              lf_sum_positive)
+                                        lf_sum_positive)
     df_focal["relative_lf"] = df_focal["delta_LF_mut"] / lf_sum
     df_focal["run_id"] = np.full(shape=(df_focal.shape[0], 1),
                                          fill_value=run)
@@ -216,7 +201,10 @@ for i in range(num_cat):
     FP_mafPassed = sum(~focal_expP & focal_obsP_mafPassed)
     FN_mafPassed = sum(focal_expP & ~focal_obsP_mafPassed)
     TN_mafPassed = sum(~focal_expP & ~focal_obsP_mafPassed)
-    TPR_mafPassed.append(TP_mafPassed/(TP_mafPassed+FN_mafPassed))
+    if TP_mafPassed+FN_mafPassed == 0:
+        TPR_mafPassed.append(np.nan)
+    else:
+        TPR_mafPassed.append(TP_mafPassed/(TP_mafPassed+FN_mafPassed))
     FPR_mafPassed.append(FP_mafPassed/(TN_mafPassed+FP_mafPassed))
     FDR_mafPassed.append(FP_mafPassed/(TP_mafPassed+FP_mafPassed))
     # Calculated by cohorts
@@ -224,7 +212,10 @@ for i in range(num_cat):
     FP_cohort = sum(~focal_expP & focal_obsP_cohort)
     FN_cohort = sum(focal_expP & ~focal_obsP_cohort)
     TN_cohort = sum(~focal_expP & ~focal_obsP_cohort)
-    TPR_cohort.append(TP_cohort/(TP_cohort+FN_cohort))
+    if TP_cohort+FN_cohort == 0:
+        TPR_cohort.append(np.nan)
+    else:
+        TPR_cohort.append(TP_cohort/(TP_cohort+FN_cohort))
     FPR_cohort.append(FP_cohort/(TN_cohort+FP_cohort))
     FDR_cohort.append(FP_cohort/(TP_cohort+FP_cohort))
     # average_pRank_realPositive.append(
@@ -568,7 +559,10 @@ for i in range(num_cat):
     FP = sum(~expP & obsP)
     FN = sum(expP & ~obsP)
     TN = sum(~expP & ~obsP)
-    TPR_byAge.append(TP/(TP+FN))
+    if TP+FN == 0:
+        TPR_byAge.append(np.nan)
+    else:
+        TPR_byAge.append(TP/(TP+FN))
     FPR_byAge.append(FP/(TN+FP))
     FDR_byAge.append(FP/(TP+FP))
 
@@ -817,7 +811,7 @@ plt.close()
 # plt.close()
 
 
-#### Cumulative plot of LF_mut ####
+#### K80: Cumulative plots of LF_mut ####
 expected_explained_proportion = 0.8
 cumulative_lf_list = []
 gea_goal = []
@@ -860,6 +854,16 @@ mean_gea_goal = int(np.mean(gea_goal))
 mean_explained = mean_cumulative_lf[mean_gea_goal]
 median_gea_goal = int(np.mean(gea_goal))
 median_explained = median_cumulative_lf[median_gea_goal]
+
+#Save K80 as a table
+out_path_file = (outPath + model_name + "_k80.txt")
+header = "k80_"+ model_name + "\n"
+with open(out_path_file, "w") as fout:
+    fout.write(header)
+    for i in gea_goal:
+        outLine = str(i) + "\n"
+        fout.write(outLine)
+print("K80 table has been saved.")
 
 # # Plot cumulative_lf: Mean with range
 # for i in range(run):
@@ -936,7 +940,7 @@ plt.close()
 #          lf_sum,
 #          color="grey")
 # plt.xlabel("|Mutation phenotypic effect size|")
-# plt.ylabel("Relative contribution to local adaptation from the size class")
+# plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
 # # plt.xticks(ticks=np.arange(100/num_cat, 101, 100/num_cat),
 # #            labels=[(str(i*cat_width)+"-"+str((i+1)*cat_width))
 # #                    for i in range(num_cat)])
@@ -961,7 +965,7 @@ plt.close()
 #         label="Negative")
 # ax.axhline(0, color='grey', lw=1, dashes=(1,1))
 # plt.xlabel("|Mutation phenotypic effect size|")
-# plt.ylabel("Relative contribution to local adaptation from the size class")
+# plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
 # ax.legend(loc="upper right")
 # ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
 # ax.margins(x=0)
@@ -1002,7 +1006,7 @@ for i in range(num_cat):
 #         label="Negative")
 # ax.axhline(0, color='grey', lw=1, dashes=(1,1))
 # plt.xlabel("|Mutation phenotypic effect size|")
-# plt.ylabel("Relative contribution to local adaptation from the size class")
+# plt.ylabel("Contribution to local adaptation ( $\Sigma \it{LF}$ )")
 # ax.legend(loc="upper right")
 # ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
 # ax.margins(x=0)
@@ -1029,8 +1033,7 @@ ax.bar(x, y2, color="saddlebrown",
        width=bar_width)
 ax.axhline(0, color='grey', lw=1, dashes=(1,1))
 plt.xlabel("|Mutation phenotypic effect size|")
-plt.ylabel("Total relative contribution to local adaptation" +
-           "\n" + "from the size class")
+plt.ylabel(r"Relative contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ )")
 
 plt.xlim(0, 0.05) # High polygenicity
 # plt.xlim(0, 0.40) # Low polygenicity
@@ -1147,8 +1150,7 @@ plt.xticks(ticks=range(0, tick+1, 10000),
            labels=[str(i) for i in range(0, tick+1, 10000)])
 plt.tick_params(axis='x', rotation=45)
 plt.xlabel("Allele age (generation)")
-plt.ylabel("Total relative contribution to local adaptation" +
-           "\n" + "from the age class")
+plt.ylabel(r"Relative contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ )")
 plt.legend(loc="upper right")
 # ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
 # ax.margins(x=0)
@@ -1197,8 +1199,7 @@ plt.axhline(0, color='grey', lw=1, dashes=(1,1))
 #                    for i in 10**np.arange(0, max(x), 1)])
 # plt.tick_params(axis='x', rotation=45)
 plt.xlabel("Frequency")
-plt.ylabel("Total relative contribution to local adaptation" +
-           "\n" + "from the frequency class")
+plt.ylabel(r"Relative contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ )")
 ax.legend(loc="upper right")
 ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
 # ax.margins(x=0)
@@ -1599,8 +1600,7 @@ plt.axvline(event_age, color='firebrick', lw=1, dashes=(2,1), zorder=0)
 #                    for i in 10**np.arange(0, max(x), 1)])
 plt.tick_params(axis='x', rotation=45)
 plt.xlabel("Allele age (generation)")
-plt.ylabel("Total relative contribution to local adaptation" +
-           "\n" + "from the age class")
+plt.ylabel(r"Relative contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ )")
 plt.ylim(np.min(np.nansum(y2, axis = 0))*1.2, np.max(np.nansum(y1, axis=0))*1.2)
 plt.legend(handles=patches,
            title="|Mutation phenotypic effect size|",
@@ -1672,8 +1672,7 @@ plt.axvline(event_age, color='firebrick', lw=1, dashes=(2,1),zorder=0)
 #                    for i in 10**np.arange(0, max(x), 1)])
 plt.tick_params(axis='x', rotation=45)
 plt.xlabel("Allele age (generation)")
-plt.ylabel("Total relative contribution to local adaptation" +
-           "\n" + "from the age class")
+plt.ylabel(r"Relative contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ )")
 plt.ylim(np.min(np.sum(y2, axis = 0))*1.2, np.max(np.sum(y1, axis=0))*1.2)
 plt.legend(handles=patches,
            title="Allele frequency",
@@ -1736,8 +1735,7 @@ plt.axhline(0, color='grey', lw=1, dashes=(1,1))
 #                    for i in np.arange(0, max(x), 0.005)])
 plt.tick_params(axis='x', rotation=45)
 plt.xlabel("|Mutation phenotypic effect size|")
-plt.ylabel("Total relative contribution to local adaptation" +
-           "\n" + "from the size class")
+plt.ylabel(r"Relative contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ )")
 plt.ylim(0, 0.8)
 plt.legend(handles=patches,
            title="Allele frequency",
