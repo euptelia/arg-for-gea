@@ -655,17 +655,27 @@
 #    i=$((${i}+1))
 #done
 
-batchNumber=2
+batchNumber=1
 inPath="/home/anadem/github/data/slim_data/glacial_history/recurrentChange/M3b_smallLowVm_lowMig_patchyMap/tick110000/batch${batchNumber}"
 i=1
 echo $inPath
 for file in ${inPath}/*.trees
 do
-    printf "file %s / 100 \n" $i 
+    printf "file %s / 31 \n" $i 
     printf "Start making a table with \n %s" $file
     python3 /home/anadem/github/arg-for-gea/python/alleleAge_slimHistory_crutches.py -i ${file} -p 0
     i=$((${i}+1))
 done
 
-
+#batchNumber=1
+#inPath="/home/anadem/github/data/slim_data/glacial_history/M2a_smallLowVm_highMig_clineMap/timeSeries/batch${batchNumber}"
+#i=1
+#echo $inPath
+#for file in ${inPath}/*.trees
+#do
+#    printf "file %s / 105 \n" $i 
+#    printf "Start making a table with \n %s" $file
+#    python3 /home/anadem/github/arg-for-gea/python/alleleAge_slimHistory_noNeuMut.py -i ${file}
+#    i=$((${i}+1))
+#done
 

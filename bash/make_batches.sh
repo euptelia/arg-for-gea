@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-nBatch=10
+nBatch=4
 # inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/M0b_highPoly_highMig/"
 # inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/M2b_highPoly_lowMig_patchyMap/"
 # inPath="/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum_0/M2b_highPoly_lowMig_clineMap/"
 # inPath="/home/anadem/github/data/slim_data/glacial_history/20241127variedrefugia/m2b_patchy_highMig_variedRefugia/tick102000/"
-inPath="/home/anadem/github/data/slim_data/glacial_history/M2a_largeLowVm_highMig_patchyMap/tick110000/"
+inPath="/home/anadem/github/data/slim_data/glacial_history/M2a_smallLowVm_highMig_clineMap/timeSeries/"
 cd ${inPath}
 cd ${inPath}
 nfiles=$(ls *.trees | wc -l)

@@ -30,7 +30,7 @@ initialize() {
 	// Max strength for competition
 	defineConstant("maxCompStrength", 1.0);
 //	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/");
-	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M2b_smallLowVm_lowMig_patchyMap/");
+	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/M2b_smallLowVm_lowMig_patchyMap/timeSeries/");
 	//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/m2b_mu1e-7_m0.1_w0.4/");
 	
 	// defineConstant("outDir", "D:/UBC_office/slim/output/");
@@ -234,16 +234,16 @@ mutationEffect(m2) {
 		"mapValues", mapValues));
 }
 
-//100200 late() {
-//	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
-//	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
-//	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
-//	"_sigmaD" + sigma_D + "_mateD" + mateD +
-//	"_K" + K + "_r" + r +
-//	"_seed" + seed + "_tick" + sim.cycle + ".trees",
-//		metadata = Dictionary("indsOptimum", optimum,
-//		"mapValues", mapValues));
-//}
+100200 late() {
+	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
+	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
+	"_sigmaD" + sigma_D + "_mateD" + mateD +
+	"_K" + K + "_r" + r +
+	"_seed" + seed + "_tick" + sim.cycle + ".trees",
+		metadata = Dictionary("indsOptimum", optimum,
+		"mapValues", mapValues));
+}
 //
 //100300 late() {
 //	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
@@ -257,6 +257,17 @@ mutationEffect(m2) {
 //}
 
 100400 late() {
+	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
+	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
+	"_sigmaD" + sigma_D + "_mateD" + mateD +
+	"_K" + K + "_r" + r +
+	"_seed" + seed + "_tick" + sim.cycle + ".trees",
+		metadata = Dictionary("indsOptimum", optimum,
+		"mapValues", mapValues));
+}
+
+100600 late() {
 	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
 	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
 	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
@@ -300,16 +311,16 @@ mutationEffect(m2) {
 //		"mapValues", mapValues));
 //}
 //
-//101200 late() {
-//	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
-//	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
-//	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
-//	"_sigmaD" + sigma_D + "_mateD" + mateD +
-//	"_K" + K + "_r" + r +
-//	"_seed" + seed + "_tick" + sim.cycle + ".trees",
-//		metadata = Dictionary("indsOptimum", optimum,
-//		"mapValues", mapValues));
-//}
+101200 late() {
+	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
+	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
+	"_sigmaD" + sigma_D + "_mateD" + mateD +
+	"_K" + K + "_r" + r +
+	"_seed" + seed + "_tick" + sim.cycle + ".trees",
+		metadata = Dictionary("indsOptimum", optimum,
+		"mapValues", mapValues));
+}
 //
 //101300 late() {
 //	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
@@ -322,29 +333,39 @@ mutationEffect(m2) {
 //		"mapValues", mapValues));
 //}
 //
-//101400 late() {
-//	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
-//	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
-//	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
-//	"_sigmaD" + sigma_D + "_mateD" + mateD +
-//	"_K" + K + "_r" + r +
-//	"_seed" + seed + "_tick" + sim.cycle + ".trees",
-//		metadata = Dictionary("indsOptimum", optimum,
-//		"mapValues", mapValues));
-//}
-//
-//101800 late() {
-//	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
-//	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
-//	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
-//	"_sigmaD" + sigma_D + "_mateD" + mateD +
-//	"_K" + K + "_r" + r +
-//	"_seed" + seed + "_tick" + sim.cycle + ".trees",
-//		metadata = Dictionary("indsOptimum", optimum,
-//		"mapValues", mapValues));
-//}
-//
-//
+101400 late() {
+	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
+	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
+	"_sigmaD" + sigma_D + "_mateD" + mateD +
+	"_K" + K + "_r" + r +
+	"_seed" + seed + "_tick" + sim.cycle + ".trees",
+		metadata = Dictionary("indsOptimum", optimum,
+		"mapValues", mapValues));
+}
+
+101600 late() {
+	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
+	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
+	"_sigmaD" + sigma_D + "_mateD" + mateD +
+	"_K" + K + "_r" + r +
+	"_seed" + seed + "_tick" + sim.cycle + ".trees",
+		metadata = Dictionary("indsOptimum", optimum,
+		"mapValues", mapValues));
+}
+
+101800 late() {
+	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
+	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
+	"_sigmaD" + sigma_D + "_mateD" + mateD +
+	"_K" + K + "_r" + r +
+	"_seed" + seed + "_tick" + sim.cycle + ".trees",
+		metadata = Dictionary("indsOptimum", optimum,
+		"mapValues", mapValues));
+}
+
 102000 late() {
 	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
 	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
@@ -367,27 +388,27 @@ mutationEffect(m2) {
 		"mapValues", mapValues));
 }
 
-//106000 late() {
-//	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
-//	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
-//	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
-//	"_sigmaD" + sigma_D + "_mateD" + mateD +
-//	"_K" + K + "_r" + r +
-//	"_seed" + seed + "_tick" + sim.cycle + ".trees",
-//		metadata = Dictionary("indsOptimum", optimum,
-//		"mapValues", mapValues));
-//}
+106000 late() {
+	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
+	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
+	"_sigmaD" + sigma_D + "_mateD" + mateD +
+	"_K" + K + "_r" + r +
+	"_seed" + seed + "_tick" + sim.cycle + ".trees",
+		metadata = Dictionary("indsOptimum", optimum,
+		"mapValues", mapValues));
+}
 
-//108000 late() {
-//	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
-//	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
-//	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
-//	"_sigmaD" + sigma_D + "_mateD" + mateD +
-//	"_K" + K + "_r" + r +
-//	"_seed" + seed + "_tick" + sim.cycle + ".trees",
-//		metadata = Dictionary("indsOptimum", optimum,
-//		"mapValues", mapValues));
-//}
+108000 late() {
+	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
+	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
+	"_sigmaD" + sigma_D + "_mateD" + mateD +
+	"_K" + K + "_r" + r +
+	"_seed" + seed + "_tick" + sim.cycle + ".trees",
+		metadata = Dictionary("indsOptimum", optimum,
+		"mapValues", mapValues));
+}
 
 110000 late() {
 	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
@@ -401,6 +422,17 @@ mutationEffect(m2) {
 }
 
 120000 late() {
+	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
+	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
+	"_sigmaD" + sigma_D + "_mateD" + mateD +
+	"_K" + K + "_r" + r +
+	"_seed" + seed + "_tick" + sim.cycle + ".trees",
+		metadata = Dictionary("indsOptimum", optimum,
+		"mapValues", mapValues));
+}
+
+130000 late() {
 	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
 	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_" + 
 	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
