@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 #Move files together
 find /home/anadem/github/data/tskit_data/output/mutiRuns -type f -mindepth 2 -exec mv -i -- {} /home/anadem/github/data/tskit_data/output/k80 \;
 

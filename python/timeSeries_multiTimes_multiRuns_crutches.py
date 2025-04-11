@@ -27,7 +27,7 @@ args = parser.parse_args()
 
 ############################# program #########################################
 inPath = args.input
-# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/timeSeries"
+inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/timeSeries"
 history = 100000 # Ticks before the last environmental change (before the sampling stage)
 #Use K80
 expected_explained_proportion = 0.8
@@ -309,6 +309,36 @@ plt.savefig(figPath + model_name + "_20RunsMedian_k" +
             "net.png", dpi=300)
 plt.close()
 
+# Zoom in: k80(net) and k80(positive) ~ time
+plt.figure(figsize=(6,5))
+#k80 net
+for runID in runID_unique:
+    focal_run = df_summary[df_summary["runID"] == runID]
+    plt.plot(focal_run["times"][idx_zoom], focal_run["k_net"][idx_zoom],
+             marker="", markersize=5, markerfacecolor="white",
+             color="grey", alpha=0.05)
+plt.plot(times2, df_summary_median["k_net"][times2],
+             marker="o", markersize=5, markerfacecolor="white",
+             color="dimgrey", alpha=0.7,
+         label=r"$K_{80}(net)$")
+#k80 positive
+for runID in runID_unique:
+    focal_run = df_summary[df_summary["runID"] == runID]
+    plt.plot(focal_run["times"][idx_zoom], focal_run["k_positive"][idx_zoom],
+             marker="", markersize=5, markerfacecolor="white",
+             color="lightseagreen", alpha=0.05)
+plt.plot(times2, df_summary_median["k_positive"][times2],
+             marker="o", markersize=5, markerfacecolor="white",
+             color="lightseagreen", alpha=0.7,
+         label=r"$K_{80}(positive)$")
+plt.xlabel("Generations after the environmental change")
+plt.ylabel("Minimum number of alleles for explaining 80% local adaptation"+ "\n" + r"($K_{80}$)")
+plt.legend()
+plt.savefig(figPath + model_name + "_20RunsMedian_k" +
+            str(int(expected_explained_proportion*100)) +
+            "net_zoom10000.png", dpi=300)
+plt.close()
+
 
 # # median freq ~ time
 # median_freqs = []
@@ -362,8 +392,8 @@ plt.axhline(y=0, color="grey", linestyle="dotted")
 plt.xlabel("Generations after the environmental change")
 plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$  )")
 # plt.ylim(0, 1.4)
-plt.legend(loc=(1.01, 0.25),
-           title="Allele frequency",
+plt.legend(loc=(1.03, 0.25),
+           title="   Allele frequency   ",
            reverse=True,
            ncol=1, fontsize="medium")
 plt.tight_layout()
@@ -391,8 +421,8 @@ plt.stackplot(times2, df_freq_negative_median.iloc[:, idx_zoom],
 plt.axhline(y=0, linestyle="dotted", color="grey")
 plt.xlabel("Generations after the environmental change")
 plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$  )")
-plt.legend(loc=(1.01, 0.25),
-           title="Allele frequency",
+plt.legend(loc=(1.03, 0.25),
+           title="   Allele frequency   ",
            reverse=True,
            ncol=1, fontsize="medium")
 plt.tight_layout()
@@ -469,8 +499,8 @@ size20colors = ["#FDE725", "#DCE318", "#B8DE29", "#94D840", "#74D055",
                 "#56C667", "#3CBB75", "#29AF7F", "#20A386", "#1F968B",
                 "#238A8D", "#287D8E", "#2D718E", "#32648E", "#39558C",
                 "#3F4788", "#453781", "#482677", "#481567", "#440154"]
-size_labels = [" – ".join([str(round(size_cats[i], 4)),
-                           str(round(size_cats[i + 1], 4))])
+size_labels = [" – ".join([str(round(size_cats[i], 3)),
+                           str(round(size_cats[i + 1], 3))])
                for i in range(num_cat_size)]
 # Stacked area, contribution of size bins ~ time， 0 - 100 000, add negative
 plt.figure(figsize=(12, 5))
@@ -485,7 +515,7 @@ plt.xlabel("Generations after the environmental change")
 plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$  )")
 # plt.ylim(0, 1.4)
 plt.legend(loc=(1.03, -0.1),
-           title="|Phenotypic effect size of mutations|",
+           title="|Phenotypic effect size|",
            reverse=True,
            ncol=1, fontsize="medium")
 plt.tight_layout()
@@ -511,7 +541,7 @@ plt.xlabel("Generations after the environmental change")
 plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ )")
 # plt.ylim(0, 1.4)
 plt.legend(loc=(1.03, -0.1),
-           title="|Phenotypic effect size of mutations|",
+           title="|Phenotypic effect size|",
            reverse=True,
            ncol=1, fontsize="medium")
 plt.tight_layout()

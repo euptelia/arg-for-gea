@@ -31,29 +31,32 @@ import matplotlib.patches as mpatches # manually make legends
 import seaborn as sns
 
 ############################# options #############################
-import argparse
-parser = argparse.ArgumentParser()
-# Path should end by "/"
-parser.add_argument('-i', '--input',
-                    help='Path the the input tables',
-                    type=str)
-# #parser.add_argument('-n', '--name',
-#                     help='Short model name',
+# import argparse
+# parser = argparse.ArgumentParser()
+# # Path should end by "/"
+# parser.add_argument('-i', '--input',
+#                     help='Path the the input tables',
 #                     type=str)
-# #parser.add_argument('-p', '--plot',
-#                     help='1 for generating plots and 0 for not plotting',
-#                     type=int, default=1)
-args = parser.parse_args()
+# # #parser.add_argument('-n', '--name',
+# #                     help='Short model name',
+# #                     type=str)
+# # #parser.add_argument('-p', '--plot',
+# #                     help='1 for generating plots and 0 for not plotting',
+# #                     type=int, default=1)
+# args = parser.parse_args()
 
 ############################# program #########################################
 # Values
 # sigma_w = 0.4
 # dist_mate = 0.12
 num_runs = 200
-inPath = args.input
+# inPath = args.input
+# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
+# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M3b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
+inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
 
 short_model_name = inPath.split("/")[-3]
 
@@ -92,9 +95,12 @@ for f in fileList:
     df_focal = pd.read_csv(f, sep='\t', header=0)
     # Add relative delta_LF_mut,temporary run ID, and rank of p-values
     lf_sum_positive = sum(df_focal.loc[df_focal["delta_LF_mut"]>0,"delta_LF_mut"])
+    lf_sum_negative = sum(df_focal.loc[df_focal["delta_LF_mut"]<0, "delta_LF_mut"])
     lf_sum = sum(df_focal["delta_LF_mut"])
     df_focal["relative_positive_lf"] = (df_focal["delta_LF_mut"] /
                                         lf_sum_positive)
+    df_focal["relative_negative_lf"] = (df_focal["delta_LF_mut"] /
+                                        lf_sum_negative)
     df_focal["relative_lf"] = df_focal["delta_LF_mut"] / lf_sum
     df_focal["run_id"] = np.full(shape=(df_focal.shape[0], 1),
                                          fill_value=run)
@@ -104,8 +110,8 @@ for f in fileList:
     run += 1
 print(str(run) + " files have been loaded.")
 # Columns: "id", "age", "freq", "mut_effect","delta_LF_mut",
-#          "tau", "p", "relative_positive_lf", "relative_lf", "run_id",
-#          "p_rank"
+#          "tau", "p", "relative_positive_lf", "relative_negative_lf", "relative_lf",
+#          "run_id", "p_rank"
 
 # # No MAF filter: Not used
 # # True positive rate, False negative rate, False discovery rate in all alleles
@@ -1064,6 +1070,25 @@ for i in range(num_cat):
     lf_sum_positive.append(sum(lf_category[lf_category > 0])/num_runs)
     lf_sum_negative.append(sum(lf_category[lf_category < 0])/num_runs)
 
+#Test the shape of distribution
+#Log transformed pdf should be a straight line, with a slope of log10(lamda)
+plt.figure(1)
+plt.plot(age_cats[1:],np.log10(lf_sum_positive[0:]))
+plt.savefig(figPath+model_name+"_"+str(num_cat) + "log10_contribution_test.png",
+            dpi=300)
+plt.close()
+
+age_cdf = np.cumsum(lf_sum_positive)/max(np.cumsum(lf_sum_positive))
+exp_cdf = stats.expon.cdf(np.arange(0,1, 0.01), scale=0.23)
+plt.figure(1)
+plt.plot(age_cats[1:],age_cdf, "firebrick")
+plt.plot(age_cats[1:],exp_cdf, "grey")
+plt.savefig(figPath+model_name+"_"+str(num_cat) + "compare_cdf_test2.png",
+            dpi=300)
+plt.close()
+
+
+
 #total LF of the age class ~ allele age, separated by positive and
 # #negative contributions
 # # line plot: Not used
@@ -1212,9 +1237,9 @@ plt.close()
 
 
 # # Three-way relationship among allele freq, effect size and contribution to LF
-# df_polymorphic = df[(df["freq"] != 1) & (df["freq"] != 0)]
-# max_lf = max(df_polymorphic["delta_LF_mut"])
-# min_lf = min(df_polymorphic["delta_LF_mut"])
+df_polymorphic = df[(df["freq"] != 1) & (df["freq"] != 0)]
+max_lf = max(df_polymorphic["delta_LF_mut"])
+min_lf = min(df_polymorphic["delta_LF_mut"])
 # plt.scatter(abs(df_polymorphic["mut_effect"]), df_polymorphic["delta_LF_mut"],
 #             marker="o", c=df_polymorphic["freq"], alpha=0.1, s=20)
 # plt.xlabel("|Mutation phenotypic effect size|")
@@ -1225,14 +1250,14 @@ plt.close()
 #             dpi=300)
 # plt.close()
 #
-# # Use minor allele frequency
-# minor_freq = []
-# for f in df_polymorphic["freq"]:
-#     if f <= 0.5:
-#         minor_freq.append(f)
-#     else:
-#         minor_freq.append(1-f)
-# minor_freq = np.array(minor_freq)
+# Use minor allele frequency
+minor_freq = []
+for f in df_polymorphic["freq"]:
+    if f <= 0.5:
+        minor_freq.append(f)
+    else:
+        minor_freq.append(1-f)
+minor_freq = np.array(minor_freq)
 #
 # # # Dot plots that look good but not useful
 # maf_mafPassed = 0.5-abs(df_mafPassed["freq"]-0.5)
@@ -1318,26 +1343,30 @@ plt.close()
 #             dpi=300)
 # plt.close()
 
-# plt.scatter(abs(df_polymorphic["mut_effect"]), df_polymorphic["delta_LF_mut"],
-#             marker="o", c=minor_freq,
-#             alpha=0.1, s=20)
-# plt.xlabel("|Mutation phenotypic effect size|")
-# plt.ylabel("$LF_{mut}$")
-# plt.xlim(left=0,
-#          right=0.05)
-# plt.ylim(bottom=-0.004, top=0.016)
-# plt.colorbar().set_label("Minor allele Frequency")
-# plt.tight_layout()
-# plt.savefig(figPath+model_name+"_effectSize_vs_LFmut_minorFrequencyColor.png",
-#             dpi=300)
-# plt.close()
+# LF_mut ~ |phenotypic effect size|, colored by log age
+min_abs_effect = min(abs(df_polymorphic["mut_effect"]))
+max_abs_effect = max(abs(df_polymorphic["mut_effect"]))
+plt.scatter(abs(df_polymorphic["mut_effect"]), df_polymorphic["delta_LF_mut"],
+            marker="o", c=minor_freq,
+            alpha=0.1, s=20)
+plt.xlabel("|Mutation phenotypic effect size|")
+plt.ylabel("$LF_{mut}$")
+plt.xlim(left=min_abs_effect,
+         right=max_abs_effect)
+# plt.ylim(bottom=-0.004, top=max_lf)
+plt.ylim(bottom=min_lf, top=max_lf)
+plt.colorbar().set_label("Minor allele Frequency")
+plt.tight_layout()
+plt.savefig(figPath+model_name+"_effectSize_vs_LFmut_minorFrequencyColor.png",
+            dpi=300)
+plt.close()
 
-# Separated by high and low frequencies
-# df_middleFreq = df_polymorphic[(df_polymorphic["freq"] >= 0.25) &
-#                                (df_polymorphic["freq"] < 0.75)]
-# df_lowHighFreq = df_polymorphic[(df_polymorphic["freq"] >= 0.75) |
-#                                 (df_polymorphic["freq"] < 0.25)]
-
+# #Separated by high and low frequencies
+# maf_threshold = 0.2
+# df_middleFreq = df_polymorphic[(df_polymorphic["freq"] > maf_threshold) &
+#                                (df_polymorphic["freq"] < (1-maf_threshold))]
+#
+#
 # plt.scatter(abs(df_middleFreq["mut_effect"]),
 #             df_middleFreq["delta_LF_mut"],
 #             marker="o", c=df_middleFreq["freq"],
@@ -1345,15 +1374,20 @@ plt.close()
 #             vmin=0, vmax=1)
 # plt.xlabel("|Mutation phenotypic effect size|")
 # plt.ylabel("$LF_{mut}$")
-# plt.xlim(left=min(abs(df_polymorphic["mut_effect"])),
-#          right=max(abs(df_polymorphic["mut_effect"])))
+# plt.xlim(left=min_abs_effect,
+#          right=max_abs_effect)
 # plt.ylim(bottom=min_lf, top=max_lf)
 # plt.colorbar().set_label("Allele Frequency")
+# plt.title("MAF > " + str(maf_threshold))
 # plt.tight_layout()
-# plt.savefig(figPath+model_name+"_effectSize_vs_LFmut_frequencyColor_middleFreq.png",
+# plt.savefig(figPath+model_name+"_effectSize_vs_LFmut_frequencyColor_middleFreq_maf" + str(maf_threshold) + ".png",
 #             dpi=300)
 # plt.close()
+# del df_middleFreq
 #
+# df_lowHighFreq = df_polymorphic[(df_polymorphic["freq"] >= (1-maf_threshold)) |
+#                                 (df_polymorphic["freq"] <= maf_threshold)]
+# del df_polymorphic
 # plt.scatter(abs(df_lowHighFreq["mut_effect"]),
 #             df_lowHighFreq["delta_LF_mut"],
 #             marker="o", c=df_lowHighFreq["freq"],
@@ -1361,18 +1395,21 @@ plt.close()
 #             vmin=0, vmax=1)
 # plt.xlabel("|Mutation phenotypic effect size|")
 # plt.ylabel("$LF_{mut}$")
-# plt.xlim(left=min(abs(df_polymorphic["mut_effect"])),
-#          right=max(abs(df_polymorphic["mut_effect"])))
+# plt.xlim(left=min_abs_effect,
+#          right=max_abs_effect)
 # plt.ylim(bottom=min_lf, top=max_lf)
 # plt.colorbar().set_label("Allele Frequency")
+# plt.title("MAF <= " + str(maf_threshold))
 # plt.tight_layout()
-# plt.savefig(figPath+model_name+"_effectSize_vs_LFmut_frequencyColor_lowHighFreq.png",
+# plt.savefig(figPath+model_name+"_effectSize_vs_LFmut_frequencyColor_lowHigh_maf" + str(maf_threshold) + ".png",
 #             dpi=300)
 # plt.close()
-
+# del df_lowHighFreq
+#
+#
+#
 # #Minor allele frequency: separate 0-0.25, 0.25-0.5
-# df_middleFreq = df_polymorphic[minor_freq >= 0.25]
-# df_lowHighFreq = df_polymorphic[minor_freq < 0.25]
+# df_lowHighFreq = df[(df["freq"] != 1) & (df["freq"] != 0)][minor_freq < 0.25]
 # plt.scatter(abs(df_middleFreq["mut_effect"]),
 #             df_middleFreq["delta_LF_mut"],
 #             marker="o", c=minor_freq[minor_freq >= 0.25],
@@ -1468,7 +1505,7 @@ plt.close()
 #             dpi=300)
 # plt.close()
 #
-# #Three-way relationship 2: log (mislading)
+# #Three-way relationship 2: log (misleading)
 # # Sum of LF from the age class ~ Allele age, Colored by frequency
 # num_age_cat = 25 # Number of categories for allele age
 # num_freq_cat = 10 # Number of categories for allele frequency
@@ -1704,7 +1741,8 @@ for i in range(num_size_cat):
                                                     abs_size <= size_cats[i + 1]),
                                      np.logical_and(freq > freq_cats[j],
                                                     freq <= freq_cats[j + 1]))
-        lf_category = df["relative_lf"][focal_range]
+        # lf_category = df["relative_lf"][focal_range]
+        lf_category = df["relative_positive_lf"][focal_range]
         lf_sum_positive[j][i] = (sum(lf_category[lf_category > 0])/num_runs)
         lf_sum_negative[j][i] = (sum(lf_category[lf_category < 0])/num_runs)
 
@@ -1747,8 +1785,11 @@ plt.ylim(0, 0.2)
 # ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
 # ax.margins(x=0)
 plt.tight_layout()
+# plt.savefig(figPath+model_name+"_"+str(num_size_cat) + "bins"+
+#             "_LF_by_size_bin_positve_lfRelative2EachRun_freqColor.png",
+#             dpi=300)
 plt.savefig(figPath+model_name+"_"+str(num_size_cat) + "bins"+
-            "_LF_by_size_bin_positve_lfRelative2EachRun_freqColor.png",
+            "_LF_by_size_bin_positve_lfRelative2PositiveLFEachRun_freqColor.png",
             dpi=300)
 plt.close()
 
