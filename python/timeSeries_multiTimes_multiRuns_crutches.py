@@ -27,7 +27,7 @@ args = parser.parse_args()
 
 ############################# program #########################################
 inPath = args.input
-inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/timeSeries"
+# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/timeSeries"
 history = 100000 # Ticks before the last environmental change (before the sampling stage)
 #Use K80
 expected_explained_proportion = 0.8
@@ -45,6 +45,21 @@ fileRunID = [fileName.split("_")[-4][4:] for fileName in fileNames]
 runID_unique = list(set(fileRunID))
 model_name = "_".join(fileNames[0].split("_")[0:-4])
 fileSuffix = "_functionalMut_table.txt"
+#Short title
+if "sigmaD0.06_mateD0.15" in model_name:
+    migName = "HighMig."
+elif "sigmaD0.03_mateD0.12" in model_name:
+    migName = "LowMig."
+else:
+    migName = ""
+if "_clineMap_" in model_name:
+    mapName = "Cline"
+elif "_patchyMap_" in model_name:
+    mapName = "Patchy"
+else:
+    mapName = ""
+demoName = model_name.split("_")[2]
+shortName = ",".join([demoName, migName, mapName])
 
 #Output
 figPath = ("/home/anadem/github/data/tskit_data/figure/multiTimes/multiRun/"+
@@ -255,6 +270,7 @@ plt.plot(times, df_summary_median["lf"],
          label=r"Net sum")
 plt.xlabel("Generations after the environmental change")
 plt.ylabel(r"Contribution to local adaptation ($\it{\Sigma LF_{mut}}$ )")
+plt.title(shortName)
 plt.legend()
 plt.savefig(figPath + model_name  + "_20RunsMedian_allelicLF.png",
             dpi=300)
@@ -273,6 +289,7 @@ plt.plot(times, df_summary_median["k_positive"],
          label=r"Net sum")
 plt.xlabel("Generations after the environmental change")
 plt.ylabel("Minimum number of alleles for explaining 80% local adaptation")
+plt.title(shortName)
 plt.savefig(figPath + model_name + "_20RunsMedian_k" +
             str(int(expected_explained_proportion*100)) +
             "positve.png",
@@ -303,6 +320,7 @@ plt.plot(times, df_summary_median["k_positive"],
          label=r"$K_{80}(positive)$")
 plt.xlabel("Generations after the environmental change")
 plt.ylabel("Minimum number of alleles for explaining 80% local adaptation"+ "\n" + r"($K_{80}$)")
+plt.title(shortName)
 plt.legend()
 plt.savefig(figPath + model_name + "_20RunsMedian_k" +
             str(int(expected_explained_proportion*100)) +
@@ -334,6 +352,7 @@ plt.plot(times2, df_summary_median["k_positive"][times2],
 plt.xlabel("Generations after the environmental change")
 plt.ylabel("Minimum number of alleles for explaining 80% local adaptation"+ "\n" + r"($K_{80}$)")
 plt.legend()
+plt.title(shortName)
 plt.savefig(figPath + model_name + "_20RunsMedian_k" +
             str(int(expected_explained_proportion*100)) +
             "net_zoom10000.png", dpi=300)
@@ -396,6 +415,7 @@ plt.legend(loc=(1.03, 0.25),
            title="   Allele frequency   ",
            reverse=True,
            ncol=1, fontsize="medium")
+plt.title(shortName)
 plt.tight_layout()
 # plt.savefig(figPath + model_name + "_median20Runs_lfByFreq10Bin_stack.png",
 #             dpi=300)
@@ -425,6 +445,7 @@ plt.legend(loc=(1.03, 0.25),
            title="   Allele frequency   ",
            reverse=True,
            ncol=1, fontsize="medium")
+plt.title(shortName)
 plt.tight_layout()
 # plt.savefig(figPath + model_name + "_median20Runs_lfByFreq10Bin_stack_zoomIn.png",
 #             dpi=300)
@@ -460,6 +481,7 @@ plt.legend(loc=(1.03, -0.1),
            title="Mutation time (relative to env. change)",
            reverse=True,
            ncol=1, fontsize="medium")
+plt.title(shortName)
 plt.tight_layout()
 # plt.savefig(figPath + model_name + "_20RunsMedian_lfByMutTime_20Bin_stack.png",
 #             dpi=300)
@@ -483,6 +505,7 @@ plt.legend(loc=(1.03, -0.1),
            title="Mutation time (relative to env. change)",
            reverse=True,
            ncol=1, fontsize="medium")
+plt.title(shortName)
 plt.tight_layout()
 # plt.savefig(figPath + model_name + "_20RunsMedian_lfByMutTime_20Bin_stack_zoomIn.png",
 #             dpi=300)
@@ -518,6 +541,7 @@ plt.legend(loc=(1.03, -0.1),
            title="|Phenotypic effect size|",
            reverse=True,
            ncol=1, fontsize="medium")
+plt.title(shortName)
 plt.tight_layout()
 # plt.savefig(figPath + model_name +
 #             "_20Runsmedian_lfBysize20Bin_stack.png",
@@ -544,6 +568,7 @@ plt.legend(loc=(1.03, -0.1),
            title="|Phenotypic effect size|",
            reverse=True,
            ncol=1, fontsize="medium")
+plt.title(shortName)
 plt.tight_layout()
 # plt.savefig(figPath + model_name +
 #             "_20Runsmedian_lfBysize20Bin_stack_zoomIn.png",

@@ -10,20 +10,18 @@ import msprime
 import tskit
 import pyslim
 import matplotlib
-import matplotlib.pyplot as plt
-import scipy.stats as stats
 from scipy.spatial import distance_matrix
 import numpy as np
 import random
 from time import time
-import sys # for sys.exit()
-import allel # for allel.weir_cockerham_fst()
 import glob #for loading files
 from collections import Counter
 import pandas as pd#dataframe
 import os #mkdir
 # matplotlib.use("qt5agg") # Not work
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib import colormaps
 import scipy.stats as stats
 import sys # for sys.exit()
 import allel # for allel.weir_cockerham_fst()
@@ -31,42 +29,67 @@ import matplotlib.patches as mpatches # manually make legends
 import seaborn as sns
 
 ############################# options #############################
-# import argparse
-# parser = argparse.ArgumentParser()
-# # Path should end by "/"
-# parser.add_argument('-i', '--input',
-#                     help='Path the the input tables',
+import argparse
+parser = argparse.ArgumentParser()
+# Path should end by "/"
+parser.add_argument('-i', '--input',
+                    help='Path to input tables',
+                    type=str)
+# #parser.add_argument('-n', '--name',
+#                     help='Short model name',
 #                     type=str)
-# # #parser.add_argument('-n', '--name',
-# #                     help='Short model name',
-# #                     type=str)
-# # #parser.add_argument('-p', '--plot',
-# #                     help='1 for generating plots and 0 for not plotting',
-# #                     type=int, default=1)
-# args = parser.parse_args()
+# #parser.add_argument('-p', '--plot',
+#                     help='1 for generating plots and 0 for not plotting',
+#                     type=int, default=1)
+args = parser.parse_args()
 
 ############################# program #########################################
 # Values
 # sigma_w = 0.4
 # dist_mate = 0.12
 num_runs = 200
-# inPath = args.input
+inPath = args.input
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M3b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
-inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
+# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
+# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
 
-short_model_name = inPath.split("/")[-3]
+simName = inPath.split("/")[-3]
+#Short title: Hard coded
+if "sigmaD0.06_mateD0.15" in simName:
+    migName = "HighMig"
+elif "sigmaD0.03_mateD0.12" in simName:
+    migName = "LowMig"
+else:
+    migName = ""
+if "_clineMap_" in simName:
+    mapName = "Cline"
+elif "_patchyMap_" in simName:
+    mapName = "Patchy"
+else:
+    mapName = ""
+if "_sigmaM0.01_" in simName:
+    mutName = "highPoly"
+elif "_sigmaM0.1_" in simName:
+    mutName = "lowPoly"
+else:
+    mutName = ""
+demoName = simName.split("_")[2]
+shortName = ",".join([demoName, migName, mapName])
 
-figPath = ("/home/anadem/github/data/tskit_data/figure/202503/" +
-           short_model_name + "/" + str(num_runs) + "runs_" +
-           inPath.split("/")[-2]+"/")
+# figPath = ("/home/anadem/github/data/tskit_data/figure/multiRuns/" +
+#            simName + "/" + str(num_runs) + "runs_" +
+#            inPath.split("/")[-2]+"/")
+figPath = ("/home/anadem/github/data/tskit_data/figure/multiRuns/" +
+           simName + "/")
 if not os.path.exists(figPath):
     os.makedirs(figPath)
-outPath = ("/home/anadem/github/data/tskit_data/output/mutiRuns/k80" +
-           short_model_name + "/200runs_" + inPath.split("/")[-2]+"/")
+# outPath = ("/home/anadem/github/data/tskit_data/output/mutiRuns/k80" +
+#            simName + "/200runs_" + inPath.split("/")[-2]+"/")
+outPath = ("/home/anadem/github/data/tskit_data/output/mutiRuns/k80" + "/")
 if not os.path.exists(outPath):
     os.makedirs(outPath)
 
@@ -92,7 +115,8 @@ df = pd.DataFrame()
 fileList = glob.glob(inPath + "*.txt")
 run = 0
 for f in fileList:
-    df_focal = pd.read_csv(f, sep='\t', header=0)
+    # df_focal = pd.read_csv(f, sep='\t', header=0)
+    df_focal = pd.read_csv(f, sep="\s+", header=0)
     # Add relative delta_LF_mut,temporary run ID, and rank of p-values
     lf_sum_positive = sum(df_focal.loc[df_focal["delta_LF_mut"]>0,"delta_LF_mut"])
     lf_sum_negative = sum(df_focal.loc[df_focal["delta_LF_mut"]<0, "delta_LF_mut"])
@@ -316,6 +340,7 @@ plt.xticks(ticks=x_ticks,
            labels=x_labels,
            rotation=20,
            ha='left')
+plt.title(shortName)
 plt.tight_layout()
 plt.savefig(figPath + model_name +
             str(num_cat)+"bins" +
@@ -369,6 +394,7 @@ plt.xticks(ticks=x_ticks,
            labels=x_labels,
            rotation=20,
            ha='left')
+plt.title(shortName)
 plt.tight_layout()
 plt.savefig(figPath+model_name +
             str(num_cat)+"bins" +
@@ -423,6 +449,7 @@ plt.xticks(ticks=x_ticks,
            labels=x_labels,
            rotation=20,
            ha='left')
+plt.title(shortName)
 plt.tight_layout()
 plt.savefig(figPath+model_name +
             str(num_cat)+"bins" +
@@ -570,7 +597,10 @@ for i in range(num_cat):
     else:
         TPR_byAge.append(TP/(TP+FN))
     FPR_byAge.append(FP/(TN+FP))
-    FDR_byAge.append(FP/(TP+FP))
+    if TP+FP == 0:
+        FDR_byAge.append(np.nan)
+    else:
+        FDR_byAge.append(FP/(TP+FP))
 
 # FPR ～ Allele age, equal number alleles per bin
 x_ticks = np.append(np.arange(0, 100, cat_width),100)
@@ -674,6 +704,7 @@ plt.xlabel("\nAllele age percentile bins")
 plt.ylabel("Standard deviation of p-values of neutral alleles")
 plt.xticks(ticks=x_ticks,
            labels=x_labels)
+plt.title(shortName)
 plt.tight_layout()
 plt.savefig(figPath+model_name +
             str(num_cat)+"bins" +
@@ -863,12 +894,13 @@ median_explained = median_cumulative_lf[median_gea_goal]
 
 #Save K80 as a table
 out_path_file = (outPath + model_name + "_k80.txt")
-header = "k80_"+ model_name + "\n"
+header = "_".join([demoName, mutName, migName, mapName]) + "\n"
 with open(out_path_file, "w") as fout:
     fout.write(header)
     for i in gea_goal:
         outLine = str(i) + "\n"
         fout.write(outLine)
+fout.close()
 print("K80 table has been saved.")
 
 # # Plot cumulative_lf: Mean with range
@@ -913,6 +945,7 @@ plt.plot([0, median_gea_goal], [median_explained, median_explained],
 plt.annotate(str(median_gea_goal), xy=(median_gea_goal+1, median_explained),
              xytext=(median_gea_goal + 1 + len(median_cumulative_lf)/40, 0),
              color="firebrick")
+plt.title(shortName)
 plt.savefig(figPath + model_name +
             "_medianLFcumulative_positive_100runs_medianAndRange.png",
             dpi=300)
@@ -1028,9 +1061,17 @@ lf_sum_negative = np.array(lf_sum_negative)
 x = alpha_cats[1:]
 y1 = lf_sum_positive
 y2 = lf_sum_negative
+if "high" in mutName:
+    bar_width = 0.002 # High polygenicity
+    x_up = 0.05
+elif "low" in mutName:
+    bar_width = 0.016 # Low polygenicity
+    x_up = 0.40
 fig, ax = plt.subplots()
-bar_width = 0.002 # High polygenicity
-# bar_width = 0.016 # Low polygenicity
+if "high" in mutName:
+    bar_width = 0.002 # High polygenicity
+elif "low" in mutName:
+    bar_width = 0.016 # Low polygenicity
 ax.bar(x, y1, color="mediumaquamarine",
         label="Positive",
        width=bar_width)
@@ -1041,12 +1082,12 @@ ax.axhline(0, color='grey', lw=1, dashes=(1,1))
 plt.xlabel("|Mutation phenotypic effect size|")
 plt.ylabel(r"Relative contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ )")
 
-plt.xlim(0, 0.05) # High polygenicity
-# plt.xlim(0, 0.40) # Low polygenicity
-plt.ylim(-0.08, 0.2)
+plt.xlim(0, x_up)
+plt.ylim(-0.08, 0.3)
 ax.legend(loc="upper right")
 ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
 ax.margins(x=0)
+plt.title(shortName)
 plt.savefig(figPath+model_name+"_"+str(num_cat) + "bins"+
             "_LF_by_absEffectSize_bin_positveAndnegative_lfRelative2EachRun_barPlot.png",
             dpi=300)
@@ -1070,22 +1111,22 @@ for i in range(num_cat):
     lf_sum_positive.append(sum(lf_category[lf_category > 0])/num_runs)
     lf_sum_negative.append(sum(lf_category[lf_category < 0])/num_runs)
 
-#Test the shape of distribution
-#Log transformed pdf should be a straight line, with a slope of log10(lamda)
-plt.figure(1)
-plt.plot(age_cats[1:],np.log10(lf_sum_positive[0:]))
-plt.savefig(figPath+model_name+"_"+str(num_cat) + "log10_contribution_test.png",
-            dpi=300)
-plt.close()
-
-age_cdf = np.cumsum(lf_sum_positive)/max(np.cumsum(lf_sum_positive))
-exp_cdf = stats.expon.cdf(np.arange(0,1, 0.01), scale=0.23)
-plt.figure(1)
-plt.plot(age_cats[1:],age_cdf, "firebrick")
-plt.plot(age_cats[1:],exp_cdf, "grey")
-plt.savefig(figPath+model_name+"_"+str(num_cat) + "compare_cdf_test2.png",
-            dpi=300)
-plt.close()
+# #Test the shape of distribution
+# #Log transformed pdf should be a straight line, with a slope of log10(lamda)
+# plt.figure(1)
+# plt.plot(age_cats[1:],np.log10(lf_sum_positive[0:]))
+# plt.savefig(figPath+model_name+"_"+str(num_cat) + "log10_contribution_test.png",
+#             dpi=300)
+# plt.close()
+#
+# age_cdf = np.cumsum(lf_sum_positive)/max(np.cumsum(lf_sum_positive))
+# exp_cdf = stats.expon.cdf(np.arange(0,1, 0.01), scale=0.23)
+# plt.figure(1)
+# plt.plot(age_cats[1:],age_cdf, "firebrick")
+# plt.plot(age_cats[1:],exp_cdf, "grey")
+# plt.savefig(figPath+model_name+"_"+str(num_cat) + "compare_cdf_test2.png",
+#             dpi=300)
+# plt.close()
 
 
 
@@ -1179,6 +1220,7 @@ plt.ylabel(r"Relative contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ 
 plt.legend(loc="upper right")
 # ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
 # ax.margins(x=0)
+plt.title(shortName)
 plt.tight_layout()
 plt.savefig(figPath+model_name+"_"+str(num_cat) + "bins"+
             "_LF_by_age_bin_positveAndnegative_lfRelative2EachRun.png",
@@ -1217,7 +1259,7 @@ plt.bar(x, y2, color="saddlebrown",
        label="Negative",
        width=0.035)
 # plt.ylim(-0.1, 0.2) #temperary use
-plt.ylim(-0.25, 0.35) # A value for all 8 combinations
+plt.ylim(-0.3, 0.4) # A value for all 8 combinations
 plt.axhline(0, color='grey', lw=1, dashes=(1,1))
 # plt.xticks(ticks=np.arange(0, max(x), 1),
 #            labels=['{:0.2e}'.format(i)
@@ -1228,9 +1270,10 @@ plt.ylabel(r"Relative contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ 
 ax.legend(loc="upper right")
 ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
 # ax.margins(x=0)
+plt.title(shortName)
 plt.tight_layout()
 plt.savefig(figPath+model_name+"_"+str(num_cat) + "bins"+
-            "_LF_by_log10freq_bin_positveAndnegative_lfRelative2EachRun.png",
+            "_LF_by_freq_bin_positveAndnegative_lfRelative2EachRun.png",
             dpi=300)
 plt.close()
 
@@ -1245,6 +1288,7 @@ min_lf = min(df_polymorphic["delta_LF_mut"])
 # plt.xlabel("|Mutation phenotypic effect size|")
 # plt.ylabel("$LF_{mut}$")
 # plt.colorbar().set_label("Allele Frequency")
+# plt.title(shortName)
 # plt.tight_layout()
 # plt.savefig(figPath+model_name+"_effectSize_vs_LFmut_frequencyColor.png",
 #             dpi=300)
@@ -1343,12 +1387,15 @@ minor_freq = np.array(minor_freq)
 #             dpi=300)
 # plt.close()
 
-# LF_mut ~ |phenotypic effect size|, colored by log age
+# LF_mut ~ |phenotypic effect size|, colored by minor allele frequency
+# cmap_maf = sns.color_palette("Spectral", as_cmap=True)
 min_abs_effect = min(abs(df_polymorphic["mut_effect"]))
 max_abs_effect = max(abs(df_polymorphic["mut_effect"]))
 plt.scatter(abs(df_polymorphic["mut_effect"]), df_polymorphic["delta_LF_mut"],
             marker="o", c=minor_freq,
-            alpha=0.1, s=20)
+            alpha=0.1, s=20,
+            # cmap=cmap_maf
+            )
 plt.xlabel("|Mutation phenotypic effect size|")
 plt.ylabel("$LF_{mut}$")
 plt.xlim(left=min_abs_effect,
@@ -1356,10 +1403,31 @@ plt.xlim(left=min_abs_effect,
 # plt.ylim(bottom=-0.004, top=max_lf)
 plt.ylim(bottom=min_lf, top=max_lf)
 plt.colorbar().set_label("Minor allele Frequency")
+plt.title(shortName)
 plt.tight_layout()
-plt.savefig(figPath+model_name+"_effectSize_vs_LFmut_minorFrequencyColor.png",
+plt.savefig(figPath+model_name+"_effectSize_vs_LFmut_minorFrequencyColor_spectral.png",
             dpi=300)
 plt.close()
+
+# #Try to choose for a better colormap
+# # cmap_maf = sns.color_palette("Spectral", as_cmap=True)
+# cmap_maf = "coolwarm"
+# plt.scatter(abs(df_polymorphic["mut_effect"][0:1000000]), df_polymorphic["delta_LF_mut"][0:1000000],
+#             marker="o", c=minor_freq[0:1000000],
+#             alpha=0.2, s=20,
+#             # cmap=colormaps["gist_earth"]
+#             cmap=cmap_maf)
+# plt.xlabel("|Mutation phenotypic effect size|")
+# plt.ylabel("$LF_{mut}$")
+# plt.xlim(left=min_abs_effect,
+#          right=max_abs_effect)
+# plt.ylim(bottom=min_lf, top=max_lf)
+# plt.colorbar().set_label("Minor allele Frequency")
+# plt.title(shortName)
+# plt.tight_layout()
+# plt.savefig(figPath+model_name+"_effectSize_vs_LFmut_minorFrequencyColor_test2.png",
+#             dpi=300)
+# plt.close()
 
 # #Separated by high and low frequencies
 # maf_threshold = 0.2
@@ -1387,7 +1455,7 @@ plt.close()
 #
 # df_lowHighFreq = df_polymorphic[(df_polymorphic["freq"] >= (1-maf_threshold)) |
 #                                 (df_polymorphic["freq"] <= maf_threshold)]
-# del df_polymorphic
+del df_polymorphic
 # plt.scatter(abs(df_lowHighFreq["mut_effect"]),
 #             df_lowHighFreq["delta_LF_mut"],
 #             marker="o", c=df_lowHighFreq["freq"],
@@ -1645,6 +1713,7 @@ plt.legend(handles=patches,
 # ax.legend(loc="upper right")
 # ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
 # ax.margins(x=0)
+plt.title(shortName)
 plt.tight_layout()
 plt.savefig(figPath+model_name+"_"+str(num_age_cat) + "bins"+
             "_LF_by_age_bin_positve_lfRelative2EachRun_sizeColor.png",
@@ -1718,6 +1787,7 @@ plt.legend(handles=patches,
 # ax.legend(loc="upper right")
 # ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
 # ax.margins(x=0)
+plt.title(shortName)
 plt.tight_layout()
 plt.savefig(figPath+model_name+"_"+str(num_age_cat) + "bins"+
             "_LF_by_age_bin_positve_lfRelative2EachRun_freqColor.png",
@@ -1761,8 +1831,12 @@ for i in range(num_freq_cat):
                                                           "-" + str(round((i+1)*freq_cats_step, 2))))
 # Initialize the vertical-offset for the stacked bar chart.
 y_offset = np.zeros(num_size_cat)
-bar_width = 0.002 # High polygenicity
-# bar_width = 0.016 # Low polygenicity
+if "high" in mutName:
+    bar_width = 0.002 # High polygenicity
+    x_up = 0.05
+elif "low" in mutName:
+    bar_width = 0.016 # Low polygenicity
+    x_up = 0.40
 for row in range(num_freq_cat):
     plt.bar(x, y1[row], bar_width, bottom=y_offset, color=colors[row])
     y_offset = y_offset + lf_sum_positive[row]
@@ -1778,12 +1852,12 @@ plt.ylim(0, 0.8)
 plt.legend(handles=patches,
            title="Allele frequency",
            loc="upper right")
-plt.xlim(0, 0.05) # High polygenicity
-# plt.xlim(0, 0.40) # Low polygenicity
-plt.ylim(0, 0.2)
+plt.xlim(0, x_up) # High polygenicity
+plt.ylim(0, 0.3)
 # ax.legend(loc="upper right")
 # ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
 # ax.margins(x=0)
+plt.title(shortName)
 plt.tight_layout()
 # plt.savefig(figPath+model_name+"_"+str(num_size_cat) + "bins"+
 #             "_LF_by_size_bin_positve_lfRelative2EachRun_freqColor.png",
