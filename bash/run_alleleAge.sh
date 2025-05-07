@@ -765,30 +765,30 @@
 
 #Half samples
 #2-4
-batchNumber=1
-inPath="/home/anadem/github/data/slim_data/glacial_history/M2a_largeLowVm_lowMig_clineMap/tick110000/batch${batchNumber}"
-i=1
-echo $inPath
-for file in ${inPath}/*.trees
-do
-    printf "file %s / 42 \n" $i 
-    printf "Start making a table with \n %s" $file
-    python3 /home/anadem/github/arg-for-gea/python/alleleAge_slimHistory_crutches.py -i ${file} -p 0
-    i=$((${i}+1))
-done
-
-#patchy 1-4
-#batchNumber=4
-#inPath="/home/anadem/github/data/slim_data/glacial_history/M2a_largeLowVm_lowMig_patchyMap/tick110000/batch${batchNumber}"
+#batchNumber=1
+#inPath="/home/anadem/github/data/slim_data/glacial_history/M2a_largeLowVm_lowMig_clineMap/tick110000/batch${batchNumber}"
 #i=1
 #echo $inPath
 #for file in ${inPath}/*.trees
 #do
-#    printf "file %s / 50 \n" $i 
+#    printf "file %s / 3 \n" $i 
 #    printf "Start making a table with \n %s" $file
 #    python3 /home/anadem/github/arg-for-gea/python/alleleAge_slimHistory_crutches.py -i ${file} -p 0
 #    i=$((${i}+1))
 #done
+
+#patchy 1-4
+batchNumber=1
+inPath="/home/anadem/github/data/slim_data/glacial_history/M2a_largeLowVm_lowMig_patchyMap/tick110000/batch${batchNumber}"
+i=1
+echo $inPath
+for file in ${inPath}/*.trees
+do
+    printf "file %s / 50 \n" $i 
+    printf "Start making a table with \n %s" $file
+    python3 /home/anadem/github/arg-for-gea/python/alleleAge_slimHistory_crutches.py -i ${file} -p 0
+    i=$((${i}+1))
+done
 
 
 

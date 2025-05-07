@@ -4,7 +4,7 @@ initialize() {
 	defineConstant("seed", rdunif(1, 0, asInteger(2^62) - 1));
 	setSeed(seed);
 	// functional mutation rate: 1e-7, 1e-8, 1e-9, 1e-10
-	defineConstant("mu", 1e-8);
+	defineConstant("mu", 1e-10);
 	//  recombination rate on chromosomes
 	defineConstant("r", 1e-7);
 	// genome size: 10 Mb
@@ -17,7 +17,7 @@ initialize() {
 	//  reproduction rate
 	defineConstant("R", 0.2);
 	// Sd of mutation effect size on trait value: small 0.01, large: 0.1
-	defineConstant("sigma_M", 0.01);
+	defineConstant("sigma_M", 0.1);
 	// Sd of fitness function (selection curve)
 	defineConstant("sigma_W", 0.4);
 	// Sd of dispersion (centered on parent 1): low 0.03; high: 0.06
@@ -35,7 +35,7 @@ initialize() {
 	// Current extreme limit of habitat; Starts from 0.1
 	defineGlobal("extremeEnv", 0.1);
 	// Output location
-	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/recurrentChange/M3a_smallLowVm_highMig_patchyMap/");
+	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/recurrentChange/M3a_largeLowVm_highMig_patchyMap/");
 	
 	// defineConstant("outDir", "D:/UBC_office/slim/output/");
 	

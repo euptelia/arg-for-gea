@@ -49,6 +49,7 @@ args = parser.parse_args()
 # dist_mate = 0.12
 num_runs = 200
 inPath = args.input
+# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
@@ -89,7 +90,7 @@ if not os.path.exists(figPath):
     os.makedirs(figPath)
 # outPath = ("/home/anadem/github/data/tskit_data/output/mutiRuns/k80" +
 #            simName + "/200runs_" + inPath.split("/")[-2]+"/")
-outPath = ("/home/anadem/github/data/tskit_data/output/mutiRuns/k80" + "/")
+outPath = ("/home/anadem/github/data/tskit_data/output/mutiRuns/k80/")
 if not os.path.exists(outPath):
     os.makedirs(outPath)
 
@@ -116,7 +117,7 @@ fileList = glob.glob(inPath + "*.txt")
 run = 0
 for f in fileList:
     # df_focal = pd.read_csv(f, sep='\t', header=0)
-    df_focal = pd.read_csv(f, sep="\s+", header=0)
+    df_focal = pd.read_csv(f, sep="\t", header=0)
     # Add relative delta_LF_mut,temporary run ID, and rank of p-values
     lf_sum_positive = sum(df_focal.loc[df_focal["delta_LF_mut"]>0,"delta_LF_mut"])
     lf_sum_negative = sum(df_focal.loc[df_focal["delta_LF_mut"]<0, "delta_LF_mut"])
@@ -893,7 +894,7 @@ median_gea_goal = int(np.mean(gea_goal))
 median_explained = median_cumulative_lf[median_gea_goal]
 
 #Save K80 as a table
-out_path_file = (outPath + model_name + "_k80.txt")
+out_path_file = (outPath + "singleModel/" + model_name + "_k80.txt")
 header = "_".join([demoName, mutName, migName, mapName]) + "\n"
 with open(out_path_file, "w") as fout:
     fout.write(header)

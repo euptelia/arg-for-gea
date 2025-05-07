@@ -16,13 +16,16 @@ import matplotlib.pyplot as plt
 import matplotlib
 from scipy.stats import f_oneway
 
-#matplotlib.use('Qt5Agg')
+from python.older.alleleAge_msprimeHistory import figPath
+
+matplotlib.use('Qt5Agg')
 import scipy.stats as stats
 import matplotlib.patches as mpatches # manually make legends
 
 ############################# program #########################################
+
 figPath = "/home/anadem/github/data/tskit_data/figure/multiRuns/"
-k80 = pd.read_table("/home/anadem/github/data/tskit_data/output/mutiRuns/k80/k80_28model.tab",
+k80 = pd.read_table("/home/anadem/github/data/tskit_data/output/k80/renamed/k80_20model.tab",
                     sep="\t")
 
 # select columns containing 'lowPoly'
@@ -41,22 +44,22 @@ print(k80_lowPoly.stack().sem())
 print(k80_highPoly.stack().sem())
 
 #expansion in highPoly
-print(k80_highPoly.filter(like="a_").mean(axis=None))
-print(k80_highPoly.filter(like="b_").mean(axis=None))
-print(k80_highPoly.filter(like="a_").stack().sem())
-print(k80_highPoly.filter(like="b_").stack().sem())
+print(k80_highPoly.filter(like="a_").mean(axis=None)) #207
+print(k80_highPoly.filter(like="b_").mean(axis=None)) # 128
+print(k80_highPoly.filter(like="a_").stack().sem()) # 0.459
+print(k80_highPoly.filter(like="b_").stack().sem()) # 0.504
 
 #Migration
-print(k80_highPoly_lowMig.stack().mean(axis=None))
-print(k80_highPoly_highMig.stack().mean(axis=None))
-print(k80_highPoly_lowMig.stack().sem()) #
-print(k80_highPoly_highMig.stack().sem()) #
+print(k80_highPoly_lowMig.stack().mean(axis=None)) #174
+print(k80_highPoly_highMig.stack().mean(axis=None)) # 160
+print(k80_highPoly_lowMig.stack().sem()) # 1.267
+print(k80_highPoly_highMig.stack().sem()) # 1.170
 
 #cline/patchy
-print(k80_highPoly.filter(like="cline").mean(axis=None)) #
-print(k80_highPoly.filter(like="patchy").mean(axis=None)) #
-print(k80_highPoly.filter(like="cline").stack().sem()) #
-print(k80_highPoly.filter(like="patchy").stack().sem()) #
+print(k80_highPoly.filter(like="cline").mean(axis=None)) #169
+print(k80_highPoly.filter(like="patchy").mean(axis=None)) # 164
+print(k80_highPoly.filter(like="cline").stack().sem()) # 1.08
+print(k80_highPoly.filter(like="patchy").stack().sem()) # 1.47
 
 # #temporary
 # print(k80_highPoly.filter(like="M2").filter(like="cline").mean(axis=None)) #158.87625
