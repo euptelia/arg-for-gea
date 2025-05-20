@@ -22,9 +22,13 @@ import random
 import sys # for sys.exit()
 # import allel # for allel.weir_cockerham_fst()
 import os # mkdir
+import time
 
 # ############################# options #############################
 import argparse
+
+from python.older.alleleAge_multiRuns import label
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--input',
                     help='Input .trees file with its absolute path',
@@ -73,14 +77,17 @@ sample_size = 500
 #User input arguments:
 path_file_name = args.input
 # path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M0a_smallLowVm_lowMig_clineMap/tick110000/batch1/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07_seed22612012541755499_tick110000.trees"
+path_file_name = "/media/anadem/PortableSSD/arg4gea_data/UBC_dell_20240917/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M0a_smallLowVm_highMig_clineMap/tick110000/batch1/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07_seed124259352499469434_tick110000.trees"
 # Remove paths
 file_name = path_file_name.split("/")[-1]
 model_name = file_name[0:-6]  # Assuming the file name extension is .trees
 # Delete seed and tick information for making a directory
 short_model_name = "_".join(file_name.split("_")[0:-2])
 
-figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240822/"
-outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/"
+# figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20240822/"
+# outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/"
+figPath = "/home/anadem/github/data/tskit_data/figure/oneRun/"
+outBasePath = "/home/anadem/github/data/tskit_data/figure/oneRun/"
 outPath = outBasePath+short_model_name+"/"
 if not os.path.exists(outPath):
     os.makedirs(outPath)
@@ -209,6 +216,18 @@ mean_LF = np.mean(LF_cline)
 age = mts.mutations_time
 pos_by_mut = mts.sites_position[mts.mutations_site]
 
+#Age by site (keep only one mutation for each multiallelic site)
+loc_keep = []
+previous_loc = -1
+id = 0
+for mut in mts.mutations():
+    current_loc = mut.site
+    if current_loc != previous_loc:
+        loc_keep.append(id)
+    id += 1
+    previous_loc = current_loc
+age_by_site = age[loc_keep]
+
 # Mutation effects by mutation coordinates
 effect_by_mut = []
 for site in mts.sites():
@@ -224,6 +243,10 @@ for v in mts.variants():
         focal_freq = np.count_nonzero(v.genotypes == allele)/num_samples
         freq.append(focal_freq)
 freq_segragate = [f for f in freq if (f != 0) & (f != 1)]
+freq_by_site = np.array(freq)[loc_keep]
+
+
+
 
 # # Test: Extract frequency for a realistic sample
 # # Not used anymore as subsampling was moved to an earlier step
@@ -344,6 +367,112 @@ for i in np.arange(mts.num_mutations):
                                                       nan_policy="omit")
         (cor_GE[2][i], cor_GE[3][i]) = stats.pearsonr(freq_sample_pop[i],
                                                       env_sample_pop)
+
+
+
+
+
+#Level of clustering ~ Allele age
+# #Method 1: Average pair-wise difference (APD): 30 hours per file, not used
+# #Two "subgenomes" of each individual share the same geographic location.
+# subgenome_x = np.repeat(ind_x, 2, axis=0)
+# subgenome_y = np.repeat(ind_y, 2, axis=0)
+# APD = []
+# #Extract locations of each allele
+# t1 = time.time()
+# for v in mts.variants():
+#     # allele_locations = np.extract(v.genotypes, subgenome_location)
+#     # Skip fixed alleles (redundant)
+#     if sum(v.genotypes) > 1 and sum(v.genotypes) < 2*N:
+#         # allele_locations = np.extract(v.genotypes, subgenome_location)
+#         # print(len(allele_locations))
+#         coord = list(zip(np.extract(v.genotypes, subgenome_x),
+#                          np.extract(v.genotypes, subgenome_y)))
+#         dist_matrix = distance_matrix(coord, coord)
+#         # Number of alleles
+#         k = len(dist_matrix)
+#         APD.append(sum(dist_matrix.flatten())/(k**2-k))
+#     else:
+#         APD.append(np.nan)
+# # Elapsed Time
+# timer = time.time() - t1
+# print(str(round((timer/60),2) )+ " minutes used for LF_mut calculation.")
+# print(time.ctime())
+
+#Method 2: Nearest neighbor index (NNI): also slow
+# 10000 sites
+nni_size = 10000
+#Two "subgenomes" of each individual share the same geographic location.
+t1 = time.time()
+subgenome_x = np.repeat(ind_x, 2, axis=0)
+subgenome_y = np.repeat(ind_y, 2, axis=0)
+#Randomly pick 1000 neutral mutations that are not lost/fixed/singletons/doubletons
+ideal_freq = (freq_by_site > (1/mts.num_individuals)) & (freq_by_site < (1-1/mts.num_individuals))
+sample_keep = sorted(random.sample(list(np.arange(mts.num_sites)[ideal_freq]), nni_size))
+sample_age = age_by_site[sample_keep]
+sample_freq = freq_by_site[sample_keep]
+sample_age = age_by_site[sample_keep]
+NNI = []
+#Extract locations of each allele
+i = 0
+for v in mts.variants():
+    if i in sample_keep: #Only calculate NNI for sites in the list
+        coord = list(zip(np.extract(v.genotypes, subgenome_x),
+                    np.extract(v.genotypes, subgenome_y)))
+        dist_matrix = distance_matrix(coord, coord)
+        dist_matrix_masked = np.ma.masked_equal(dist_matrix, 0, False)
+        ANN = np.mean(dist_matrix_masked.min(axis=0))
+        n = len(dist_matrix) #number of alleles
+        NNI.append(ANN*2*np.sqrt(n)) #Area of the space = 1*1 = 1
+    i += 1
+# Elapsed Time
+timer = time.time() - t1
+print(str(round((timer/60),2) )+ " minutes used for LF_mut calculation.")
+print(time.ctime())
+
+#NNI and age and frequency
+plt.figure(1)
+plt.scatter(sample_age, NNI, marker="o",
+            c=sample_freq, alpha=0.1)
+plt.xlabel("Allele age (generations)")
+plt.ylabel("Nearest neighbor index (NNI)")
+plt.colorbar().set_label("Allele frequency")
+plt.tight_layout()
+plt.savefig(figPath + "NNI_age_freqColor_" + str(nni_size) + "site.png")
+plt.close()
+
+plt.figure(1)
+plt.scatter(sample_freq, NNI, marker="o",
+            c=sample_age, alpha=0.1)
+plt.xlabel("Allele frequency")
+plt.ylabel("Nearest neighbor index (NNI)")
+plt.colorbar().set_label("Allele age")
+plt.tight_layout()
+plt.savefig(figPath + "NNI_freq_ageColor_" + str(nni_size) + "site.png")
+plt.close()
+
+#Compare NNI and correlation
+tau_p_by_site = -np.log(cor_GE[1][loc_keep][sample_keep])
+plt.figure(1)
+plt.scatter(NNI, tau_p_by_site, marker="o",
+            c=sample_age, alpha=0.1)
+plt.ylabel("-ln(p-value)")
+plt.xlabel("Nearest neighbor index (NNI)")
+plt.colorbar().set_label("Allele age")
+plt.tight_layout()
+plt.savefig(figPath + "tauP_by_NNI_ageColor_" + str(nni_size) + "site.png")
+plt.close()
+
+tau_p_by_site = -np.log(cor_GE[1][loc_keep][sample_keep])
+plt.figure(1)
+plt.scatter(NNI, tau_p_by_site, marker="o",
+            c=sample_freq, alpha=0.1)
+plt.ylabel("-ln(p-value)")
+plt.xlabel("Nearest neighbor index (NNI)")
+plt.colorbar().set_label("Allele frequency")
+plt.tight_layout()
+plt.savefig(figPath + "tauP_by_NNI_freqColor_" + str(nni_size) + "site.png")
+plt.close()
 
 # # p-value adjusted by the Benjamini-Hochberg method
 # # temporarily remove nan values

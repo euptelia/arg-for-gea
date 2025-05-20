@@ -715,6 +715,71 @@ plt.close()
 
 
 
+
+# Make plots similar to M0 models
+#TPR ~ Allele age (equal time intervals)
+df_neutral = df[(df["mut_effect"] == 0) &
+                (df["freq"] != 0) &
+                (df["freq"] != 1)]
+# False negative rate for NEUTRAL mutations among AGE categories: Equal intervals
+num_cat_age = 40
+# p_threshold = 0.0001
+p_threshold = 0.0000000001
+max_age = tick
+cat_width_age = max_age/num_cat_age
+age_boundaries = np.append(np.arange(0, max_age, cat_width_age), max_age)
+FPR_neutral_byAge_equalWidth = []
+sample_size_age_equalWidth = []
+p_median_byAge_equalWidth = []
+p_sd_byAge_equalWidth = []
+tau_absMedian_byAge_equalWidth = []
+tau_absSd_byAge_equalWidth = []
+for i in range(num_cat_age):
+    p_category = df_neutral["p"][(df_neutral["age"] > age_boundaries[i]) &
+                                 (df_neutral["age"] <= age_boundaries[i+1])]
+    tau_category = df_neutral["tau"][(df_neutral["age"] > age_boundaries[i]) &
+                                 (df_neutral["age"] <= age_boundaries[i+1])]
+    sample_size_age_equalWidth.append(len(p_category))
+    p_median_byAge_equalWidth.append(np.nanmedian(p_category))
+    p_sd_byAge_equalWidth.append(np.nanstd(p_category))
+    tau_absMedian_byAge_equalWidth.append(np.nanmedian(abs(tau_category)))
+    tau_absSd_byAge_equalWidth.append(np.nanstd(abs(tau_category)))
+    # Neutral mutations have no phenotypic effect and therefore no positive
+    mut_in_cat = len(p_category)
+    obsP_neutral = p_category < p_threshold
+    # All positives are false positives
+    FP = sum(obsP_neutral)
+    FPR_neutral_byAge_equalWidth.append(FP/mut_in_cat)
+
+# Equal intervals
+# age_fig_size = (8,5) # 20 bins
+age_fig_size = (8,5) # 40 bins
+# age_fig_size = (15,5) # 100 bins
+
+# Neutral alleles: FPR ～ Allele age, equal intervals
+plt.figure(figsize=age_fig_size)
+# plt.figure(figsize=(15,5)) # 100 bins
+plt.plot(age_boundaries[0:-1] + cat_width_age/2,
+         FPR_neutral_byAge_equalWidth,
+         color="grey",
+         marker = "o")
+plt.xlabel("Allele age", fontsize=14)
+# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
+plt.ylabel("False positive rate of neutral alleles \n (FP/(FP+TN))",
+           fontsize=14)
+plt.xticks(ticks=age_boundaries,
+           labels=[str(int(i)) for i in age_boundaries],
+           rotation=90)
+plt.title(shortName)
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat_age)+"bins"+"_FPR_GEAp" + str(p_threshold) +
+            "_vs_age_neutralAllele_equalInterval.png",
+            dpi=300)
+plt.close()
+
+
+
 # # Signal not obvious
 # # Relative LF_mut ~ cor_GE p-values RANKS, colored by age rank bins
 # p_rank = df["p_rank"]

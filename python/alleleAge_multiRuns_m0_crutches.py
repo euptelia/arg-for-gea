@@ -32,19 +32,19 @@ import matplotlib.patches as mpatches # manually make legends
 import seaborn as sns # for density histplot
 
 ############################# options #############################
-import argparse
-
-parser = argparse.ArgumentParser()
-parser.add_argument('-i', '--input',
-                    help='Path the the input tables',
-                    type=str)
-# parser.add_argument('-n', '--name',
-#                     help='Short model name',
+# import argparse
+#
+# parser = argparse.ArgumentParser()
+# parser.add_argument('-i', '--input',
+#                     help='Path the the input tables',
 #                     type=str)
-# parser.add_argument('-p', '--plot',
-#                     help='1 for generating plots and 0 for not plotting',
-#                     type=int, default=1)
-args = parser.parse_args()
+# # parser.add_argument('-n', '--name',
+# #                     help='Short model name',
+# #                     type=str)
+# # parser.add_argument('-p', '--plot',
+# #                     help='1 for generating plots and 0 for not plotting',
+# #                     type=int, default=1)
+# args = parser.parse_args()
 
 ############################# program #########################################
 # Values
@@ -52,29 +52,33 @@ args = parser.parse_args()
 # dist_mate = 0.12
 num_runs = 100
 # inPath = args.input
+
 # mytitle = "M0a, low migration, cline map"
 # inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
+# inPath = "/media/anadem/PortableSSD/arg4gea_data/UBC_dell_20240917/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
 # mytitle = "M0a, high migration, cline map"
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
-mytitle = "M0a, low migration, patchy map"
-inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
-# mytitle = "M0a, high migration, patchy map"
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
+# inPath = "/media/anadem/PortableSSD/arg4gea_data/UBC_dell_20240917/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
+# mytitle = "M0a, low migration, patchy map"
+# inPath = "/media/anadem/PortableSSD/arg4gea_data/UBC_dell_20240917/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
+mytitle = "M0a, high migration, patchy map"
+inPath = "/media/anadem/PortableSSD/arg4gea_data/UBC_dell_20240917/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
 # mytitle = "M0b, low migration, cline map"
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
+# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/neutral/Continuous_nonWF_M0b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
 # mytitle = "M0b, high migration, cline map"
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
+# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/neutral/Continuous_nonWF_M0b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
 # mytitle = "M0b, low migration, patchy map"
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
+# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/neutral/Continuous_nonWF_M0b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
 # mytitle = "M0b, high migration, patchy map"
-# inPath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
+# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/neutral/Continuous_nonWF_M0b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
 
-# mytitle = "M0a, high migration, cline map"
-# inPath = ""
+
 short_model_name = inPath.split("/")[-3]
 
-figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240909/" +
-           short_model_name + "/" + str(num_runs) + "runs_" + "cat100_" +
+# figPath = ("/home/tianlin/Documents/github/data/tskit_data/figure/20240909/" +
+#            short_model_name + "/" + str(num_runs) + "runs_" + "cat100_" +
+#            inPath.split("/")[-2]+"/")
+figPath = ("/home/anadem/github/data/tskit_data/figure/multiRuns/" +
+           short_model_name + "/" + str(num_runs) + "runs_" +
            inPath.split("/")[-2]+"/")
 # outPath = ("/home/tianlin/Documents/github/data/tskit_data/output/multiple_runs/" +
 #            short_model_name + "/100runs_" + inPath.split("/")[-2]+"/")

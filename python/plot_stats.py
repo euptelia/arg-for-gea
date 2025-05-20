@@ -28,10 +28,12 @@ k80 = pd.read_table("/home/anadem/github/data/tskit_data/output/mutiRuns/k80/k80
 # select columns containing 'lowPoly'
 k80_lowPoly = k80.filter(like="lowPoly", axis=1)
 k80_highPoly = k80.filter(like="highPoly", axis=1)
-k80_lowPoly_lowMig = k80_lowPoly.filter(like="lowMig", axis=1)
-k80_lowPoly_highMig = k80_lowPoly.filter(like="highMig", axis=1)
-k80_highPoly_lowMig = k80_highPoly.filter(like="lowMig", axis=1)
-k80_highPoly_highMig = k80_highPoly.filter(like="highMig", axis=1)
+k80_lowMig = k80.filter(like="LowMig", axis=1)
+k80_highMig = k80.filter(like="HighMig", axis=1)
+k80_lowPoly_lowMig = k80_lowPoly.filter(like="LowMig", axis=1)
+k80_lowPoly_highMig = k80_lowPoly.filter(like="HighMig", axis=1)
+k80_highPoly_lowMig = k80_highPoly.filter(like="LowMig", axis=1)
+k80_highPoly_highMig = k80_highPoly.filter(like="HighMig", axis=1)
 
 #Mean and sd
 #Polygenicity
@@ -41,50 +43,74 @@ print(k80_lowPoly.stack().sem())
 print(k80_highPoly.stack().sem())
 
 #expansion in highPoly
-print(k80_highPoly.filter(like="a_").mean(axis=None))
-print(k80_highPoly.filter(like="b_").mean(axis=None))
-print(k80_highPoly.filter(like="a_").stack().sem())
-print(k80_highPoly.filter(like="b_").stack().sem())
+print(k80.filter(like="a_").mean(axis=None))
+print(k80.filter(like="b_").mean(axis=None))
+print(k80.filter(like="a_").stack().sem())
+print(k80.filter(like="b_").stack().sem())
+# print(k80_highPoly.filter(like="a_").mean(axis=None))
+# print(k80_highPoly.filter(like="b_").mean(axis=None))
+# print(k80_highPoly.filter(like="a_").stack().sem())
+# print(k80_highPoly.filter(like="b_").stack().sem())
+
 
 #Migration
-print(k80_highPoly_lowMig.stack().mean(axis=None))
-print(k80_highPoly_highMig.stack().mean(axis=None))
-print(k80_highPoly_lowMig.stack().sem()) #
-print(k80_highPoly_highMig.stack().sem()) #
+print(k80_lowMig.stack().mean(axis=None))
+print(k80_highMig.stack().mean(axis=None))
+print(k80_lowMig.stack().sem()) #
+print(k80_highMig.stack().sem()) #
+# print(k80_highPoly_lowMig.stack().mean(axis=None))
+# print(k80_highPoly_highMig.stack().mean(axis=None))
+# print(k80_highPoly_lowMig.stack().sem()) #
+# print(k80_highPoly_highMig.stack().sem()) #
+# print(k80_lowPoly_lowMig.stack().mean(axis=None))
+# print(k80_lowPoly_highMig.stack().mean(axis=None))
+# print(k80_lowPoly_lowMig.stack().sem()) #
+# print(k80_lowPoly_highMig.stack().sem()) #
 
 #cline/patchy
-print(k80_highPoly.filter(like="cline").mean(axis=None)) #
-print(k80_highPoly.filter(like="patchy").mean(axis=None)) #
-print(k80_highPoly.filter(like="cline").stack().sem()) #
-print(k80_highPoly.filter(like="patchy").stack().sem()) #
+print(k80.filter(like="Cline").mean(axis=None)) #
+print(k80.filter(like="Patchy").mean(axis=None)) #
+print(k80.filter(like="Cline").stack().sem()) #
+print(k80.filter(like="Patchy").stack().sem()) #
+
+# print(k80_highPoly.filter(like="Cline").mean(axis=None)) #
+# print(k80_highPoly.filter(like="Patchy").mean(axis=None)) #
+# print(k80_highPoly.filter(like="Cline").stack().sem()) #
+# print(k80_highPoly.filter(like="Patchy").stack().sem()) #
 
 # #temporary
-# print(k80_highPoly.filter(like="M2").filter(like="cline").mean(axis=None)) #158.87625
-# print(k80_highPoly.filter(like="M2").filter(like="patchy").mean(axis=None)) # 164.38375
-# print(k80_highPoly.filter(like="M2").filter(like="cline").stack().sem()) # 1.6492217362565444
-# print(k80_highPoly.filter(like="M2").filter(like="patchy").stack().sem()) # 1.4730650046949543
+print(k80.filter(like="M2").filter(like="Cline").mean(axis=None)) #158.87625
+print(k80.filter(like="M2").filter(like="Patchy").mean(axis=None)) # 164.38375
+print(k80.filter(like="M2").filter(like="Cline").stack().sem()) # 1.6492217362565444
+print(k80.filter(like="M2").filter(like="Patchy").stack().sem()) # 1.4730650046949543
 
 #One way ANOVA
-f_oneway(k80_highPoly.filter(like="a_").stack(),
-         k80_highPoly.filter(like="b_").stack())
-f_oneway(k80_highPoly_lowMig.stack(),
-         k80_highPoly_highMig.stack())
-f_oneway(k80_highPoly.filter(like="cline").stack(),
-         k80_highPoly.filter(like="patchy").stack())
+f_oneway(k80.filter(like="a_").stack(),
+         k80.filter(like="b_").stack())
+f_oneway(k80_lowMig.stack(),
+         k80_highMig.stack())
+f_oneway(k80.filter(like="Cline").stack(),
+         k80.filter(like="Patchy").stack())
+# f_oneway(k80_highPoly.filter(like="a_").stack(),
+#          k80_highPoly.filter(like="b_").stack())
+# f_oneway(k80_highPoly_lowMig.stack(),
+#          k80_highPoly_highMig.stack())
+# f_oneway(k80_highPoly.filter(like="cline").stack(),
+#          k80_highPoly.filter(like="patchy").stack())
 # f_oneway(k80_highPoly.filter(like="M2").filter(like="cline").stack(),
 #          k80_highPoly.filter(like="M2").filter(like="patchy").stack())
 
 
 #High polygenicity
-focal_data1 = k80_highPoly_lowMig
-focal_data2 = k80_highPoly_highMig
-#low migration, high migration
-colors = ["#4a2522","#a68785"]
-patch1 = mpatches.Patch(color=colors[0], label='Low migration')
-patch2 = mpatches.Patch(color=colors[1], label='High migration')
-widths = 0.2
-labels1 = [".".join(i.split("_")[0:2])[1:-3] for i in list(focal_data1)]
-labels2 = [".".join(i.split("_")[0:2])[1:-3] for i in list(focal_data2)]
+# focal_data1 = k80_highPoly_lowMig
+# focal_data2 = k80_highPoly_highMig
+# #low migration, high migration
+# colors = ["#4a2522","#a68785"]
+# patch1 = mpatches.Patch(color=colors[0], label='Low migration')
+# patch2 = mpatches.Patch(color=colors[1], label='High migration')
+# widths = 0.2
+# labels1 = [".".join(i.split("_")[0:2])[1:-3] for i in list(focal_data1)]
+# labels2 = [".".join(i.split("_")[0:2])[1:-3] for i in list(focal_data2)]
 # labels = [i for j in list(zip(labels1, labels2)) for i in j]
 
 # #Single Plot
@@ -128,12 +154,17 @@ labels2 = [".".join(i.split("_")[0:2])[1:-3] for i in list(focal_data2)]
 
 
 #Two plots: Low polygenicity and high polygenicity
+colors = ["#4a2522","#a68785"]
+widths = 0.2
+patch1 = mpatches.Patch(color=colors[0], label='Low migration')
+patch2 = mpatches.Patch(color=colors[1], label='High migration')
+
 fig, axs = plt.subplots(nrows=2, ncols=1,
                         figsize=(5,9))
 focal_data1 = k80_lowPoly_lowMig
 focal_data2 = k80_lowPoly_highMig
-labels1 = [".".join(i.split("_")[0:2])[1:-3] for i in list(focal_data1)]
-labels2 = [".".join(i.split("_")[0:2])[1:-3] for i in list(focal_data2)]
+labels1 = ["\n".join(np.array(i.split("_"))[[0,3]]) for i in list(focal_data1)]
+labels2 = ["\n".join(np.array(i.split("_"))[[0,3]]) for i in list(focal_data2)]
 axs[0].boxplot(focal_data1, notch=True, patch_artist=True, widths=widths,
            boxprops=dict(facecolor=colors[0], color=colors[0]),
            capprops=dict(color=colors[0]),
@@ -160,15 +191,15 @@ axs[0].set_xticks(ticks=np.arange(len(focal_data2.columns))+1.125,
            rotation=20,
            ha='center')
 axs[0].set_xlabel(xlabel="Models")
-axs[0].set_ylabel(ylabel="Minimum number of alleles for explaining \n"+r"80% allelic contribution to local adaptation ( $\it{K_{80}}$)")
+axs[0].set_ylabel(ylabel="Minimum number of alleles for explaining \n"+r"80% allelic contribution to local adaptation ( $\it{K_{80}(positive)}$)")
 axs[0].legend(handles=[patch2, patch1],
            title="",
            loc="upper center")
 #Lower plot:
 focal_data1 = k80_highPoly_lowMig
 focal_data2 = k80_highPoly_highMig
-labels1 = [".".join(i.split("_")[0:2])[1:-3] for i in list(focal_data1)]
-labels2 = [".".join(i.split("_")[0:2])[1:-3] for i in list(focal_data2)]
+labels1 = ["\n".join(np.array(i.split("_"))[[0,3]]) for i in list(focal_data1)]
+labels2 = ["\n".join(np.array(i.split("_"))[[0,3]]) for i in list(focal_data2)]
 axs[1].boxplot(focal_data1, notch=True, patch_artist=True, widths=widths,
            boxprops=dict(facecolor=colors[0], color=colors[0]),
            capprops=dict(color=colors[0]),
@@ -195,13 +226,13 @@ axs[1].set_xticks(ticks=np.arange(len(focal_data2.columns))+1.125,
            rotation=20,
            ha='center')
 axs[1].set_xlabel(xlabel="Models")
-axs[1].set_ylabel(ylabel="Minimum number of alleles for explaining \n"+r"80% allelic contribution to local adaptation ( $\it{K_{80}}$)")
+axs[1].set_ylabel(ylabel="Minimum number of alleles for explaining \n"+r"80% allelic contribution to local adaptation ( $\it{K_{80}(positive)}$)")
 axs[1].legend(handles=[patch2, patch1],
            title="",
            loc="upper center")
 fig.tight_layout()
 plt.savefig(figPath+
-            "k80_20models_boxplot.png",
+            "k80_28models_boxplot.png",
             dpi=300)
 # (left, bottom, right, top),
 plt.close()

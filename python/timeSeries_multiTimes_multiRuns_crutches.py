@@ -15,6 +15,9 @@ from time import time
 import sys  # for sys.exit()
 import os  # mkdir
 import glob  #for loading files
+from pingouin import ancova
+from statsmodels.formula.api import ols
+import statsmodels.api as sm
 
 ############################# options #########################################
 import argparse
@@ -27,7 +30,7 @@ args = parser.parse_args()
 
 ############################# program #########################################
 inPath = args.input
-# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/timeSeries"
+inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/timeSeries"
 history = 100000 # Ticks before the last environmental change (before the sampling stage)
 #Use K80
 expected_explained_proportion = 0.8
@@ -227,7 +230,31 @@ df_summary_median = df_summary.drop(columns=["runID"]).groupby(["times"]).median
 # df_age_negative_median = df_lf_age_negative.groupby(level=0).median()
 # df_size_negative_median = df_lf_size_negative.groupby(level=0).median()
 
-#Use mean instead of median
+
+
+df_summary_myTime = df_summary[(df_summary["times"] >= 1000) & (df_summary["times"] <= 10000)]
+stats.linregress(df_summary_myTime["times"],df_summary_myTime["k_net"])
+stats.linregress(df_summary_myTime["times"],df_summary_myTime["k_positive"])
+ancova(data=df_summary_myTime, )
+
+df_summary_myTime_melt = df_summary_myTime.melt(id_vars="times", value_vars=["k_net","k_positive"],
+                                                var_name="lf_type", value_name="k80")
+
+model1 = ols('k80 ~ lf_type * times', data=df_summary_myTime_melt).fit()
+
+# Print the summary of the model
+print(model1.summary())
+anova_result = sm.stats.anova_lm(model1, type=2)
+
+
+
+
+# df_summary_median_myTime = df_summary_median[(df_summary_median.index >= 1000)
+#                                              & (df_summary_median.index <= 10000)]
+# stats.linregress(df_summary_median_myTime.index,df_summary_median_myTime["k_net"])
+# stats.linregress(df_summary_median_myTime.index,df_summary_median_myTime["k_positive"])
+
+#Use mean instead of median for most plots
 df_freq_positive_median = df_lf_freq_positive.groupby(level=0).mean()
 df_age_positive_median = df_lf_age_positive.groupby(level=0).mean()
 df_size_positive_median = df_lf_size_positive.groupby(level=0).mean()

@@ -4,7 +4,7 @@ cd /home/anadem/github/data/tskit_data/output/mutiRuns/k80
 touch k80_28model.tab
 for file in ./singleModel/*.txt
 do 
-  paste k80_30model.tab $file > temp.txt
+  paste k80_28model.tab $file > temp.txt
   mv temp.txt k80_28model.tab
 done
 

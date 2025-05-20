@@ -204,7 +204,7 @@ t1 = time.time()
 index_site = 0
 # traverse sites with mutations
 for v in mts.variants():
-    # Skip calculation and directly append mean_LF as LF_shuffle
+    # Neutral site: Skip the calculation and directly append mean_LF as LF_shuffle
     # By definition neutral mutations should not affect phenotypes at all
     if sum(mut_effect_lists[index_site]) == 0:
         index_gt = 1
