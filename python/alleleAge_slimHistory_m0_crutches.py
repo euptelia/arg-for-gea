@@ -10,6 +10,7 @@ tianlin.duan42@gmail.com
 """
 ############################# modules #########################################
 import msprime
+import pandas as pd
 import tskit
 # import pyslim
 import matplotlib.pyplot as plt
@@ -27,6 +28,7 @@ import time
 # ############################# options #############################
 import argparse
 
+from python.alleleAge_multiRuns_crutches import p_threshold
 from python.older.alleleAge_multiRuns import label
 
 parser = argparse.ArgumentParser()
@@ -77,7 +79,7 @@ sample_size = 500
 #User input arguments:
 path_file_name = args.input
 # path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M0a_smallLowVm_lowMig_clineMap/tick110000/batch1/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07_seed22612012541755499_tick110000.trees"
-path_file_name = "/media/anadem/PortableSSD/arg4gea_data/UBC_dell_20240917/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M0a_smallLowVm_highMig_clineMap/tick110000/batch1/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07_seed124259352499469434_tick110000.trees"
+# path_file_name = "/media/anadem/PortableSSD/arg4gea_data/UBC_dell_20240917/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M0a_smallLowVm_highMig_clineMap/tick110000/batch1/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07_seed124259352499469434_tick110000.trees"
 # Remove paths
 file_name = path_file_name.split("/")[-1]
 model_name = file_name[0:-6]  # Assuming the file name extension is .trees
@@ -406,7 +408,7 @@ nni_size = 10000
 t1 = time.time()
 subgenome_x = np.repeat(ind_x, 2, axis=0)
 subgenome_y = np.repeat(ind_y, 2, axis=0)
-#Randomly pick 1000 neutral mutations that are not lost/fixed/singletons/doubletons
+#Randomly pick 1000 neutral mutations that are not lost/fixed/singletons
 ideal_freq = (freq_by_site > (1/mts.num_individuals)) & (freq_by_site < (1-1/mts.num_individuals))
 sample_keep = sorted(random.sample(list(np.arange(mts.num_sites)[ideal_freq]), nni_size))
 sample_age = age_by_site[sample_keep]
@@ -431,30 +433,100 @@ print(str(round((timer/60),2) )+ " minutes used for LF_mut calculation.")
 print(time.ctime())
 
 #NNI and age and frequency
-plt.figure(1)
+
+df_distribution = pd.DataFrame(data={"age":sample_age,
+                                     "NNI":NNI,
+                                     "p-tau":cor_GE[1][loc_keep][sample_keep]})
+df_distribution["age"]=df_distribution["age"].astype(int)
+df_distribution.groupby("age").mean()
+df_distribution.groupby("age").mean().index.sort_values()
+
+# #NNI and age and frequency
+NNI_means = df_distribution.groupby(pd.cut(df_distribution["age"], np.arange(0, 110000, 10000))).median()
+# NNI_cats = NNI_means.index
+age_cats_mean = np.arange(5000, 105000, 10000)
+# NNI ~ Age
+age_fig_size = (12,5)
+plt.figure(figsize=age_fig_size)
 plt.scatter(sample_age, NNI, marker="o",
             c=sample_freq, alpha=0.1)
+plt.plot(age_cats_mean, NNI_means["NNI"],
+         c="black", marker="o")
 plt.xlabel("Allele age (generations)")
 plt.ylabel("Nearest neighbor index (NNI)")
 plt.colorbar().set_label("Allele frequency")
 plt.tight_layout()
-plt.savefig(figPath + "NNI_age_freqColor_" + str(nni_size) + "site.png")
+plt.savefig(figPath + "NNI_age_freqColor_" + str(nni_size) + "site_withMedian.png")
 plt.close()
-
-plt.figure(1)
+# NNI ~ Freq
+plt.figure(figsize=age_fig_size)
 plt.scatter(sample_freq, NNI, marker="o",
             c=sample_age, alpha=0.1)
 plt.xlabel("Allele frequency")
 plt.ylabel("Nearest neighbor index (NNI)")
 plt.colorbar().set_label("Allele age")
 plt.tight_layout()
-plt.savefig(figPath + "NNI_freq_ageColor_" + str(nni_size) + "site.png")
+plt.savefig(figPath + "NNI_freq_ageColor_" + str(nni_size) + "site_longPlot.png")
+plt.close()
+
+
+plt.figure(figsize=age_fig_size)
+plt.scatter(sample_age, NNI, marker="o",
+            c=sample_freq, alpha=0.1)
+plt.plot(age_cats_mean, NNI_means["NNI"],
+         c="black", marker="o")
+plt.xlabel("Allele age (generations)")
+plt.ylabel("Nearest neighbor index (NNI)")
+plt.colorbar().set_label("Allele frequency")
+plt.tight_layout()
+plt.savefig(figPath + "NNI_age_freqColor_" + str(nni_size) + "site_withMedian.png")
+plt.close()
+# NNI ~ Freq
+plt.figure(figsize=age_fig_size)
+plt.scatter(sample_freq, NNI, marker="o",
+            c=sample_age, alpha=0.1)
+plt.xlabel("Allele frequency")
+plt.ylabel("Nearest neighbor index (NNI)")
+plt.colorbar().set_label("Allele age")
+plt.tight_layout()
+plt.savefig(figPath + "NNI_freq_ageColor_" + str(nni_size) + "site_longPlot.png")
+plt.close()
+
+#Zoom in
+NNI_means = df_distribution.groupby(pd.cut(df_distribution["age"], np.arange(0, 110000, 1000))).mean()
+# NNI_cats = NNI_means.index
+age_cats_mean = np.arange(500, 109500, 1000)
+# NNI ~ Age
+age_fig_size = (8,5)
+plt.figure(figsize=age_fig_size)
+plt.scatter(sample_age, NNI, marker="o",
+            c=sample_freq, alpha=0.1)
+plt.plot(age_cats_mean, NNI_means["NNI"],
+         c="black", marker="o")
+plt.xlabel("Allele age (generations)")
+plt.ylabel("Nearest neighbor index (NNI)")
+plt.xlim(0, 20000)
+plt.colorbar().set_label("Allele frequency")
+plt.tight_layout()
+plt.savefig(figPath + "NNI_age_freqColor_" + str(nni_size) + "site_20000tick_withMedian.png")
+plt.close()
+# NNI ~ Freq
+plt.figure(figsize=age_fig_size)
+plt.scatter(sample_freq, NNI, marker="o",
+            c=sample_age, alpha=0.1)
+plt.xlabel("Allele frequency")
+plt.ylabel("Nearest neighbor index (NNI)")
+plt.xlim(0, 0.2)
+plt.colorbar().set_label("Allele age")
+plt.tight_layout()
+plt.savefig(figPath + "NNI_freq_ageColor_" + str(nni_size) + "site_freq0.2.png")
 plt.close()
 
 #Compare NNI and correlation
-tau_p_by_site = -np.log(cor_GE[1][loc_keep][sample_keep])
+#ln(p-value) ~ NNI
 plt.figure(1)
-plt.scatter(NNI, tau_p_by_site, marker="o",
+plt.scatter(df_distribution["NNI"],
+            -np.log(df_distribution["p-tau"]), marker="o",
             c=sample_age, alpha=0.1)
 plt.ylabel("-ln(p-value)")
 plt.xlabel("Nearest neighbor index (NNI)")
@@ -463,15 +535,33 @@ plt.tight_layout()
 plt.savefig(figPath + "tauP_by_NNI_ageColor_" + str(nni_size) + "site.png")
 plt.close()
 
-tau_p_by_site = -np.log(cor_GE[1][loc_keep][sample_keep])
 plt.figure(1)
-plt.scatter(NNI, tau_p_by_site, marker="o",
+plt.scatter(df_distribution["NNI"],
+            -np.log(df_distribution["p-tau"]), marker="o",
             c=sample_freq, alpha=0.1)
 plt.ylabel("-ln(p-value)")
 plt.xlabel("Nearest neighbor index (NNI)")
 plt.colorbar().set_label("Allele frequency")
 plt.tight_layout()
 plt.savefig(figPath + "tauP_by_NNI_freqColor_" + str(nni_size) + "site.png")
+plt.close()
+
+#FPR ~ NNI
+p_threshold = 0.0001
+FP = df_distribution[df_distribution["p-tau"]<p_threshold].groupby(pd.cut(df_distribution["NNI"], np.arange(0, 1.7, 0.1))).count()["p-tau"]
+realN = df_distribution.groupby(pd.cut(df_distribution["NNI"], np.arange(0, 1.7, 0.1))).count()["p-tau"]
+FPR_by_NNI = FP/realN
+plt.figure(1)
+# plt.scatter(df_distribution["NNI"],
+#             -np.log(df_distribution["p-tau"]), marker="o",
+#             c=sample_freq, alpha=0.1)
+plt.plot(np.arange(0.05, 1.65, 0.1), FPR_by_NNI,
+         c="black", marker="o")
+plt.ylabel("False positive rate")
+plt.xlabel("Nearest neighbor index (NNI)")
+# plt.colorbar().set_label("Allele frequency")
+plt.tight_layout()
+plt.savefig(figPath + "FPR_by_NNI_freqColor_" + str(nni_size) + "site_p" + str(p_threshold) + ".png")
 plt.close()
 
 # # p-value adjusted by the Benjamini-Hochberg method

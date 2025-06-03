@@ -235,7 +235,7 @@ df_summary_median = df_summary.drop(columns=["runID"]).groupby(["times"]).median
 df_summary_myTime = df_summary[(df_summary["times"] >= 1000) & (df_summary["times"] <= 10000)]
 stats.linregress(df_summary_myTime["times"],df_summary_myTime["k_net"])
 stats.linregress(df_summary_myTime["times"],df_summary_myTime["k_positive"])
-ancova(data=df_summary_myTime, )
+#ancova(data=df_summary_myTime, )
 
 df_summary_myTime_melt = df_summary_myTime.melt(id_vars="times", value_vars=["k_net","k_positive"],
                                                 var_name="lf_type", value_name="k80")

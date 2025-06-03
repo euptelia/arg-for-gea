@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #Merge tables 
 cd /home/anadem/github/data/tskit_data/output/mutiRuns/k80
-touch k80_28model.tab
+touch k80_32model.tab
 for file in ./singleModel/*.txt
 do 
-  paste k80_28model.tab $file > temp.txt
-  mv temp.txt k80_28model.tab
+  paste k80_32model.tab $file > temp.txt
+  mv temp.txt k80_32model.tab
 done
 
 #Remove the tabs from the begining of each line 
-sed -i "s/^[ \t]*//" k80_28model.tab
+sed -i "s/^[ \t]*//" k80_32model.tab

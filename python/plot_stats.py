@@ -15,14 +15,13 @@ import os #mkdir
 import matplotlib.pyplot as plt
 import matplotlib
 from scipy.stats import f_oneway
-
 #matplotlib.use('Qt5Agg')
 import scipy.stats as stats
 import matplotlib.patches as mpatches # manually make legends
 
 ############################# program #########################################
 figPath = "/home/anadem/github/data/tskit_data/figure/multiRuns/"
-k80 = pd.read_table("/home/anadem/github/data/tskit_data/output/mutiRuns/k80/k80_28model.tab",
+k80 = pd.read_table("/home/anadem/github/data/tskit_data/output/mutiRuns/k80/k80_32model.tab",
                     sep="\t")
 
 # select columns containing 'lowPoly'
@@ -78,11 +77,6 @@ print(k80.filter(like="Patchy").stack().sem()) #
 # print(k80_highPoly.filter(like="Cline").stack().sem()) #
 # print(k80_highPoly.filter(like="Patchy").stack().sem()) #
 
-# #temporary
-print(k80.filter(like="M2").filter(like="Cline").mean(axis=None)) #158.87625
-print(k80.filter(like="M2").filter(like="Patchy").mean(axis=None)) # 164.38375
-print(k80.filter(like="M2").filter(like="Cline").stack().sem()) # 1.6492217362565444
-print(k80.filter(like="M2").filter(like="Patchy").stack().sem()) # 1.4730650046949543
 
 #One way ANOVA
 f_oneway(k80.filter(like="a_").stack(),
@@ -91,14 +85,15 @@ f_oneway(k80_lowMig.stack(),
          k80_highMig.stack())
 f_oneway(k80.filter(like="Cline").stack(),
          k80.filter(like="Patchy").stack())
-# f_oneway(k80_highPoly.filter(like="a_").stack(),
-#          k80_highPoly.filter(like="b_").stack())
-# f_oneway(k80_highPoly_lowMig.stack(),
-#          k80_highPoly_highMig.stack())
-# f_oneway(k80_highPoly.filter(like="cline").stack(),
-#          k80_highPoly.filter(like="patchy").stack())
-# f_oneway(k80_highPoly.filter(like="M2").filter(like="cline").stack(),
-#          k80_highPoly.filter(like="M2").filter(like="patchy").stack())
+
+#Only high poly
+f_oneway(k80_highPoly.filter(like="a_").stack(),
+         k80_highPoly.filter(like="b_").stack())
+f_oneway(k80_highPoly_lowMig.stack(),
+         k80_highPoly_highMig.stack())
+f_oneway(k80_highPoly.filter(like="Cline").stack(),
+         k80_highPoly.filter(like="Patchy").stack())
+
 
 
 #High polygenicity
@@ -161,8 +156,9 @@ patch2 = mpatches.Patch(color=colors[1], label='High migration')
 
 fig, axs = plt.subplots(nrows=2, ncols=1,
                         figsize=(5,9))
-focal_data1 = k80_lowPoly_lowMig
-focal_data2 = k80_lowPoly_highMig
+#Upper plot: high polygenicity
+focal_data1 = k80_highPoly_lowMig
+focal_data2 = k80_highPoly_highMig
 labels1 = ["\n".join(np.array(i.split("_"))[[0,3]]) for i in list(focal_data1)]
 labels2 = ["\n".join(np.array(i.split("_"))[[0,3]]) for i in list(focal_data2)]
 axs[0].boxplot(focal_data1, notch=True, patch_artist=True, widths=widths,
@@ -179,25 +175,26 @@ axs[0].boxplot(focal_data2, positions=np.arange(len(focal_data2.columns))+1.3,
            flierprops=dict(color=colors[1], markeredgecolor=colors[1]),
            medianprops=dict(color=colors[1])
            )
-axs[0].set_title('Low polygenicity')
+axs[0].set_title('High polygenicity')
 focal_min = np.concat([focal_data1, focal_data2], axis=1).min(axis=None)
 focal_max = np.concat([focal_data1, focal_data2], axis=1).max(axis=None)
 focal_range = focal_max-focal_min
 plt.ylim(focal_min - focal_range*0.1,
-        focal_max + focal_range*0.2)
+        focal_max + focal_range*0.3)
 # ax.get_xticks()
 axs[0].set_xticks(ticks=np.arange(len(focal_data2.columns))+1.125,
            labels=labels2,
            rotation=20,
            ha='center')
 axs[0].set_xlabel(xlabel="Models")
-axs[0].set_ylabel(ylabel="Minimum number of alleles for explaining \n"+r"80% allelic contribution to local adaptation ( $\it{K_{80}(positive)}$)")
+axs[0].set_ylabel(ylabel="Minimum number of alleles for explaining 80% of\n"+r"positive contribution to local adaptation ( $\it{K_{80}(positive)}$)")
 axs[0].legend(handles=[patch2, patch1],
            title="",
-           loc="upper center")
-#Lower plot:
-focal_data1 = k80_highPoly_lowMig
-focal_data2 = k80_highPoly_highMig
+           loc="upper left")
+
+#Lower plot: low polygenicity
+focal_data1 = k80_lowPoly_lowMig
+focal_data2 = k80_lowPoly_highMig
 labels1 = ["\n".join(np.array(i.split("_"))[[0,3]]) for i in list(focal_data1)]
 labels2 = ["\n".join(np.array(i.split("_"))[[0,3]]) for i in list(focal_data2)]
 axs[1].boxplot(focal_data1, notch=True, patch_artist=True, widths=widths,
@@ -214,25 +211,24 @@ axs[1].boxplot(focal_data2, positions=np.arange(len(focal_data2.columns))+1.3,
            flierprops=dict(color=colors[1], markeredgecolor=colors[1]),
            medianprops=dict(color=colors[1])
            )
-axs[1].set_title('High polygenicity')
+axs[1].set_title('Low polygenicity')
 focal_min = np.concat([focal_data1, focal_data2], axis=1).min(axis=None)
 focal_max = np.concat([focal_data1, focal_data2], axis=1).max(axis=None)
 focal_range = focal_max-focal_min
 plt.ylim(focal_min - focal_range*0.1,
-        focal_max + focal_range*0.2)
+        focal_max + focal_range*0.3)
 # ax.get_xticks()
 axs[1].set_xticks(ticks=np.arange(len(focal_data2.columns))+1.125,
            labels=labels2,
            rotation=20,
            ha='center')
 axs[1].set_xlabel(xlabel="Models")
-axs[1].set_ylabel(ylabel="Minimum number of alleles for explaining \n"+r"80% allelic contribution to local adaptation ( $\it{K_{80}(positive)}$)")
+axs[1].set_ylabel(ylabel="Minimum number of alleles for explaining 80% of\n"+r"positive contribution to local adaptation ( $\it{K_{80}(positive)}$)")
 axs[1].legend(handles=[patch2, patch1],
            title="",
-           loc="upper center")
+           loc="upper left")
 fig.tight_layout()
 plt.savefig(figPath+
-            "k80_28models_boxplot.png",
+            "k80_32models_boxplot.png",
             dpi=300)
-# (left, bottom, right, top),
 plt.close()

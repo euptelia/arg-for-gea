@@ -69,7 +69,7 @@ dist_mate = 0.15
 
 inPath = args.inPath
 outPath = args.outPath
-fileList = glob.glob(inPath + "/*.trees")
+fileList = glob.glob(inPath + "*.trees")
 model_name = fileList[0].split("/")[-1].split(".trees")[0]
 if not os.path.exists(outPath+"/fst/"):
     os.makedirs(outPath+"/fst/")
