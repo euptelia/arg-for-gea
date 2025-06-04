@@ -3,13 +3,14 @@ SLiM simulations and Python scripts for exploring the genetic architecture of lo
 Tree sequences are recorded during SLiM simulations and processed by Python scripts.  
 
 *Note: Models have been renamed in reports:  
-Scripts           Reports  
+Scripts            Reports  
 M0  --------->    M0  
 M2  --------->    M1  
 M3  --------->    M2  
 
 ### Single-sample simulations  
-arg-for-gea/slim/glacial_history/
+arg-for-gea/slim/glacial_history/  
+
 #### No selection (M0)  
     contiuous_nonWF_M*.slim  -> alleleAge_slimHistory_m0.py -> alleleAge_multiRuns_m0.py  
 #### With selection (M2,M3)  
@@ -17,6 +18,7 @@ arg-for-gea/slim/glacial_history/
 
 ### Time-series-sample simulations 
 arg-for-gea/slim/glacial_history/time_series/  
+
     contiuous_nonWF_M*_timeSeries\_*.slim -> alleleAge_slimHistory_noNeuMut.py -> timeSeries_multiTimes_multiRuns.py  
 
 ### Calculating statistics
