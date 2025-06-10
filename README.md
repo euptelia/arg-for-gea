@@ -1,2 +1,25 @@
 # arg-for-gea  
-Generating ancestral recombiantion graphs (tree sequences) with SLiM simulations for optimazing the performance of genotype-environment association analysis.
+SLiM simulations and Python scripts for exploring the genetic architecture of local adaptation and its implications for genotype-environment association (GEA) analysis, with a focus on the effects of allele age. 
+Tree sequences are recorded during SLiM simulations and processed by Python scripts.  
+
+*Note: Models have been renamed in reports:  
+Scripts            Reports  
+M0  --------->    M0  
+M2  --------->    M1  
+M3  --------->    M2  
+
+### Single-sample simulations  
+arg-for-gea/slim/glacial_history/  
+
+#### No selection (M0)  
+    contiuous_nonWF_M*.slim  -> alleleAge_slimHistory_m0.py -> alleleAge_multiRuns_m0.py  
+#### With selection (M2,M3)  
+    contiuous_nonWF_M*.slim  -> alleleAge_slimHistory.py -> alleleAge_multiRuns.py  
+
+### Time-series-sample simulations 
+arg-for-gea/slim/glacial_history/time_series/  
+
+    contiuous_nonWF_M*_timeSeries\_*.slim -> alleleAge_slimHistory_noNeuMut.py -> timeSeries_multiTimes_multiRuns.py  
+
+### Calculating statistics
+    arg-for-gea/slim/glacial_history/contiuous_nonWF_M*.slim -> calculate_stats.py
