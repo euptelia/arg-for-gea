@@ -42,6 +42,7 @@ inPath = args.input
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/timeSeries"
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/timeSeries"
 
+
 history = 100000 # Ticks before the last environmental change (before the sampling stage)
 #Use K80
 expected_explained_proportion = 0.8
