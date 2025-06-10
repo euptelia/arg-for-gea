@@ -38,12 +38,16 @@ k80_highPoly_highMig = k80_highPoly.filter(like="HighMig", axis=1)
 #Polygenicity
 print(k80_lowPoly.mean(axis=None))
 print(k80_highPoly.mean(axis=None))
+print(k80_lowPoly.stack().std())
+print(k80_highPoly.stack().std())
 print(k80_lowPoly.stack().sem())
 print(k80_highPoly.stack().sem())
 
 #expansion in highPoly
 print(k80.filter(like="a_").mean(axis=None))
 print(k80.filter(like="b_").mean(axis=None))
+print(k80.filter(like="a_").stack().std())
+print(k80.filter(like="b_").stack().std())
 print(k80.filter(like="a_").stack().sem())
 print(k80.filter(like="b_").stack().sem())
 # print(k80_highPoly.filter(like="a_").mean(axis=None))

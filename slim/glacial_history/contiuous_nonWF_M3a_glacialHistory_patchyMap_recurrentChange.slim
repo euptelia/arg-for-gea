@@ -35,7 +35,7 @@ initialize() {
 	// Current extreme limit of habitat; Starts from 0.1
 	defineGlobal("extremeEnv", 0.1);
 	// Output location
-	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/recurrentChange/M3a_smallLowVm_highMig_patchyMap/");
+	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/recurrentChange/M3a_smallLowVm_highMig_patchyMap/test/");
 	
 	// defineConstant("outDir", "D:/UBC_office/slim/output/");
 	
@@ -207,10 +207,13 @@ mutationEffect(m2) {
 // Linear gradual environmental change finished in 1000 generations
 100001:101000 early(){
 	//defineConstant("mapValues2", matrix(c(0,0,1,1), ncol=2));
-	extremeEnv = (sim.cycle-100000) * (1/1000);
-	defineGlobal("mapValues", matrix(c(0,0,extremeEnv,extremeEnv), ncol=2));
+	b = (sim.cycle-100000) * (1/1000);
+	loadMap = readCSV("/home/anadem/github/arg-for-gea/map/random_map1.csv",
+		colNames = F, colTypes = "f").asMatrix();
+	scaledLoadMap = loadMap * b;
+	defineGlobal("mapValues", scaledLoadMap);
 	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,
-		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
+		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));	
 }
 
 // sample series

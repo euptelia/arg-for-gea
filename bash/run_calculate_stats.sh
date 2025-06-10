@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #Run calculate_stats.py for multiple folders
-basePath="/media/anadem/PortableSSD/arg4gea_data/slim_data/used/M*/tick110000/"
+basePath="/media/anadem/PortableSSD/arg4gea_data/slim_data/used/M2*/tick110000/"
 for folder in $(echo $basePath)
 do
   echo $folder

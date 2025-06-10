@@ -21,13 +21,13 @@ initialize() {
 	// Sd of fitness function (selection curve)
 	defineConstant("sigma_W", 0.4);
 	// Sd of dispersion (centered on parent 1): low 0.03; high: 0.06
-	defineConstant("sigma_D", 0.06);
+	defineConstant("sigma_D", 0.03);
 	//	// Competition kernal width: compD/3
 	//	defineConstant("S", 1e-2);
 	// Max distance for competition: 30m/3km
 	defineConstant("compD", 3e-2);
 	// Max distance for mate choice: low 0.12; high: 0.15
-	defineConstant("mateD", 0.15);
+	defineConstant("mateD", 0.12);
 	// Max strength for competition
 	defineConstant("maxCompStrength", 1.0);
 	// Length of the period of each environmental cycle
@@ -35,7 +35,7 @@ initialize() {
 	// Current extreme limit of habitat; Starts from 0.1
 	defineGlobal("extremeEnv", 0.1);
 	// Output location
-	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/recurrentChange/M3a_largeLowVm_highMig_patchyMap/");
+	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/recurrentChange/M3a_largeLowVm_lowMig_patchyMap/");
 	
 	// defineConstant("outDir", "D:/UBC_office/slim/output/");
 	
@@ -207,13 +207,10 @@ mutationEffect(m2) {
 // Linear gradual environmental change finished in 1000 generations
 100001:101000 early(){
 	//defineConstant("mapValues2", matrix(c(0,0,1,1), ncol=2));
-	b = (sim.cycle-100000) * (1/1000);
-	loadMap = readCSV("/home/anadem/github/arg-for-gea/map/random_map1.csv",
-		colNames = F, colTypes = "f").asMatrix();
-	scaledLoadMap = loadMap * b;
-	defineGlobal("mapValues", scaledLoadMap);
+	extremeEnv = (sim.cycle-100000) * (1/1000);
+	defineGlobal("mapValues", matrix(c(0,0,extremeEnv,extremeEnv), ncol=2));
 	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,
-		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));	
+		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
 }
 
 // sample series

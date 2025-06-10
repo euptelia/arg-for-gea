@@ -28,9 +28,6 @@ import time
 # ############################# options #############################
 import argparse
 
-from python.alleleAge_multiRuns_crutches import p_threshold
-from python.older.alleleAge_multiRuns import label
-
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--input',
                     help='Input .trees file with its absolute path',

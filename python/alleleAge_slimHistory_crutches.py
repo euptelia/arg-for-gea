@@ -398,7 +398,7 @@ print("Correlation tests finished")
 print(time.ctime())
 
 # #### Save the data table:
-# # Method 1, np table, takes a lot of memory (~16 Gb for a typical table)
+# # Method 1, np table
 # # mutation ID, allele age, allele frequency, mutation effect, LF_mut,
 # # GEA Kendall's tau and corresponding p-value
 # myTable = np.array([np.arange(mts.num_mutations),
