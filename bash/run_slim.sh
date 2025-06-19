@@ -362,8 +362,32 @@
 #    slim /home/anadem/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M3a_glacialHistory_patchyMap_recurrentChange_temp2.slim
 #done
 
-for i in {1..50} 
+#for i in {1..50} 
+#do
+#    printf "Start the %s/50 run of M3a, high migration, patchy map, large mutations\n" $i
+#    slim /home/anadem/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M3a_glacialHistory_patchyMap_recurrentChange_temp3.slim
+#done
+
+#for i in {1..20} 
+#do
+#    printf "Start the %s/20 run of M3a, high migration, patchy map, large mutations\n" $i
+#    slim /home/anadem/github/arg-for-gea/slim/glacial_history/time_series/contiuous_nonWF_M3a_glacialHistory_patchyMap_recurrentChange_timeSeries.slim
+#done
+
+#for i in {1..20} 
+#do
+#    printf "Start the %s/20 run of M3a, high migration, patchy map, large mutations\n" $i
+#    slim /home/anadem/github/arg-for-gea/slim/glacial_history/time_series/contiuous_nonWF_M3a_glacialHistory_patchyMap_recurrentChange_timeSeries_temp1.slim
+#done
+
+#for i in {1..8} 
+#do
+#    printf "Start the %s/4 run of M3a, high migration, patchy map, large mutations\n" $i
+#    slim /home/anadem/github/arg-for-gea/slim/glacial_history/time_series/contiuous_nonWF_M3a_glacialHistory_patchyMap_recurrentChange_timeSeries_temp2.slim
+#done
+
+for i in {1..20} 
 do
-    printf "Start the %s/50 run of M3a, high migration, patchy map, large mutations\n" $i
-    slim /home/anadem/github/arg-for-gea/slim/glacial_history/contiuous_nonWF_M3a_glacialHistory_patchyMap_recurrentChange_temp3.slim
+    printf "Start the %s/4 run of M3a, high migration, patchy map, large mutations\n" $i
+    slim /home/anadem/github/arg-for-gea/slim/glacial_history/time_series/contiuous_nonWF_M3a_glacialHistory_patchyMap_recurrentChange_timeSeries_temp3.slim
 done

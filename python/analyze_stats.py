@@ -59,25 +59,44 @@ for df, name in zip(df_list_lf, fileList):
     df["modelName"] = shortenNames(name)
     print(stats.ttest_1samp(df[0], 0,alternative="greater"))
 df_lf = pd.concat(df_list_lf)
+
 lf_mean=df_lf.groupby(["modelName"])[0].mean()
 lf_std=df_lf.groupby(["modelName"])[0].std()
 lf_summary = pd.concat([lf_mean,lf_std], axis=1)
 lf_summary.columns=["lf_mean", "lf_sd"]
-lf_summary.round(4).to_csv("/home/anadem/github/data/tskit_data/stats/summary/lf_summary.tab", sep="\t")
+
+# #Save a summary table
+# lf_summary.round(4).to_csv("/home/anadem/github/data/tskit_data/stats/summary/lf_summary.tab", sep="\t")
 
 
 df_lf_highMig = df_lf.loc[df_lf["modelName"].str.contains("_HighMig_"), 0]
 df_lf_lowMig = df_lf.loc[df_lf["modelName"].str.contains("_LowMig_"), 0]
 df_lf_patchy = df_lf.loc[df_lf["modelName"].str.contains("_Patchy"), 0]
 df_lf_cline = df_lf.loc[df_lf["modelName"].str.contains("_Cline"), 0]
+df_lf_highPoly = df_lf.loc[df_lf["modelName"].str.contains("_HighPoly"), 0]
+df_lf_lowPoly = df_lf.loc[df_lf["modelName"].str.contains("_LowPoly"), 0]
+
+stats.levene(df_lf_highMig, df_lf_lowMig)
+stats.ttest_ind(df_lf_highMig, df_lf_lowMig, equal_var=True)
 print(df_lf_highMig.mean())
 print(df_lf_lowMig.mean())
-stats.levene(df_lf_highMig, df_lf_lowMig)
+print(df_lf_highMig.std())
+print(df_lf_lowMig.std())
+
+stats.levene(df_lf_highPoly, df_lf_lowPoly)
+stats.ttest_ind(df_lf_highPoly, df_lf_lowPoly, equal_var=True)
+print(df_lf_highPoly.mean())
+print(df_lf_lowPoly.mean())
+print(df_lf_highPoly.std())
+print(df_lf_lowPoly.std())
+
 stats.levene(df_lf_cline, df_lf_patchy)
-stats.ttest_ind(df_lf_highMig, df_lf_lowMig, equal_var=True)
 stats.ttest_ind(df_lf_cline, df_lf_patchy, equal_var=False)
 print(df_lf_patchy.mean())
 print(df_lf_cline.mean())
+print(df_lf_patchy.std())
+print(df_lf_cline.std())
+
 
 
 

@@ -17,15 +17,15 @@ tianlin.duan42@gmail.com
 import msprime
 import tskit
 # import pyslim # for recapitation
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import scipy.stats as stats
 from scipy.spatial import distance_matrix
 import numpy as np
 # import pandas
 import random
 import time
-import sys # for sys.exit()
-import allel # for allel.weir_cockerham_fst()
+# import sys # for sys.exit()
+# import allel # for allel.weir_cockerham_fst()
 import os # mkdir
 # import tracemalloc check memory usage
 
@@ -288,7 +288,7 @@ age_positveLFandAge_log = np.log(age_positveLFandAge)
 delta_LF_mut_positveLFandAge_log = np.log(delta_LF_mut_positveLFandAge)
 
 # #### Save the data table:
-# # Method 1, np table, takes a lot of memory (~16 Gb for a typical table)
+# # Method 1, np table
 # # mutation ID, allele age, allele frequency, mutation effect, LF_mut,
 # # GEA Kendall's tau and corresponding p-value
 # myTable = np.array([np.arange(mts.num_mutations),
