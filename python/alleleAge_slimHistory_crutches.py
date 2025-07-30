@@ -113,6 +113,8 @@ path_file_name = args.input
 # path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M2b_smallLowVm_lowMig_clineMap/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed55381568486983757_tick110000.trees"
 # Test with a smaller file
 # path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum0_timeSeries_gradualChange/M2b_smallLowVm_highMig_clineMap/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_seed142788750963570601_tick100400.trees"
+# path_file_name = "/home/anadem/github/data/slim_data/glacial_history/M2a_largeLowVm_lowMig_clineMap/tick110000/batch1/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed700481771470451972_tick110000.trees"
+# path_file_name = "/home/anadem/github/data/slim_data/glacial_history/M3a_smallLowVm_lowMig_patchyMap/timeSeries/batch1/Continuous_nonWF_M3a_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed170434520545088555_tick100200.trees"
 
 # Remove paths
 file_name = path_file_name.split("/")[-1]
@@ -123,9 +125,12 @@ short_model_name = "_".join(file_name.split("_")[0:-2])
 # figPath = "/home/tianlin/Documents/github/data/tskit_data/figure/20241201/"
 # figPath = "/home/tianlin/ubc/data/tskit_data/figure/20241201/"
 # figPath = "/home/anadem/github/data/tskit_data/figure/20241201/"
-figPath = "/home/anadem/github/data/tskit_data/figure/20250131m3ab/"
+# figPath = "/home/anadem/github/data/tskit_data/figure/20250131m3ab/"
+figPath = "/home/anadem/github/data/tskit_data/figure/test/"
 #Figure path for the current run
 figPath = figPath + model_name + "/"
+if not os.path.exists(figPath):
+    os.makedirs(figPath)
 
 # outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/"
 # outBasePath = "/home/tianlin/ubc/data/tskit_data/output/table/realistic_fpr_comparisons/"
@@ -284,6 +289,11 @@ for v in mts.variants():
     for allele in np.arange(1, v.num_alleles):
         focal_freq = np.count_nonzero(v.genotypes == allele)/num_samples
         freq.append(focal_freq)
+
+#Age of individuals
+ind_age = []
+for ind in mts.individuals():
+    ind_age.append(ind.metadata['age'])
 
 # # TMRCA of all samples at the position of each mutation
 # tmrca_mut = []
@@ -809,6 +819,19 @@ plt.ylabel("Count")
 plt.savefig(figPath+model_name+"_age_hist.png",
             dpi=300)
 plt.close()
+
+# Histogram of individual age
+plt.hist(ind_age, bins=100,
+         color="grey")
+plt.xlabel("Individual age (ticks)")
+plt.ylabel("Count")
+plt.savefig(figPath+model_name+"_individual_age_hist.png",
+            dpi=300)
+plt.close()
+
+np.median(ind_age)
+np.mean(ind_age)
+max(ind_age)
 
 # Histogram of allele freq
 plt.hist(freq, bins=100,
