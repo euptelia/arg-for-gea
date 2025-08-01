@@ -11,8 +11,7 @@ initialize() {
 	defineConstant("L", 1e7); //
 	// carrying capacity density: capacity when uniformly distributed
 	// Observed N: ~4800 diploid individual
-	defineConstant("K", 17000); //
-//	defineConstant("K", 40000); //
+	defineConstant("K", 6000); //
 	//  reproduction rate
 	defineConstant("R", 0.2);
 	// Sd of mutation effect size on trait value: small 0.01, large: 0.1
@@ -35,8 +34,6 @@ initialize() {
 	defineGlobal("extremeEnv", 0.1);
 //	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/");
 	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/recurrentChange/M3a_smallLowVm_lowMig_clineMap/timeSeries/");
-	//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/M2a_mu1e-7_m0.1_w0.4/");
-	
 	// defineConstant("outDir", "D:/UBC_office/slim/output/");
 	
 	// two-dimentional space + phenotype; prevent selfing
@@ -151,7 +148,10 @@ mutationEffect(m2) {
 	totalStrength = (totalStrength + 1) / (2 * PI * (compD/3)^2);
 	// mean_fitness = mean(p0.cachedFitness(NULL));
 	// inds.fitnessScaling = K / totalStrength * (mean_fitness + dnorm(phenotypes, optimum, sigma_W));
-	max_adaptation = 1 / sigma_W / sqrt(2/PI);
+	// Wrong rescaling
+//	max_adaptation = 1 / sigma_W / sqrt(2/PI);
+   // correct fitness rescaling
+	max_adaptation = 1 / sigma_W / sqrt(2*PI);
 	scaled_mut_effect = dnorm(phenotypes, optimum, sigma_W)/ max_adaptation;
 	// inds.fitnessScaling = K / totalStrength * (0.3 + 0.7*scaled_mut_effect);
 	inds.fitnessScaling = K / totalStrength * scaled_mut_effect;

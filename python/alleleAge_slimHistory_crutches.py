@@ -20,7 +20,7 @@ import numpy as np
 import random
 import time
 import sys # for sys.exit()
-import allel # for allel.weir_cockerham_fst()
+# import allel # for allel.weir_cockerham_fst()
 import os # mkdir
 # import tracemalloc check memory usage
 
@@ -36,29 +36,29 @@ parser.add_argument('-p', '--plot',
 args = parser.parse_args()
 
 ############################# functions #######################################
-def tree_heights(tree_sequences):
-    kb = [0]
-    mrca_t = []
-    for tree in tree_sequences.trees():
-        kb.append(tree.interval.right / 1000)
-        if tree.has_multiple_roots:
-            # Use the maximum time when not coalesced
-            mrca_t.append(tree_sequences.metadata["SLiM"]["tick"])
-        else:
-            children = tree.children(tree.root)
-            real_root = tree.root if len(children) > 1 else children[0]
-            mrca_t.append(tree.time(real_root))
-    return mrca_t, kb
-
-def tree_height(tree, maximum_tick):
-    if tree.has_multiple_roots:
-        # Use the maximum time when not coalesced
-        tmrca = maximum_tick
-    else:
-        children = tree.children(tree.root)
-        real_root = tree.root if len(children) > 1 else children[0]
-        tmrca = (tree.time(real_root))
-    return tmrca
+# def tree_heights(tree_sequences):
+#     kb = [0]
+#     mrca_t = []
+#     for tree in tree_sequences.trees():
+#         kb.append(tree.interval.right / 1000)
+#         if tree.has_multiple_roots:
+#             # Use the maximum time when not coalesced
+#             mrca_t.append(tree_sequences.metadata["SLiM"]["tick"])
+#         else:
+#             children = tree.children(tree.root)
+#             real_root = tree.root if len(children) > 1 else children[0]
+#             mrca_t.append(tree.time(real_root))
+#     return mrca_t, kb
+#
+# def tree_height(tree, maximum_tick):
+#     if tree.has_multiple_roots:
+#         # Use the maximum time when not coalesced
+#         tmrca = maximum_tick
+#     else:
+#         children = tree.children(tree.root)
+#         real_root = tree.root if len(children) > 1 else children[0]
+#         tmrca = (tree.time(real_root))
+#     return tmrca
 
 # def lf_fitness_loop(ind_x, ind_y, phenotype, optima, dist_mate, sigma_w):
 #     """Takes x and y coordinates (array-like), phenotypes (array-like),
@@ -115,6 +115,10 @@ path_file_name = args.input
 # path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum0_timeSeries_gradualChange/M2b_smallLowVm_highMig_clineMap/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_seed142788750963570601_tick100400.trees"
 # path_file_name = "/home/anadem/github/data/slim_data/glacial_history/M2a_largeLowVm_lowMig_clineMap/tick110000/batch1/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed700481771470451972_tick110000.trees"
 # path_file_name = "/home/anadem/github/data/slim_data/glacial_history/M3a_smallLowVm_lowMig_patchyMap/timeSeries/batch1/Continuous_nonWF_M3a_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed170434520545088555_tick100200.trees"
+# path_file_name = "/home/anadem/github/data/slim_data/glacial_history/M2a_largeLowVm_highMig_clineMap/tick110000/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_seed276074702539843421_tick110000.trees"
+# path_file_name = "/home/anadem/github/data/slim_data/glacial_history/M2a_largeLowVm_lowMig_patchyMap/tick110000/Continuous_nonWF_M2a_glacialHistoryOptimum0_patchyMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed4438724523450938086_tick110000.trees"
+
+
 
 # Remove paths
 file_name = path_file_name.split("/")[-1]

@@ -86,13 +86,13 @@ shortName = ",".join([demoName, migName, mapName])
 # figPath = ("/home/anadem/github/data/tskit_data/figure/multiRuns/" +
 #            simName + "/" + str(num_runs) + "runs_" +
 #            inPath.split("/")[-2]+"/")
-figPath = ("/home/anadem/github/data/tskit_data/figure/multiRuns/" +
+figPath = ("/home/anadem/github/data/tskit_data/figure/multiRuns/test" +
            simName + "/")
 if not os.path.exists(figPath):
     os.makedirs(figPath)
 # outPath = ("/home/anadem/github/data/tskit_data/output/mutiRuns/k80" +
 #            simName + "/200runs_" + inPath.split("/")[-2]+"/")
-outPath = ("/home/anadem/github/data/tskit_data/output/mutiRuns/k80/")
+outPath = ("/home/anadem/github/data/tskit_data/output/mutiRuns/k80/test")
 if not os.path.exists(outPath):
     os.makedirs(outPath)
 
@@ -1776,18 +1776,19 @@ plt.close()
 #             dpi=300)
 # plt.close()
 
-#Three-way relationship 1: no log
+#Three-way relationship 1: no log               #KEEP
 # Sum of LF from the age class ~ Allele age Colored by |effect size|
 age = df["age"]
 size = abs(df["mut_effect"])
 num_age_cat = 100 # Number of categories for allele age
-num_size_cat = 10 # up to 10 but can be fewer
+num_size_cat = 10 #
 size_cats_step = 0.01
 size_last_tick = 0.1 # temporary
-max_abs_size = max(size)
-if size_last_tick > max_abs_size:
-    num_size_cat = round(max(size) / size_cats_step)  # Number of categories for phenotypic effect size
-    size_last_tick = size_cats_step*num_size_cat
+# #Flexible categories:up to 10 but can be fewer
+# max_abs_size = max(size)
+# if size_last_tick > max_abs_size:
+#     num_size_cat = round(max(size) / size_cats_step)  # Number of categories for phenotypic effect size
+#     size_last_tick = size_cats_step*num_size_cat
 # lf_sum = []
 lf_sum_positive_size = np.full(shape=(10, 100), fill_value=np.nan)
 lf_sum_negative_size = np.full(shape=(10, 100), fill_value=np.nan)

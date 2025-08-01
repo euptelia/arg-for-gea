@@ -11,7 +11,7 @@ initialize() {
 	defineConstant("L", 1e7); //
 	// carrying capacity density: capacity when uniformly distributed
 	// Observed N: ~4800 diploid individual
-	defineConstant("K", 17000); //
+	defineConstant("K", 6000); //
 	//	defineConstant("K", 40000); //
 	//  reproduction rate
 	defineConstant("R", 0.2);
@@ -178,7 +178,10 @@ mutationEffect(m2) {
 	totalStrength = (totalStrength + 1) / (2 * PI * (compD/3)^2);
 	// mean_fitness = mean(p0.cachedFitness(NULL));
 	// inds.fitnessScaling = K / totalStrength * (mean_fitness + dnorm(phenotypes, optimum, sigma_W));
-	max_adaptation = 1 / sigma_W / sqrt(2/PI);
+	// Wrong rescaling
+//	max_adaptation = 1 / sigma_W / sqrt(2/PI);
+   // correct fitness rescaling
+	max_adaptation = 1 / sigma_W / sqrt(2*PI);
 	scaled_mut_effect = dnorm(phenotypes, optimum, sigma_W)/ max_adaptation;
 	inds.fitnessScaling = K / totalStrength * scaled_mut_effect;
 	inds.z = phenotypes;
