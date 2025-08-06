@@ -21,11 +21,11 @@
 
 
 
-basePath="/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF*"
+basePath="/media/anadem/PortableSSD/arg4gea_data/tskit_data/output/table/Continuous_nonWF*"
 #basePath="/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF*M2b*patchyMap*"
 for folder in $basePath
 do
   echo $folder/tick110000/
-  python3 /home/anadem/github/arg-for-gea/python/alleleAge_multiRuns_crutches.py -i $folder/tick110000/
+  python3 /home/anadem/github/arg-for-gea/python/alleleAge_multiRuns.py -i $folder/tick110000/
 done
 

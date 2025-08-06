@@ -99,6 +99,9 @@ shortName = ",".join([demoName, migName, mapName])
 figPath = ("/home/anadem/github/data/tskit_data/figure/multiRuns/p1e-10/" +
            simName + "/" + str(num_runs) + "runs_" +
            inPath.split("/")[-2]+"/")
+outPath = ("/home/anadem/github/data/tskit_data/output/mutiRuns/test/")
+if not os.path.exists(outPath):
+    os.makedirs(outPath)
 # outPath = ("/home/tianlin/Documents/github/data/tskit_data/output/multiple_runs/" +
 #            simName + "/100runs_" + inPath.split("/")[-2]+"/")
 # if not os.path.exists(outPath):
@@ -129,41 +132,76 @@ print(str(run) + " files have been loaded.")
 #          "tau", "p-tau", "pearsonsrho", "p-rho",
 #          "run_id", "p-tau_rank"
 
-# # True positive rate, False negative rate, False discovery rate
-# # True adaptive allele: account for more than LF_min percent of positve LF_mut
-# # GEA significant: BH-adjusted p-value < 0.05
-# LF_min = 0.01
-# num_cat = 20
-# cat_width = int(100/num_cat) if 100 % num_cat == 0 else 100/num_cat
-# age_percentile = np.percentile(dataTable[1],
-#                                np.append(np.arange(0, 100, cat_width),
-#                                          100))
-# event_percentile = stats.percentileofscore(dataTable[1], event_age)
-# FPR = []
-# for i in range(num_cat):
-#     focal_age = np.logical_and(dataTable[1] > age_percentile[i],
-#                                dataTable[1] <= age_percentile[i+1])
-#     dataTable_category = dataTable[:, focal_age]
-#     # num_allele = len(p_BH_category)
-#     # proportion_sig.append(sum(p_BH_category < 0.05)/num_allele)
-#     expP = dataTable_category[7] > LF_min
-#     obsP = dataTable_category[6] < 0.05
-#     TP = sum(expP & obsP)
-#     FP = sum(~expP & obsP)
-#     FN = sum(expP & ~obsP)
-#     TN = sum(~expP & ~obsP)
-#     FPR.append(FP/(TN+FP))
+
 
 #### Separate neutral alleles
 # mutation ID, allele age, allele frequency, mutation effect, LF_mut,
 # GEA Kendall's tau and corresponding p-value
 
-
-# Separate neutral alleles and remove lost or fixed alleles
+# Separate neutral alleles
 df_neutral = df[(df["mut_effect"] == 0) &
                 (df["freq"] != 0) &
                 (df["freq"] != 1)]
-# Separate low-frequency alleles as in empirical studies
+# False positive rate for NEUTRAL mutations among AGE categories: Equal intervals
+# Minor allele frequency filter
+# maf_filter = 0
+maf_filter = 0.05
+df_plot = df_neutral[(df_neutral["freq"] >= maf_filter) &
+                     (df_neutral["freq"] <= (1-maf_filter))]
+
+num_cat_age = 22
+# p_threshold = 0.0001
+p_threshold = 0.0000000001
+max_age = tick
+cat_width_age = max_age/num_cat_age
+age_boundaries = np.append(np.arange(0, max_age, cat_width_age), max_age)
+FPR_neutral_byAge_equalWidth = []
+sample_size_age_equalWidth = []
+p_median_byAge_equalWidth = []
+p_sd_byAge_equalWidth = []
+tau_absMedian_byAge_equalWidth = []
+tau_absSd_byAge_equalWidth = []
+for i in range(num_cat_age):
+    p_category = df_plot["p-tau"][(df_plot["age"] > age_boundaries[i]) &
+                                 (df_plot["age"] <= age_boundaries[i+1])]
+    tau_category = df_plot["tau"][(df_plot["age"] > age_boundaries[i]) &
+                                 (df_plot["age"] <= age_boundaries[i+1])]
+    sample_size_age_equalWidth.append(len(p_category))
+    p_median_byAge_equalWidth.append(np.nanmedian(p_category))
+    p_sd_byAge_equalWidth.append(np.nanstd(p_category))
+    tau_absMedian_byAge_equalWidth.append(np.nanmedian(abs(tau_category)))
+    tau_absSd_byAge_equalWidth.append(np.nanstd(abs(tau_category)))
+    # Neutral mutations have no phenotypic effect and therefore no positive
+    mut_in_cat = len(p_category)
+    obsP_neutral = p_category < p_threshold
+    # All positives are false positives
+    FP = sum(obsP_neutral)
+    FPR_neutral_byAge_equalWidth.append(FP/mut_in_cat)
+
+del df_plot
+
+#Save the FPR~age table for combined figures
+outPath_fpr = outPath + "fpr/singleModel/"
+x = age_boundaries[0:-1] + cat_width_age/2
+y = FPR_neutral_byAge_equalWidth
+if not os.path.exists(outPath_fpr):
+    os.makedirs(outPath_fpr)
+out_path_file = (outPath_fpr + model_name +
+                 "p" + str(p_threshold) +
+                 "_maf"+str(maf_filter) +
+                 "_cat" + str(num_cat_age)+ "_fpr.tab")
+header = "\t".join(["age", "fpr", "tick_text"]) + "\n"
+with open(out_path_file, "w") as fout:
+    fout.write(header)
+    for i in range(len(x)):
+        outLine = "\t".join([str(x[i]), str(y[i]), str(age_boundaries[i])]) + "\t" +"\n"
+        fout.write(outLine)
+fout.close()
+print("FPR table has been saved.")
+
+
+
+#### Separate low-frequency alleles as in empirical studies
 thresholdRare = 0.01
 thresholdLow = 0.05
 # MAF > 0.05
@@ -182,12 +220,6 @@ df_rare = df_neutral[(df_neutral["freq"] <= thresholdRare) |
 # Check here before use
 num_cat = 100
 bin_width = 100/num_cat
-
-# Minor allele frequency filter
-# maf_filter = 0
-maf_filter = 0.01
-df_plot = df_neutral[(df_neutral["freq"] >= maf_filter) &
-                     (df_neutral["freq"] <= (1-maf_filter))]
 
 # # p,tau and false negative rate for NEUTRAL mutations among AGE categories
 # # Equal numbers
@@ -215,36 +247,6 @@ df_plot = df_neutral[(df_neutral["freq"] >= maf_filter) &
 #     # All positives are false positives
 #     FP = sum(obsP_neutral)
 #     FPR_neutral_byAge.append(FP/mut_in_cat)
-
-# False positive rate for NEUTRAL mutations among AGE categories: Equal intervals
-num_cat_age = 40
-p_threshold = 0.0001
-# p_threshold = 0.0000000001
-max_age = tick
-cat_width_age = max_age/num_cat_age
-age_boundaries = np.append(np.arange(0, max_age, cat_width_age), max_age)
-FPR_neutral_byAge_equalWidth = []
-sample_size_age_equalWidth = []
-p_median_byAge_equalWidth = []
-p_sd_byAge_equalWidth = []
-tau_absMedian_byAge_equalWidth = []
-tau_absSd_byAge_equalWidth = []
-for i in range(num_cat_age):
-    p_category = df_plot["p-tau"][(df_plot["age"] > age_boundaries[i]) &
-                                 (df_plot["age"] <= age_boundaries[i+1])]
-    tau_category = df_plot["tau"][(df_plot["age"] > age_boundaries[i]) &
-                                 (df_plot["age"] <= age_boundaries[i+1])]
-    sample_size_age_equalWidth.append(len(p_category))
-    p_median_byAge_equalWidth.append(np.nanmedian(p_category))
-    p_sd_byAge_equalWidth.append(np.nanstd(p_category))
-    tau_absMedian_byAge_equalWidth.append(np.nanmedian(abs(tau_category)))
-    tau_absSd_byAge_equalWidth.append(np.nanstd(abs(tau_category)))
-    # Neutral mutations have no phenotypic effect and therefore no positive
-    mut_in_cat = len(p_category)
-    obsP_neutral = p_category < p_threshold
-    # All positives are false positives
-    FP = sum(obsP_neutral)
-    FPR_neutral_byAge_equalWidth.append(FP/mut_in_cat)
 
 # # False negative rate for NEUTRAL mutations among FREQUENCY categories
 # # Equal numbers

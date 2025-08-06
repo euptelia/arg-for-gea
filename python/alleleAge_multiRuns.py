@@ -6,26 +6,21 @@ tianlin.duan42@gmail.com
 """
 ############################# modules #########################################
 import matplotlib
-import msprime
-import tskit
-import pyslim
-import matplotlib
 from scipy.spatial import distance_matrix
+import PyQt6
 import numpy as np
 import random
 from time import time
 import glob #for loading files
 from collections import Counter
-import pandas as pd#dataframe
+import pandas as pd #dataframe
 import os #mkdir
 # matplotlib.use("qt5agg") # Not work
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import colormaps
 import scipy.stats as stats
 import sys # for sys.exit()
-import allel # for allel.weir_cockerham_fst()
-import matplotlib.patches as mpatches # manually make legends
+import matplotlib.patches as mpatches #manually make legends
 import seaborn as sns
 
 ############################# options #############################
@@ -51,6 +46,9 @@ num_runs = 200
 inPath = args.input
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
+# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
+# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
+
 simName = inPath.split("/")[-3]
 #Short title: Hard coded. Check this before using!
 if "sigmaD0.06_mateD0.15" in simName:
@@ -72,7 +70,8 @@ elif "_sigmaM0.1_" in simName:
 else:
     mutName = ""
 demoName_ori = simName.split("_")[2]
-name_change = {"M2a":"M1a", "M2b":"M1b", "M3a":"M2a", "M3b":"M2b"}
+# name_change = {"M2a":"M1a", "M2b":"M1b", "M3a":"M2a", "M3b":"M2b"}
+name_change = {"M2a":"Single change", "M2b":"Single expansion", "M3a":"Recurrent changes", "M3b":"Recurrent expansions"}
 demoName = name_change[demoName_ori]
 shortName = ",".join([demoName, migName, mapName])
 
@@ -85,7 +84,7 @@ if not os.path.exists(figPath):
     os.makedirs(figPath)
 # outPath = ("/home/anadem/github/data/tskit_data/output/mutiRuns/k80" +
 #            simName + "/200runs_" + inPath.split("/")[-2]+"/")
-outPath = ("/home/anadem/github/data/tskit_data/output/mutiRuns/k80/test/")
+outPath = ("/home/anadem/github/data/tskit_data/output/mutiRuns/test/")
 if not os.path.exists(outPath):
     os.makedirs(outPath)
 
@@ -93,6 +92,7 @@ if not os.path.exists(outPath):
 model_name = "_".join(inPath.split("/")[-3:-1] + [str(num_runs)+"runs"])
 tick = int(inPath.split("/")[-2].split("tick")[-1])
 event_age = tick - 100000
+past_event_ages = [tick-i for i in list(range(0, 100000, 10000))]
 
 # Shape of the table:
 # dataTable[0]     mutation ID
@@ -133,96 +133,24 @@ print(str(run) + " files have been loaded.")
 #          "tau", "p", "relative_positive_lf", "relative_negative_lf", "relative_lf",
 #          "run_id", "p_rank"
 
-# No MAF filter: Not used
-# True positive rate, False negative rate, False discovery rate in all alleles
-# True adaptive allele: account for more than LF_min percent of positve LF_mut
-# GEA significant: BH-adjusted p-value < 0.05
-LF_min = 0.001
-num_cat_age = 40
-# p_threshold = 0.0001
-p_threshold = 0.0000000001 # 1e-10, Similar to the p after the Bonferroni correction
 
-# #Method1: Equal number of alleles per bin: By Age percentiles
-# cat_width = int(100/num_cat_age) if 100 % num_cat_age == 0 else 100/num_cat_age
-# age_percentile = np.percentile(df["age"],
-#                                np.append(np.arange(0, 100, cat_width),
-#                                          100))
-# event_percentile = stats.percentileofscore(df["age"], event_age)
 
-#Method2: Equal age intervals
-max_age = tick
-cat_width_age = max_age/num_cat_age
-age_boundaries = np.append(np.arange(0, max_age, cat_width_age), max_age)
-
-TPR = []
-FPR = []
-FDR = []
-for i in range(num_cat_age):
-    focal_age = np.logical_and(df["age"] > age_boundaries[i],
-                               df["age"] <= age_boundaries[i+1])
-    df_category = df.loc[focal_age,:]
-    # num_allele = len(p_BH_category)
-    # proportion_sig.append(sum(p_BH_category < 0.05)/num_allele)
-    expP = df_category["relative_lf"] > LF_min
-    obsP = df_category["p"] < p_threshold
-    TP = sum(expP & obsP)
-    FP = sum(~expP & obsP)
-    FN = sum(expP & ~obsP)
-    TN = sum(~expP & ~obsP)
-    if TP+FN == 0:
-        TPR.append(np.nan)
-    else:
-        TPR.append(TP/(TP+FN))
-    FPR.append(FP/(TN+FP))
-    if TP+FP == 0:
-        FDR.append(np.nan)
-    else:
-        FDR.append(FP/(TP+FP))
-
-# Equal intervals
-# age_fig_size = (8,5) # 20 bins
-age_fig_size = (8,5) # 40 bins
-# age_fig_size = (15,5) # 100 bins
-
-# Neutral alleles: FPR ～ Allele age, equal intervals
-plt.figure(figsize=age_fig_size)
-# plt.figure(figsize=(15,5)) # 100 bins
-plt.plot(age_boundaries[0:-1] + cat_width_age/2,
-         FPR,
-         color="grey",
-         marker = "o")
-plt.xlabel("Allele age", fontsize=14)
-# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
-plt.ylabel("False positive rate \n (FP/(FP+TN))",
-           fontsize=14)
-plt.xticks(ticks=age_boundaries,
-           labels=[str(int(i)) for i in age_boundaries],
-           rotation=90)
-plt.title(shortName)
-plt.tight_layout()
-plt.savefig(figPath+model_name +
-            str(num_cat_age)+"bins"+"_FPR_GEAp" + str(p_threshold) +
-            "_LFmin" + str(LF_min) +
-            "_vs_age_equalInterval.png",
-            dpi=300)
-plt.close()
-
-# Make plots similar to M0 models
-#TPR ~ Allele age (equal time intervals)
-#Neutral, sgragating alleles
-# maf_filter = 0
-maf_filter = 0.01
+#### Make plots similar to FPR in M0 models
+#FPR ~ Allele age (equal time intervals) in neutral alleles
+maf_filter = 0.05
 # df_plot = df[(df["mut_effect"] == 0) &
 #                 (df["freq"] != 0) &
 #                 (df["freq"] != 1)]
+#Separate neutral alleles with MAF > 0.05
 df_plot = df[(df["mut_effect"] == 0) &
                 (df["freq"] >= maf_filter) &
                 (df["freq"] <= (1-maf_filter))]
 
 # False negative rate for NEUTRAL mutations among AGE categories: Equal intervals
-num_cat_age = 40
-p_threshold = 0.0001
-# p_threshold = 0.0000000001
+num_cat_age = 22
+# num_cat_age = 55
+# p_threshold = 0.0001
+p_threshold = 0.0000000001
 max_age = tick
 cat_width_age = max_age/num_cat_age
 age_boundaries = np.append(np.arange(0, max_age, cat_width_age), max_age)
@@ -251,32 +179,101 @@ for i in range(num_cat_age):
 
 
 # Equal intervals
-# age_fig_size = (8,5) # 20 bins
+age_fig_size = (7,5) # 22 bins
 # age_fig_size = (8,5) # 40 bins
 # age_fig_size = (15,5) # 100 bins
-age_fig_size = (10,5) # 55 bins
+# age_fig_size = (9,5) # 55 bins
 label_font = 16
-tick_font = 10
-
+tick_font = 16
+x = age_boundaries[0:-1] + cat_width_age/2
+y = FPR_neutral_byAge_equalWidth
 # Neutral alleles: FPR ～ Allele age, equal intervals
 plt.figure(figsize=age_fig_size)
 # plt.figure(figsize=(15,5)) # 100 bins
-plt.plot(age_boundaries[0:-1] + cat_width_age/2,
-         FPR_neutral_byAge_equalWidth,
+plt.plot(x,
+         y,
          color="grey",
          marker = "o")
 plt.xlabel("Allele age (thousand ticks)", fontsize=label_font)
-# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
 plt.ylabel("False positive rate of neutral alleles \n (FP/(FP+TN))",
            fontsize=label_font)
 plt.xticks(ticks=age_boundaries,
            labels=[str(int(i/1000)) for i in age_boundaries],
            rotation=90)
-plt.tick_params(axis='both', which='major', labelsize=16)
-plt.title(shortName)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
+plt.title("_".join([demoName, mutName, migName, mapName]), fontsize=label_font)
 plt.tight_layout()
 plt.savefig(figPath+model_name +
             str(num_cat_age)+"bins"+"_FPR_vs_age_neutralAllele_GEAp" + str(p_threshold) +
+            "_maf" + str(maf_filter) +
+            "_equalInterval.png",
+            dpi=300)
+plt.close()
+
+#Save the FPR~age table for combined figures
+outPath_fpr = outPath + "fpr/singleModel/"
+if not os.path.exists(outPath_fpr):
+    os.makedirs(outPath_fpr)
+out_path_file = (outPath_fpr + model_name +
+                 "_p" + str(p_threshold) +
+                 "_maf"+str(maf_filter) +
+                 "_cat" + str(num_cat_age)+ "_fpr.tab")
+header = "\t".join(["age", "fpr", "tick_text"]) + "\n"
+with open(out_path_file, "w") as fout:
+    fout.write(header)
+    for i in range(len(x)):
+        outLine = "\t".join([str(x[i]), str(y[i]), str(age_boundaries[i])]) + "\t" +"\n"
+        fout.write(outLine)
+fout.close()
+print("FPR table has been saved.")
+
+
+
+
+# Neutral alleles: tau ～ Allele age, equal intervals
+num_cat_age = 22
+# num_cat_age = 55
+max_age = tick
+cat_width_age = max_age/num_cat_age
+age_boundaries = np.append(np.arange(0, max_age, cat_width_age), max_age)
+#List of lists of tau in age intervals
+p_by_ageCat = []
+log10p_by_ageCat = []
+tau_by_ageCat = []
+log10tau_by_ageCat = []
+for i in range(num_cat_age):
+    p_category = df_plot["p"][(df_plot["age"] > age_boundaries[i]) &
+                                 (df_plot["age"] <= age_boundaries[i+1])]
+    p_by_ageCat.append(p_category)
+    log10p_by_ageCat.append([-np.log10(p) for p in p_category])
+    tau_category = df_plot["tau"][(df_plot["age"] > age_boundaries[i]) &
+                                 (df_plot["age"] <= age_boundaries[i+1])]
+    tau_by_ageCat.append(tau_by_ageCat)
+    log10tau_by_ageCat.append([-np.log10(tau) for tau in tau_category])
+
+#Check sample size
+[len(i) for i in log10p_by_ageCat]
+
+#Boxplot: p, tau by age categories
+age_fig_size = (7,5) # 22 bins
+# age_fig_size = (10,5) # 55 bins
+label_font = 16
+tick_font = 16
+plt.figure(figsize=age_fig_size)
+# plt.figure(figsize=(15,5)) # 100 bins
+plt.boxplot(log10p_by_ageCat)
+plt.xlabel("Allele age (thousand ticks)", fontsize=label_font)
+# plt.ylabel("Proportion of alleles with BH-adjusted p-value < 0.05")
+plt.ylabel("-log10(p-value)",
+           fontsize=label_font)
+plt.xticks(ticks=list(range(num_cat_age+1)),
+           labels=[str(int(i/1000)) for i in age_boundaries],
+           rotation=90)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
+plt.title("_".join([demoName, mutName, migName, mapName]))
+plt.tight_layout()
+plt.savefig(figPath+model_name +
+            str(num_cat_age)+"bins"+"_GEAp_vs_age_neutralAllele_box" +
             "_maf" + str(maf_filter) +
             "_equalInterval.png",
             dpi=300)
@@ -328,7 +325,10 @@ median_gea_goal = int(np.mean(gea_goal))
 median_explained = median_cumulative_lf[median_gea_goal]
 
 #Save K80 as a table
-out_path_file = (outPath + "singleModel/" + model_name + "_k80.txt")
+outPath_k80 = outPath + "k80/singleModel/"
+if not os.path.exists(outPath_k80):
+    os.makedirs(outPath_k80)
+out_path_file = (outPath_k80 + model_name + "_k80.txt")
 header = "_".join([demoName, mutName, migName, mapName]) + "\n"
 with open(out_path_file, "w") as fout:
     fout.write(header)
@@ -339,6 +339,9 @@ fout.close()
 print("K80 table has been saved.")
 
 # Plot cumulative_lf: Median with range
+label_font = 16
+tick_font = 14
+plt.figure(figsize=(7,5.2))
 for i in range(run):
     y = np.array(cumulative_lf_list[i])
     x = range(len(y))
@@ -346,23 +349,28 @@ for i in range(run):
              color="lightseagreen", alpha = 0.05)
 plt.plot(range(len(median_cumulative_lf)), median_cumulative_lf,
              color="black")
-plt.xlabel("Mutations sorted in descending order of $LF_{mut}$")
-plt.ylabel("Cumulative proportion of positive LF")
+plt.xlabel("Mutations sorted in descending order of $LF_{mut}$", fontsize=label_font)
+plt.ylabel("Cumulative proportion of positive $LF$", fontsize=label_font)
 plt.plot([median_gea_goal, median_gea_goal], [0, median_explained],
          color="firebrick", linestyle="dotted")
 plt.plot([0, median_gea_goal], [median_explained, median_explained],
          color="firebrick", linestyle="dotted")
 plt.annotate(str(median_gea_goal), xy=(median_gea_goal+1, median_explained),
              xytext=(median_gea_goal + 1 + len(median_cumulative_lf)/40, 0),
-             color="firebrick")
-plt.title(shortName)
+             color="firebrick", fontsize=label_font)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
+plt.title(shortName, fontsize=label_font)
 plt.savefig(figPath + model_name +
             "_medianLFcumulative_positive_100runs_medianAndRange.png",
             dpi=300)
 plt.close()
 
+
+#### LFmut vs. single variable ####
+label_font = 16
+tick_font = 14
 # Sum of LF of the size class ~ |phenotypic effect size|, separating positive and negative parts
-# Methods 2: relative to the total LF of each run
+# relative to the total LF of each run
 num_cat = 20 # Number of categories for phenotypic effect
 abs_effect = abs(df["mut_effect"])
 lf_sum = []
@@ -378,7 +386,7 @@ for i in range(num_cat):
     lf_sum_negative.append(sum(lf_category[lf_category < 0])/num_runs)
 
 # barplot
-plt.figure(1)
+plt.figure(figsize=(7,5.5))
 lf_sum_positive = np.array(lf_sum_positive)
 lf_sum_negative = np.array(lf_sum_negative)
 x = alpha_cats[1:]
@@ -402,15 +410,19 @@ ax.bar(x, y2, color="saddlebrown",
         label="Negative",
        width=bar_width)
 ax.axhline(0, color='grey', lw=1, dashes=(1,1))
-plt.xlabel("|Mutation phenotypic effect size|")
-plt.ylabel(r"Relative contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ )")
-
+plt.xlabel("|Phenotypic effect size|", fontsize=label_font)
+plt.ylabel("Relative contribution to local adaptation \n" + r"( $\it{\Sigma LF_{mut}}$ )", fontsize=label_font)
+# plt.ylabel(r"$\it{\Sigma LF_{mut}}$", fontsize=label_font)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
 plt.xlim(0, x_up)
 plt.ylim(-0.08, 0.3)
-ax.legend(loc="upper right")
+ax.legend(loc="upper right",
+           title_fontsize=16,
+           fontsize=16)
 ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
-ax.margins(x=0)
-plt.title(shortName)
+# ax.margins(x=0)
+plt.title(shortName, fontsize=label_font)
+plt.tight_layout()
 plt.savefig(figPath+model_name+"_"+str(num_cat) + "bins"+
             "_LF_by_absEffectSize_bin_positveAndnegative_lfRelative2EachRun_barPlot.png",
             dpi=300)
@@ -419,6 +431,8 @@ plt.close()
 
 
 # Sum of LF from the age class ~ Allele age
+label_font = 16
+tick_font = 14
 num_cat = 100 # Number of categories for allele age
 # lf_sum = []
 lf_sum_positive = []
@@ -436,7 +450,7 @@ for i in range(num_cat):
 
 #total LF of the age class ~ allele age (positive and negative)
 # bar plot
-plt.figure(1)
+plt.figure(figsize=(7,5.5))
 lf_sum_positive = np.array(lf_sum_positive)
 lf_sum_negative = np.array(lf_sum_negative)
 x = age_cats[1:]
@@ -451,18 +465,26 @@ plt.bar(x, y2, color="saddlebrown",
 # plt.xlim(0, tick*1.05)
 plt.axhline(0, color='grey', lw=1, dashes=(1,1))
 plt.axvline(event_age, color='firebrick', lw=1, dashes=(2,1))
+#For model M3a, M3b, mark the times of the start of each cycle of environmental changes
+if "3" in demoName_ori:
+    for cycle_time in past_event_ages:
+        plt.axvline(cycle_time, color='lightgrey', lw=1, dashes=(2, 1))
 # plt.xticks(ticks=np.arange(0, max(x), max(x)/10),
 #            labels=['{:0.2e}'.format(i)
 #                    for i in np.arange(0, max(x), max(x)/10)])
 plt.xticks(ticks=range(0, tick+1, 10000),
            labels=[str(i) for i in range(0, tick+1, 10000)])
 plt.tick_params(axis='x', rotation=45)
-plt.xlabel("Allele age (generation)")
-plt.ylabel(r"Relative contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ )")
-plt.legend(loc="upper right")
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
+plt.xlabel("Allele age (generation)", fontsize=label_font)
+plt.ylabel("Relative contribution to local adaptation \n" + r"( $\it{\Sigma LF_{mut}}$ )",
+           fontsize=label_font)
+plt.legend(loc="upper right",
+           title_fontsize=16,
+           fontsize=16)
 # ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
 # ax.margins(x=0)
-plt.title(shortName)
+plt.title(shortName, fontsize=label_font)
 plt.tight_layout()
 plt.savefig(figPath+model_name+"_"+str(num_cat) + "bins"+
             "_LF_by_age_bin_positveAndnegative_lfRelative2EachRun.png",
@@ -504,7 +526,7 @@ for i in range(num_cat):
     lf_sum_negative.append(sum(lf_category[lf_category < 0])/num_runs)
 
 # bar plot
-# plt.figure(1)
+plt.figure(figsize=(7,5.5))
 lf_sum_positive = np.array(lf_sum_positive)
 lf_sum_negative = np.array(lf_sum_negative)
 x = freq_cats[1:]
@@ -523,12 +545,16 @@ plt.axhline(0, color='grey', lw=1, dashes=(1,1))
 #            labels=['{:0.2e}'.format(i)
 #                    for i in 10**np.arange(0, max(x), 1)])
 # plt.tick_params(axis='x', rotation=45)
-plt.xlabel("Frequency")
-plt.ylabel(r"Relative contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ )")
-ax.legend(loc="upper right")
+plt.xlabel("Frequency", fontsize=label_font)
+plt.ylabel("Relative contribution to local adaptation \n" + r"( $\it{\Sigma LF_{mut}}$ )",
+           fontsize=label_font)
+ax.legend(loc="upper right",
+           title_fontsize=16,
+           fontsize=16)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
 ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
 # ax.margins(x=0)
-plt.title(shortName)
+plt.title(shortName, fontsize=label_font)
 plt.tight_layout()
 plt.savefig(figPath+model_name+"_"+str(num_cat) + "bins"+
             "_LF_by_freq_bin_positveAndnegative_lfRelative2EachRun.png",
@@ -537,25 +563,10 @@ plt.close()
 
 
 
-# Three-way relationship among allele freq, effect size and contribution to LF
+#### Three-way relationship among allele frequency, effect size and contribution to LF
 df_polymorphic = df[(df["freq"] != 1) & (df["freq"] != 0)]
 max_lf = max(df_polymorphic["delta_LF_mut"])
 min_lf = min(df_polymorphic["delta_LF_mut"])
-
-
-# plt.scatter(abs(df_polymorphic["mut_effect"]), df_polymorphic["delta_LF_mut"],
-#             marker="o", c=df_polymorphic["freq"], alpha=0.1, s=20)
-# plt.xlabel("|Mutation phenotypic effect size|")
-# plt.ylabel("$LF_{mut}$")
-# plt.colorbar().set_label("Allele Frequency")
-# plt.title(shortName)
-# plt.tight_layout()
-# plt.savefig(figPath+model_name+"_effectSize_vs_LFmut_frequencyColor.png",
-#             dpi=300)
-# plt.close()
-#
-
-
 
 # Use minor allele frequency
 minor_freq = []
@@ -573,18 +584,23 @@ max_abs_effect = max(abs(df_polymorphic["mut_effect"]))
 
 label_font = 16
 tick_font = 14
+plt.figure(figsize=(7,5))
+# Scatter plot, took a long time and ~20 GB memory
 plt.scatter(abs(df_polymorphic["mut_effect"]), df_polymorphic["delta_LF_mut"],
             marker="o", c=minor_freq,
-            alpha=0.1, s=20,
-            # cmap=cmap_maf
+            alpha=0.1, s=20
+            #, cmap=cmap_maf
             )
+# small one for testing label sizes
 # plt.scatter(abs(df_polymorphic["mut_effect"][1:10]), df_polymorphic["delta_LF_mut"][1:10],
 #             marker="o", c=minor_freq[1:10],
-#             alpha=0.1, s=20,
-#             # cmap=cmap_maf
+#             alpha=0.1, s=20
+#             ,# cmap=cmap_maf
 #             )
-plt.xlabel("|Mutation phenotypic effect size|", fontsize=label_font)
-plt.ylabel("$LF_{mut}$", fontsize=label_font)
+plt.xlabel("|Phenotypic effect size|",
+           fontsize=label_font)
+plt.ylabel("$LF_{mut}$",
+           fontsize=label_font)
 plt.xlim(left=min_abs_effect,
          right=max_abs_effect)
 # plt.ylim(bottom=-0.004, top=max_lf)
@@ -598,7 +614,7 @@ plt.show()
 # plt.colorbar().set_ticks([0, 0.1, 0.2, 0.3, 0.4, 0.5])
 # plt.colorbar().set_ticklabels(["0", "0.1", "0.2", "0.3", "0.4", "0.5"], fontsize=tick_font)
 plt.tick_params(axis='both', which='major', labelsize=tick_font)
-plt.title(shortName)
+plt.title(shortName, fontsize=label_font)
 plt.tight_layout()
 plt.savefig(figPath+model_name+"_effectSize_vs_LFmut_minorFrequencyColor_spectral.png",
             dpi=300)
@@ -608,7 +624,7 @@ del df_polymorphic
 
 
 
-# #Three-way relationship 1: no log               #KEEP
+# #### Three-way relationship 1: 10 size categories, with labels               #KEEP
 # # Sum of LF from the age class ~ Allele age Colored by |effect size|
 # age = df["age"]
 # size = abs(df["mut_effect"])
@@ -684,7 +700,7 @@ del df_polymorphic
 #             dpi=300)
 # plt.close()
 
-#Three-way relationship 1: no log:20 categories
+#Three-way relationship 1: no log:20 categories, no labels
 # Sum of LF from the age class ~ Allele age Colored by |effect size|
 age = df["age"]
 size = abs(df["mut_effect"])
@@ -715,19 +731,24 @@ for i in range(num_age_cat):
 
 y1 = lf_sum_positive_size
 y2 = lf_sum_negative_size
-label_font = 14
+label_font = 16
 tick_font = 14
 # # viridis 10 categories
 # colors = ["#FDE725FF", "#AADC32FF", "#5DC863FF", "#27AD81FF", "#1F9A8AFF",
 #           "#287C8EFF", "#365D8DFF","#443A83FF", "#481F70FF", "#440154FF"]
-# viridis 20 categories
-colors = ["#FDE725FF", "#DCE319FF", "#B8DE29FF", "#95D840FF", "#73D055FF",
-           "#55C667FF", "#3CBB75FF","#29AF7FFF", "#20A387FF", "#1F968BFF",
+# # viridis 20 categories
+# colors = ["#FDE725FF", "#DCE319FF", "#B8DE29FF", "#95D840FF", "#73D055FF",
+#            "#55C667FF", "#3CBB75FF","#29AF7FFF", "#20A387FF", "#1F968BFF",
+#           "#238A8DFF", "#287D8EFF","#2D708EFF", "#33638DFF", "#39568CFF",
+#           "#404788FF", "#453781FF","#482677FF", "#481567FF", "#440154FF"]
+#Modified viridis
+#f7db5c
+colors = ["#FDE725FF", "#cce010FF", "#a2d115FF", "#68cf1fFF", "#34c421FF",
+           "#2bba44FF", "#3CBB75FF","#29AF7FFF", "#20A387FF", "#1F968BFF",
           "#238A8DFF", "#287D8EFF","#2D708EFF", "#33638DFF", "#39568CFF",
           "#404788FF", "#453781FF","#482677FF", "#481567FF", "#440154FF"]
-
 # bar plot
-plt.figure(figsize=(6,5))
+plt.figure(figsize=(6,4.5))
 x = age_cats[1:]
 patches = []
 for i in range(num_size_cat-1):
@@ -746,7 +767,13 @@ for row in range(num_size_cat):
     plt.bar(x, y2[row], bar_width, bottom=y_offset, color=colors[row])
     y_offset = y_offset + y2[row]
 plt.axhline(0, color='grey', lw=1, dashes=(1,1))
-plt.axvline(event_age, color='firebrick', lw=1, dashes=(2,1), zorder=0)
+plt.axvline(event_age, color='firebrick', lw=1,
+            dashes=(2,1), zorder=0)
+#For model M3a, M3b, mark the times of the start of each cycle of environmental changes
+if "3" in demoName_ori:
+    for cycle_time in past_event_ages:
+        plt.axvline(cycle_time, color='lightgrey',
+                    lw=1, dashes=(2, 1), zorder=0)
 # plt.xticks(ticks=np.arange(0, max(x), 1),
 #            labels=['{:0.2e}'.format(i)
 #                    for i in 10**np.arange(0, max(x), 1)])
@@ -760,16 +787,16 @@ plt.ylim(np.min(np.nansum(y2, axis = 0))*1.2, np.max(np.nansum(y1, axis=0))*1.2)
 #            title="|Mutation phenotypic effect size|",
 #            loc="center left", bbox_to_anchor=(1, 0.5),
 #            fontsize="x-large")
-plt.title(shortName)
+plt.title(shortName, fontsize=label_font)
 plt.tight_layout()
 plt.savefig(figPath+model_name+"_"+str(num_age_cat) + "bins"+
             "_LF_by_age_bin_positve_lfRelative2EachRun_sizeColor.png",
             dpi=300)
 plt.close()
 
-#Standalone Colorbar
-plt.figure(figsize=(4.2,4)) #ncol=1
-# plt.figure(figsize=(3,7.2)) #ncol=2
+#Standalone colorbar for 20-category effect size
+plt.figure(figsize=(3,7.5)) #ncol=1
+# plt.figure(figsize=(4.2,4)) #ncol=2
 x = age_cats[1:]
 patches = []
 for i in range(num_size_cat-1):
@@ -783,15 +810,17 @@ plt.legend(handles=patches,
            loc="center",
            title_fontsize=16,
            fontsize=16,
-           ncol=2)
+           ncol=1)
 plt.tight_layout()
 plt.axis('off')
-plt.savefig(figPath+model_name+"_"+str(num_size_cat) + "bins"+
-            "_sizeColor_colorBar2.png",
+plt.savefig(figPath + str(num_size_cat) + "bins"+
+            "_sizeColor_colorBar1_2.png",
             dpi=300)
 plt.close()
 
-#Three-way relationship 2: no log
+
+
+#Three-way relationship 2: (no log)
 # Sum of LF from the age class ~ Allele age, Colored by frequency
 num_age_cat = 100 # Number of categories for allele age
 num_freq_cat = 10 # Number of categories for allele frequency
@@ -818,14 +847,16 @@ for i in range(num_age_cat):
 
 y1 = lf_sum_positive_freq
 y2 = lf_sum_negative_freq
-
-# bar plot
-plt.figure(1)
-x = age_cats[1:]
+label_font = 16
+tick_font = 14
 # colors = ["#f2e5f9FF", "#dbcee9FF", "#b9a1d3FF", "#9B7DC5FF", "#7757adFF",
 #           "#623f9cFF", "#51308cFF", "#3c1e7aFF", "#2c0f70FF", "#200462FF"]
 colors = ["#d2ebf3FF", "#9dcde3FF", "#6899CEFF", "#4074cbFF", "#1839aaFF",
           "#1624a1FF", "#523cb7FF", "#8f69caFF", "#c2a0dfFF", "#e5d0f0FF"]
+
+# bar plot
+plt.figure(1)
+x = age_cats[1:]
 patches = []
 for i in range(num_freq_cat):
     patches.append(mpatches.Patch(color=colors[i], label= str(round(i*freq_cats_step, 2)) +
@@ -841,27 +872,58 @@ for row in range(num_freq_cat):
     plt.bar(x, y2[row], bar_width, bottom=y_offset, color=colors[row])
     y_offset = y_offset + y2[row]
 plt.axhline(0, color='grey', lw=1, dashes=(1,1))
-plt.axvline(event_age, color='firebrick', lw=1, dashes=(2,1),zorder=0)
+plt.axvline(event_age, color='firebrick',
+            lw=1, dashes=(2,1),zorder=0)
+#For model M3a, M3b, mark the times of the start of each cycle of environmental changes
+if "3" in demoName_ori:
+    for cycle_time in past_event_ages:
+        plt.axvline(cycle_time, color='lightgrey',
+                    lw=1, dashes=(2, 1), zorder=0)
 # plt.xticks(ticks=np.arange(0, max(x), 1),
 #            labels=['{:0.2e}'.format(i)
 #                    for i in 10**np.arange(0, max(x), 1)])
-plt.tick_params(axis='x', rotation=45)
-plt.xlabel("Allele age (generation)")
-plt.ylabel(r"Relative contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ )")
+plt.tick_params(axis='x', rotation=10)
+plt.tick_params(axis='both', labelsize=tick_font, size=3, width=2)
+plt.xlabel("Allele age (ticks)",
+           fontsize=label_font)
+# plt.ylabel(r"Relative contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ )", fontsize=label_font)
+plt.ylabel(r"$\it{\Sigma LF_{mut}}$",
+           fontsize=label_font)
 plt.ylim(np.min(np.sum(y2, axis = 0))*1.2, np.max(np.sum(y1, axis=0))*1.2)
 plt.legend(handles=patches,
            title="Allele frequency",
            loc="upper center",
            ncols=2)
-# ax.legend(loc="upper right")
-# ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
-# ax.margins(x=0)
-plt.title(shortName)
+plt.title(shortName, fontsize=label_font)
 plt.tight_layout()
 plt.savefig(figPath+model_name+"_"+str(num_age_cat) + "bins"+
             "_LF_by_age_bin_positve_lfRelative2EachRun_freqColor.png",
             dpi=300)
 plt.close()
+
+#Standalone Colorbar for frequency
+plt.figure(figsize=(2.2,4)) #ncol=1
+# plt.figure(figsize=(3.8,2.5)) #ncol=2
+x = age_cats[1:]
+patches = []
+for i in range(num_freq_cat):
+    patches.append(mpatches.Patch(color=colors[i], label= str(round(i*freq_cats_step, 2)) +
+                                                          "-" + str(round((i+1)*freq_cats_step, 2))))
+# im=plt.bar(x, y1[row], bar_width, bottom=y_offset, color=colors[row])
+# # im.set_visible(False)
+plt.legend(handles=patches,
+           title="Allele frequency",
+           loc="center",
+           title_fontsize=16,
+           fontsize=16,
+           ncol=1)
+plt.tight_layout()
+plt.axis('off')
+plt.savefig(figPath+model_name+"_"+str(num_size_cat) + "bins"+
+            "_freqColor_colorBar1.png",
+            dpi=300)
+plt.close()
+
 
 
 #Three-way relationship 3: no log
@@ -886,7 +948,6 @@ for i in range(num_size_cat):
         lf_sum_negative[j][i] = (sum(lf_category[lf_category < 0])/num_runs)
 
 # bar plot
-plt.figure(1)
 x = size_cats[1:]
 y1 = lf_sum_positive
 y2 = lf_sum_negative
@@ -894,6 +955,10 @@ y2 = lf_sum_negative
 #           "#623f9cFF", "#51308cFF", "#3c1e7aFF", "#2c0f70FF", "#200462FF"]
 colors = ["#d2ebf3FF", "#9dcde3FF", "#6899CEFF", "#4074cbFF", "#1839aaFF",
           "#1624a1FF", "#523cb7FF", "#8f69caFF", "#c2a0dfFF", "#e5d0f0FF"]
+label_font = 16
+tick_font = 14
+
+plt.figure(1)
 patches = []
 for i in range(num_freq_cat):
     patches.append(mpatches.Patch(color=colors[i], label= str(round(i*freq_cats_step, 2)) +
@@ -914,9 +979,12 @@ plt.axhline(0, color='grey', lw=1, dashes=(1,1))
 # plt.xticks(ticks=np.arange(0, max(x), 1),
 #            labels=['{:0.2e}'.format(i)
 #                    for i in np.arange(0, max(x), 0.005)])
-plt.tick_params(axis='x', rotation=45)
-plt.xlabel("|Mutation phenotypic effect size|")
-plt.ylabel(r"Relative contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ )")
+# plt.tick_params(axis='x', rotation=45)
+plt.tick_params(axis='both', labelsize=tick_font, size=3, width=2)
+plt.xlabel("|Phenotypic effect size|", fontsize=label_font)
+# plt.ylabel(r"Relative contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ )",
+# fontsize=label_font)
+plt.ylabel(r"$\it{\Sigma LF_{mut}}$", fontsize=label_font)
 plt.ylim(0, 0.8)
 plt.legend(handles=patches,
            title="Allele frequency",
@@ -926,7 +994,7 @@ plt.ylim(0, 0.3)
 # ax.legend(loc="upper right")
 # ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
 # ax.margins(x=0)
-plt.title(shortName)
+plt.title(shortName, fontsize=label_font)
 plt.tight_layout()
 # plt.savefig(figPath+model_name+"_"+str(num_size_cat) + "bins"+
 #             "_LF_by_size_bin_positve_lfRelative2EachRun_freqColor.png",
@@ -935,42 +1003,3 @@ plt.savefig(figPath+model_name+"_"+str(num_size_cat) + "bins"+
             "_LF_by_size_bin_positve_lfRelative2PositiveLFEachRun_freqColor.png",
             dpi=300)
 plt.close()
-
-
-# # GEA results ~ Allele age for neutral alleles
-# # len(df["mut_effect"])
-# # sum(df["mut_effect"] == 0)
-# plt.scatter(np.log10(df["age"]),
-#             abs(df["tau"]),
-#             marker="o",
-#             # c=df["freq"],
-#             c="grey",
-#             alpha=0.01, s=10,
-#             vmin=0, vmax=0.5)
-# plt.xlabel("log10(Allele age)")
-# plt.ylabel("|Kendall's tau|")
-# plt.xlim(left=0)
-# plt.axvline(np.log10(event_age), color='firebrick', lw=1.5, dashes=(2,1))
-# # plt.ylim(bottom=-0.004, top=0.016)
-# plt.colorbar().set_label("Minor allele Frequency")
-# plt.tight_layout()
-# plt.savefig(figPath+model_name+"_effect0Mut_absTau_vs_log10age_frequencyColor_legend2.png",
-#             dpi=300)
-# plt.close()
-#
-# plt.scatter(np.log10(df["age"]),
-#             df["p_rank"],
-#             marker="o", c=df["freq"],
-#             alpha=0.01, s=20,
-#             vmin=0, vmax=0.5)
-# plt.xlabel("log10(Allele age)")
-# plt.ylabel("GEA p-values")
-# plt.xlim(left=0)
-# plt.axvline(np.log10(event_age), color='firebrick', lw=1.5, dashes=(2,1))
-# # plt.ylim(bottom=-0.004, top=0.016)
-# plt.colorbar().set_label("Minor allele Frequency")
-# plt.tight_layout()
-# plt.savefig(figPath+model_name+"_pRank_vs_log10age_frequencyColor.png",
-#             dpi=300)
-# plt.close()
-
