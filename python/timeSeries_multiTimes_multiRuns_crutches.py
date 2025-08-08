@@ -7,6 +7,7 @@ Last modified on 2025.06.10
 """
 
 ############################# modules #########################################
+import matplotlib
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 import numpy as np
@@ -74,44 +75,58 @@ elif "_patchyMap_" in model_name:
 else:
     mapName = ""
 demoName_ori = model_name.split("_")[2]
-name_change = {"M2a":"M1a", "M2b":"M1b", "M3a":"M2a", "M3b":"M2b"}
+# name_change = {"M2a":"M1a", "M2b":"M1b", "M3a":"M2a", "M3b":"M2b"}
+name_change = {"M2a":"Single change", "M2b":"Single expansion", "M3a":"Recurrent changes", "M3b":"Recurrent expansions"}
 demoName = name_change[demoName_ori]
 shortName = ",".join([demoName, migName, mapName])
 
 #Output
-figPath = ("/home/anadem/github/data/tskit_data/figure/multiTimes/multiRun/"+
+figPath = ("/home/anadem/github/data/tskit_data/figure/multiTimes/multiRun/test/"+
            model_name + "/")
 if not os.path.exists(figPath):
     os.makedirs(figPath)
 # outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/historical_optimum0_timeSeries/"
 
 #Define categories
-#Allele frequency
+#1. Allele frequency
 num_cat_freq = 10
 freq_cats = np.append(np.arange(0, 1, 1.0 / num_cat_freq),1)
-# Time of mutations
+
+# 2. Time of mutations
 num_cat_age = 20
 mut_time_cats = np.append(np.arange(-history, max(times), (max(times) + history) / num_cat_age),
                           max(times))
-# Phenotypic effect size
-# Read all files to determine the range of effect size: takes about 2 min
-maxSize = 0
-for runID in runID_unique:
-    fileList = np.char.add(np.char.add(np.array([inPath+"/"+model_name+"_seed"+runID+"_tick"]),
-                                   ticks),
-                       np.array([fileSuffix]))
-    df = pd.DataFrame()
-    for f in fileList:
-        df_focal = pd.read_csv(f, sep='\t', header=0)
-        df = pd.concat([df, df_focal], axis=0)
-    maxSize_focal = max(abs(df["mut_effect"]))
-    if maxSize_focal > maxSize:
-        maxSize = maxSize_focal
-num_cat_size = 20
-size_cats = np.append(np.arange(0,
-                                maxSize,
-                                maxSize / num_cat_size),
-                      maxSize + 0.0001)
+
+# 3. Phenotypic effect size
+# #Method1: Flexible categories
+# # Read all files to determine the range of effect size: takes about 2 min
+# maxSize = 0
+# for runID in runID_unique:
+#     fileList = np.char.add(np.char.add(np.array([inPath+"/"+model_name+"_seed"+runID+"_tick"]),
+#                                    ticks),
+#                        np.array([fileSuffix]))
+#     df = pd.DataFrame()
+#     for f in fileList:
+#         df_focal = pd.read_csv(f, sep='\t', header=0)
+#         df = pd.concat([df, df_focal], axis=0)
+#     maxSize_focal = max(abs(df["mut_effect"]))
+#     if maxSize_focal > maxSize:
+#         maxSize = maxSize_focal
+# num_cat_size = 20
+# size_cats = np.append(np.arange(0,
+#                                 maxSize,
+#                                 maxSize / num_cat_size),
+#                       maxSize + 0.0001)
+#Method 2: Unified categories for all models
+num_cat_size = 20 #
+size_cats_step = 0.01
+size_last_tick = 0.2 # temporary
+lf_sum_positive_size = np.full(shape=(20, 100), fill_value=np.nan)
+lf_sum_negative_size = np.full(shape=(20, 100), fill_value=np.nan)
+size_cats = np.r_[np.arange(0, size_last_tick, size_cats_step), 1]
+
+
+
 # Load multiple runs again and summarize data
 df_summary = pd.DataFrame()
 df_lf_freq_positive = pd.DataFrame()
@@ -237,13 +252,6 @@ for runID in runID_unique:
 
 #Median of all runs
 df_summary_median = df_summary.drop(columns=["runID"]).groupby(["times"]).median()
-# df_freq_positive_median = df_lf_freq_positive.groupby(level=0).median()
-# df_age_positive_median = df_lf_age_positive.groupby(level=0).median()
-# df_size_positive_median = df_lf_size_positive.groupby(level=0).median()
-# df_freq_negative_median = df_lf_freq_negative.groupby(level=0).median()
-# df_age_negative_median = df_lf_age_negative.groupby(level=0).median()
-# df_size_negative_median = df_lf_size_negative.groupby(level=0).median()
-
 
 #Separate generation 1000-10000
 df_summary_myTime = df_summary[(df_summary["times"] >= 1000) & (df_summary["times"] <= 10000)]
@@ -263,6 +271,12 @@ anova_result = sm.stats.anova_lm(model1, type=2)
 
 
 
+#Plots
+label_font = 16
+tick_font = 16
+legend_font = 15
+
+
 
 # df_summary_median_myTime = df_summary_median[(df_summary_median.index >= 1000)
 #                                              & (df_summary_median.index <= 10000)]
@@ -277,61 +291,81 @@ df_freq_negative_median = df_lf_freq_negative.groupby(level=0).mean()
 df_age_negative_median = df_lf_age_negative.groupby(level=0).mean()
 df_size_negative_median = df_lf_size_negative.groupby(level=0).mean()
 
-# Three Sigma(LF) ~ time
-plt.figure(figsize=(12,5))
+
+
+# Three types of Sigma(LF_mut) ~ time
+alpha_singleRun = 0.08
+alpha_mean = 0.9
+
+plt.figure(figsize=(9,5))
 plt.axhline(y=0, linestyle="dotted", color="grey")
 #Positive LF
 for runID in runID_unique:
     focal_run = df_summary[df_summary["runID"] == runID]
     plt.plot(focal_run["times"], focal_run["lf_positive"],
              marker="", markersize=5, markerfacecolor="white",
-             color="lightseagreen", alpha=0.05)
+             color="lightseagreen", alpha=alpha_singleRun)
 plt.plot(times, df_summary_median["lf_positive"],
-             marker="o", markersize=5, markerfacecolor="white",
-             color="lightseagreen", alpha=0.7,
+         marker="o", markersize=5, markerfacecolor="white",
+         color="lightseagreen", alpha=alpha_mean,
+         linewidth=2.0,
          label=r"Sum of positive $\it{LF_{mut}}$")
 #Negative LF
 for runID in runID_unique:
     focal_run = df_summary[df_summary["runID"] == runID]
     plt.plot(focal_run["times"], focal_run["lf_negative"],
              marker="", markersize=5, markerfacecolor="white",
-             color="firebrick", alpha=0.05)
+             color="firebrick", alpha=alpha_singleRun)
 plt.plot(times, df_summary_median["lf_negative"],
              marker="o", markersize=5, markerfacecolor="white",
-             color="firebrick", alpha=0.7,
+             color="firebrick", alpha=alpha_mean,
+         linewidth=2.0,
          label=r"Sum of negative $\it{LF_{mut}}$")
 # Net LF
 for runID in runID_unique:
     focal_run = df_summary[df_summary["runID"] == runID]
     plt.plot(focal_run["times"], focal_run["lf"],
              marker="", markersize=5, markerfacecolor="white",
-             color="grey", alpha=0.05)
+             color="grey", alpha=alpha_singleRun)
 plt.plot(times, df_summary_median["lf"],
              marker="o", markersize=5, markerfacecolor="white",
-             color="dimgrey", alpha=0.7,
+             color="dimgrey", alpha=alpha_mean,
+         linewidth=2.0,
          label=r"Net sum")
-plt.xlabel("Generations after the environmental change")
-plt.ylabel(r"Contribution to local adaptation ($\it{\Sigma LF_{mut}}$ )")
-plt.title(shortName)
-plt.legend()
+plt.xlabel("Ticks after the last environmental change",
+           fontsize=label_font)
+plt.ylabel(r"Contribution to local adaptation ($\it{\Sigma LF_{mut}}$ )",
+           fontsize=label_font)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
+plt.title(shortName, fontsize=label_font)
+plt.legend(title_fontsize=label_font,
+           fontsize=label_font)
+plt.tight_layout()
 plt.savefig(figPath + model_name  + "_20RunsMedian_allelicLF.png",
             dpi=300)
 plt.close()
 
+
+
 # k80(positive) ~ time
-plt.figure(figsize=(12,5))
+plt.figure(figsize=(9,5))
 for runID in runID_unique:
     focal_run = df_summary[df_summary["runID"] == runID]
     plt.plot(focal_run["times"], focal_run["k_positive"],
              marker="", markersize=5, markerfacecolor="white",
-             color="grey", alpha=0.05)
+             color="grey", alpha=alpha_singleRun)
 plt.plot(times, df_summary_median["k_positive"],
-             marker="o", markersize=5, markerfacecolor="white",
-             color="dimgrey", alpha=0.7,
+         marker="o", markersize=5, markerfacecolor="white",
+         color="dimgrey", alpha=alpha_mean,
+         linewidth=2.0,
          label=r"Net sum")
-plt.xlabel("Generations after the environmental change")
-plt.ylabel("Minimum number of alleles for explaining 80% local adaptation")
-plt.title(shortName)
+plt.xlabel("Ticks after the last environmental change",
+           fontsize=label_font)
+plt.ylabel(r"$K_{80, pos}$",
+           fontsize=label_font)
+plt.title(shortName, fontsize=label_font)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
+plt.tight_layout()
 plt.savefig(figPath + model_name + "_20RunsMedian_k" +
             str(int(expected_explained_proportion*100)) +
             "positve.png",
@@ -339,62 +373,74 @@ plt.savefig(figPath + model_name + "_20RunsMedian_k" +
 plt.close()
 
 # k80(net) and k80(positive) ~ time
-plt.figure(figsize=(12,5))
+plt.figure(figsize=(9,5))
 #k80 net
 for runID in runID_unique:
     focal_run = df_summary[df_summary["runID"] == runID]
     plt.plot(focal_run["times"], focal_run["k_net"],
              marker="", markersize=5, markerfacecolor="white",
-             color="grey", alpha=0.05)
+             color="grey", alpha=alpha_singleRun)
 plt.plot(times, df_summary_median["k_net"],
-             marker="o", markersize=5, markerfacecolor="white",
-             color="dimgrey", alpha=0.7,
-         label=r"$K_{80}(net)$")
+         marker="o", markersize=5, markerfacecolor="white",
+         color="dimgrey", alpha=alpha_mean,
+         linewidth=2.0,
+         label=r"$K_{80,net}$")
 #k80 positive
 for runID in runID_unique:
     focal_run = df_summary[df_summary["runID"] == runID]
     plt.plot(focal_run["times"], focal_run["k_positive"],
              marker="", markersize=5, markerfacecolor="white",
-             color="lightseagreen", alpha=0.05)
+             color="lightseagreen", alpha=alpha_singleRun)
 plt.plot(times, df_summary_median["k_positive"],
              marker="o", markersize=5, markerfacecolor="white",
-             color="lightseagreen", alpha=0.7,
-         label=r"$K_{80}(positive)$")
-plt.xlabel("Generations after the environmental change")
-plt.ylabel("Minimum number of alleles for explaining 80% local adaptation"+ "\n" + r"($K_{80}$)")
-plt.title(shortName)
-plt.legend()
+             color="lightseagreen", alpha=alpha_mean,
+         label=r"$K_{80,pos}$")
+plt.xlabel("Ticks after the last environmental change",
+           fontsize=label_font)
+plt.ylabel("Minimum number of alleles for \n explaining 80% local adaptation "+ r"($K_{80}$)",
+           fontsize=label_font)
+plt.title(shortName, fontsize=label_font)
+plt.legend(title_fontsize=label_font,
+           fontsize=label_font)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
+plt.tight_layout()
 plt.savefig(figPath + model_name + "_20RunsMedian_k" +
             str(int(expected_explained_proportion*100)) +
             "net.png", dpi=300)
 plt.close()
 
 # Zoom in: k80(net) and k80(positive) ~ time
-plt.figure(figsize=(6,5))
+plt.figure(figsize=(6.5,5))
 #k80 net
 for runID in runID_unique:
     focal_run = df_summary[df_summary["runID"] == runID]
     plt.plot(focal_run["times"][idx_zoom], focal_run["k_net"][idx_zoom],
              marker="", markersize=5, markerfacecolor="white",
-             color="grey", alpha=0.05)
+             color="grey", alpha=alpha_singleRun)
 plt.plot(times2, df_summary_median["k_net"][times2],
-             marker="o", markersize=5, markerfacecolor="white",
-             color="dimgrey", alpha=0.7,
-         label=r"$K_{80}(net)$")
+         marker="o", markersize=5, markerfacecolor="white",
+         color="dimgrey", alpha=alpha_mean,
+         linewidth=2.0,
+         label=r"$K_{80,net}$")
 #k80 positive
 for runID in runID_unique:
     focal_run = df_summary[df_summary["runID"] == runID]
     plt.plot(focal_run["times"][idx_zoom], focal_run["k_positive"][idx_zoom],
              marker="", markersize=5, markerfacecolor="white",
-             color="lightseagreen", alpha=0.05)
+             color="lightseagreen", alpha=alpha_singleRun)
 plt.plot(times2, df_summary_median["k_positive"][times2],
              marker="o", markersize=5, markerfacecolor="white",
-             color="lightseagreen", alpha=0.7,
-         label=r"$K_{80}(positive)$")
-plt.xlabel("Generations after the environmental change")
-plt.ylabel("Minimum number of alleles for explaining 80% local adaptation"+ "\n" + r"($K_{80}$)")
-plt.legend()
-plt.title(shortName)
+             color="lightseagreen", alpha=alpha_mean,
+         label=r"$K_{80,pos}$")
+plt.xlabel("Ticks after the last environmental change",
+           fontsize=label_font)
+plt.ylabel("Minimum number of alleles for \n explaining 80% local adaptation "+ r"($K_{80}$)",
+           fontsize=label_font)
+plt.legend(title_fontsize=label_font,
+           fontsize=label_font)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
+plt.tight_layout()
+# plt.title(shortName, fontsize=label_font)
 plt.savefig(figPath + model_name + "_20RunsMedian_k" +
             str(int(expected_explained_proportion*100)) +
             "net_zoom10000.png", dpi=300)
@@ -411,7 +457,7 @@ plt.close()
 # plt.plot(times, median_freqs,
 #          marker="o", markersize=5, markerfacecolor="white",
 #          color="black")
-# plt.xlabel("Generations after the environmental change")
+# plt.xlabel("Ticks after the environmental change")
 # plt.ylabel("Median allele frequency of segregating functional mutations")
 # plt.savefig(figPath + model_name + "_medianFreq_through_time_100000.png",
 #             dpi=300)
@@ -427,7 +473,7 @@ plt.close()
 # plt.plot(times, median_sizes,
 #          marker="o", markersize=5, markerfacecolor="white",
 #          color="black")
-# plt.xlabel("Generations after the environmental change")
+# plt.xlabel("Ticks after the environmental change")
 # plt.ylabel("Median phenotypic effect size of segregating functional mutations")
 # plt.savefig(figPath + model_name + "_medianAbsSize_through_time_100000.png",
 #             dpi=300)
@@ -450,14 +496,21 @@ plt.stackplot(times, df_freq_negative_median,
               colors=freq10colors,
               labels="")
 plt.axhline(y=0, color="grey", linestyle="dotted")
-plt.xlabel("Generations after the environmental change")
-plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$  )")
+plt.xlabel("Ticks after the last environmental change",
+           fontsize=label_font)
+plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ ) ",
+           fontsize=label_font)
 # plt.ylim(0, 1.4)
-plt.legend(loc=(1.03, 0.25),
-           title="   Allele frequency   ",
+plt.legend(title="     Allele frequency    ",
+           loc=(1.05, 0.075),
+           # loc = "center right",
            reverse=True,
-           ncol=1, fontsize="medium")
-plt.title(shortName)
+           ncol=1,
+           title_fontsize=15,
+           fontsize=15,
+           labelspacing = 0.3)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
+plt.title(shortName, fontsize=label_font)
 plt.tight_layout()
 # plt.savefig(figPath + model_name + "_median20Runs_lfByFreq10Bin_stack.png",
 #             dpi=300)
@@ -481,13 +534,20 @@ plt.stackplot(times2, df_freq_negative_median.iloc[:, idx_zoom],
               colors=freq10colors,
               labels="")
 plt.axhline(y=0, linestyle="dotted", color="grey")
-plt.xlabel("Generations after the environmental change")
-plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$  )")
-plt.legend(loc=(1.03, 0.25),
-           title="   Allele frequency   ",
+plt.xlabel("Ticks after the last environmental change",
+           fontsize=label_font)
+plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ ) ",
+           fontsize=label_font)
+plt.legend(title="    Allele frequency    ",
+           loc=(1.05, 0.075),
+           # loc = "center right",
            reverse=True,
-           ncol=1, fontsize="medium")
-plt.title(shortName)
+           ncol=1,
+           title_fontsize=15,
+           fontsize=15,
+           labelspacing = 0.3)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
+plt.title(shortName, fontsize=label_font)
 plt.tight_layout()
 # plt.savefig(figPath + model_name + "_median20Runs_lfByFreq10Bin_stack_zoomIn.png",
 #             dpi=300)
@@ -504,8 +564,8 @@ age20colors = ["#FCFDBF", "#FDE4A6", "#FECC8F", "#FEB37B", "#FD9A6A",
                "#AB337C", "#952C80", "#802582", "#6B1D81", "#56147D",
                "#400F73", "#29115B", "#160F3B", "#07061D", "#000004"]
 time20colors = list(reversed(age20colors))
-mut_time_labels = ["-".join([str(int(mut_time_cats[i])),
-                             str(int(mut_time_cats[i + 1]))])
+mut_time_labels = ["-".join([str(int(mut_time_cats[i]/10000)),
+                             str(int(mut_time_cats[i + 1]/10000))])
                    for i in range(num_cat_age)]
 # Stacked area, contribution of frequency bins ~ time， 0 - 100 000，add negative
 plt.figure(figsize=(12, 5))
@@ -516,14 +576,21 @@ plt.stackplot(times, df_age_negative_median,
               colors=time20colors,
               labels="")
 plt.axhline(y=0, color="grey", linestyle="dotted")
-plt.xlabel("Generations after the environmental change")
-plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ )")
+plt.xlabel("Ticks after the environmental change",
+           fontsize=label_font)
+plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$) ",
+           fontsize=label_font)
 # plt.ylim(0, 1.4)
-plt.legend(loc=(1.03, -0.1),
-           title="Mutation time (relative to env. change)",
+plt.legend(loc=(1.05, -0.15),
+           title="Mutation time (x$10^{4}$ " +"\n" + "ticks after env. change)",
            reverse=True,
-           ncol=1, fontsize="medium")
-plt.title(shortName)
+           ncol=1,
+           title_fontsize=15,
+           fontsize=15,
+           columnspacing=0.5,
+           labelspacing = 0.05)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
+plt.title(shortName, fontsize=label_font)
 plt.tight_layout()
 # plt.savefig(figPath + model_name + "_20RunsMedian_lfByMutTime_20Bin_stack.png",
 #             dpi=300)
@@ -540,14 +607,21 @@ plt.stackplot(times2, df_age_negative_median.iloc[:, idx_zoom],
               colors=time20colors,
               labels="")
 plt.axhline(y=0, color="grey", linestyle="dotted")
-plt.xlabel("Generations after the environmental change")
-plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$  )")
+plt.xlabel("Ticks after the environmental change",
+           fontsize=label_font)
+plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ ) ",
+           fontsize=label_font)
 # plt.ylim(0, 1.4)
-plt.legend(loc=(1.03, -0.1),
-           title="Mutation time (relative to env. change)",
+plt.legend(loc=(1.06, -0.15),
+           title="Mutation time (x$10^{4}$ " +"\n" + "ticks after env. change)",
            reverse=True,
-           ncol=1, fontsize="medium")
-plt.title(shortName)
+           ncol=1,
+           title_fontsize=15,
+           fontsize=15,
+           columnspacing=0.5,
+           labelspacing = 0.05)
+plt.title(shortName, fontsize=label_font)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
 plt.tight_layout()
 # plt.savefig(figPath + model_name + "_20RunsMedian_lfByMutTime_20Bin_stack_zoomIn.png",
 #             dpi=300)
@@ -560,13 +634,21 @@ plt.close()
 # Plot the contribution to local adaptation (sum(positive LF_mut)) from alleles of each SIZE bin
 # Colors copied from
 # /home/tianlin/Documents/github/arg-for-gea/R/play_with_colors.R
-size20colors = ["#FDE725", "#DCE318", "#B8DE29", "#94D840", "#74D055",
-                "#56C667", "#3CBB75", "#29AF7F", "#20A386", "#1F968B",
-                "#238A8D", "#287D8E", "#2D718E", "#32648E", "#39558C",
-                "#3F4788", "#453781", "#482677", "#481567", "#440154"]
+# #viridis
+# size20colors = ["#FDE725", "#DCE318", "#B8DE29", "#94D840", "#74D055",
+#                 "#56C667", "#3CBB75", "#29AF7F", "#20A386", "#1F968B",
+#                 "#238A8D", "#287D8E", "#2D718E", "#32648E", "#39558C",
+#                 "#3F4788", "#453781", "#482677", "#481567", "#440154"]
+#Modified viridis
+size20colors = ["#FDE725FF", "#cce010FF", "#a2d115FF", "#68cf1fFF", "#34c421FF",
+                "#2bba44FF", "#3CBB75FF","#29AF7FFF", "#20A387FF", "#1F968BFF",
+                "#238A8DFF", "#287D8EFF","#2D708EFF", "#33638DFF", "#39568CFF",
+                "#404788FF", "#453781FF","#482677FF", "#481567FF", "#440154FF"]
 size_labels = [" – ".join([str(round(size_cats[i], 3)),
                            str(round(size_cats[i + 1], 3))])
                for i in range(num_cat_size)]
+size_labels[-1] = ">" + str(size_cats[-2])
+
 # Stacked area, contribution of size bins ~ time， 0 - 100 000, add negative
 plt.figure(figsize=(12, 5))
 plt.stackplot(times, df_size_positive_median,
@@ -576,14 +658,25 @@ plt.stackplot(times, df_size_negative_median,
               colors=size20colors,
               labels="")
 plt.axhline(y=0, color="grey", linestyle="dotted")
-plt.xlabel("Generations after the environmental change")
-plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$  )")
+plt.xlabel("Ticks after the environmental change",
+           fontsize=label_font)
+plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ ) ",
+           fontsize=label_font)
 # plt.ylim(0, 1.4)
-plt.legend(loc=(1.03, -0.1),
+# plt.legend(loc=(1.03, -0.1),
+#            title="|Phenotypic effect size|",
+#            reverse=True,
+#            ncol=1, fontsize="medium")
+plt.legend(loc=(1.05, -0.15),
            title="|Phenotypic effect size|",
            reverse=True,
-           ncol=1, fontsize="medium")
-plt.title(shortName)
+           ncol=1,
+           title_fontsize=15,
+           fontsize=15,
+           labelspacing=0.05,
+           columnspacing=-0.5)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
+plt.title(shortName, fontsize=label_font)
 plt.tight_layout()
 # plt.savefig(figPath + model_name +
 #             "_20Runsmedian_lfBysize20Bin_stack.png",
@@ -603,14 +696,22 @@ plt.stackplot(times2, df_size_negative_median.iloc[:, idx_zoom],
               colors=size20colors,
               labels="")
 plt.axhline(y=0, color="grey", linestyle="dotted")
-plt.xlabel("Generations after the environmental change")
-plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ )")
+plt.xlabel("Ticks after the environmental change",
+           fontsize=label_font)
+plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ ) ",
+           fontsize=label_font)
 # plt.ylim(0, 1.4)
-plt.legend(loc=(1.03, -0.1),
+plt.legend(loc=(1.05, -0.15),
            title="|Phenotypic effect size|",
            reverse=True,
-           ncol=1, fontsize="medium")
-plt.title(shortName)
+           ncol=1,
+           title_fontsize=15,
+           fontsize=15,
+           # handletextpad=-1.2,
+           labelspacing=0.05,
+           columnspacing=-0.5)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
+plt.title(shortName, fontsize=label_font)
 plt.tight_layout()
 # plt.savefig(figPath + model_name +
 #             "_20Runsmedian_lfBysize20Bin_stack_zoomIn.png",
@@ -619,42 +720,3 @@ plt.savefig(figPath + model_name +
             "_20RunsMean_lfBysize20Bin_stack_zoomIn.png",
             dpi=300)
 plt.close()
-
-
-
-# # Allele frequencies ~ time
-# unique_loci = set(df["pos"])
-# # cmap = matplotlib.colormaps["viridis"]
-# cmap = plt.cm.viridis
-# abs_size = abs(df["mut_effect"])
-# max_size = max(abs_size)
-#
-# # fig, ax = plt.subplots()
-# # setup the normalization and the colormap
-# normalize = matplotlib.colors.Normalize(vmin=0, vmax=0.5)
-# colormap = plt.cm.viridis
-# for locus in unique_loci.copy():
-#     # Remove alleles that were fixed or lost before the environmental change
-#     if (sum(df["freq"][df["pos"] == locus]) == len(times) or
-#         sum(df["freq"][df["pos"] == locus]) == 0):
-#         unique_loci.remove(locus)
-#     else:
-#         x = df["time"][df["pos"] == locus]
-#         y = df["freq"][df["pos"] == locus]
-#         # allele_color = cmap(normalize(list(abs_size[df["pos"] == locus])[0]))
-#         allele_color = cmap(list(abs_size[df["pos"] == locus])[0]*100)
-#         plt.plot(x, y, color=allele_color,
-#                 alpha = 0.1)
-# # scalarmappaple = plt.cm.ScalarMappable(norm=normalize, cmap=colormap)
-# # scalarmappaple.set_array(np.sort(abs_size))
-# # plt.colorbar()
-# plt.axhline(0, color='grey', lw=1, dashes=(1, 1))
-# plt.xlabel("Time")
-# plt.ylabel("Allele frequency")
-# plt.legend(loc="upper right")
-# # ax.yaxis.set_major_formatter(lambda x, pos: f'{abs(x):g}')
-# plt.margins(x=0)
-# plt.savefig(figPath+model_name+"_"+str(num_cat) + "bins"+
-#             "_freq_by_time.png",
-#             dpi=300)
-# plt.close()

@@ -3,41 +3,39 @@ initialize() {
 	initializeSLiMModelType("nonWF");
 	defineConstant("seed", rdunif(1, 0, asInteger(2^62) - 1));
 	setSeed(seed);
-	// mutation rate: 1e-8. 1e-10
-	defineConstant("mu", 1e-8);
+	// functional mutation rate: 1e-7, 1e-8, 1e-9, 1e-10
+	defineConstant("mu", 1e-10);
 	//  recombination rate on chromosomes
 	defineConstant("r", 1e-7);
 	// genome size: 10 Mb
 	defineConstant("L", 1e7); //
 	// carrying capacity density: capacity when uniformly distributed
-	// Observed N: ~5300 diploid individual
+	// Observed N: ~5500 diploid individual
 	defineConstant("K", 6000); //
-	//	defineConstant("K", 40000); //
 	//  reproduction rate
 	defineConstant("R", 0.2);
-	// Sd of mutation effect size on trait value: 0.01. 0.1
-	defineConstant("sigma_M", 0.01);
+	// Sd of mutation effect size on trait value: small 0.01, large: 0.1
+	defineConstant("sigma_M", 0.1);
 	// Sd of fitness function (selection curve)
 	defineConstant("sigma_W", 0.4);
-	// Sd of dispersion (centered on parent 1): 0.03, 0.06
-	defineConstant("sigma_D", 0.06);
+	// Sd of dispersion (centered on parent 1): low 0.03; high: 0.06
+	defineConstant("sigma_D", 0.03);
 	//	// Competition kernal width: compD/3
 	//	defineConstant("S", 1e-2);
 	// Max distance for competition: 30m/3km
 	defineConstant("compD", 3e-2);
-	// Max distance for mate choice: 300m/3km: 0.12, 0.15
-	defineConstant("mateD", 0.15);
+	// Max distance for mate choice: low 0.12; high: 0.15
+	defineConstant("mateD", 0.12);
 	// Max strength for competition
 	defineConstant("maxCompStrength", 1.0);
-	// Length of the period of each environmental cycle
-	defineConstant("envPeriod", 10000);
-	// Current x boundary of habitat; Starts from 0.1
-	defineGlobal("currentBoundary", 0.1);
-	//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/");
-	//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M2b_smallLowVm_lowMig_clineMap/");
-	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/recurrentChange/M3b_smallLowVm_highMig_clineMap/");
-	
-	// defineConstant("outDir", "D:/UBC_office/slim/output/");
+	//	Output directory
+	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/M2a_largeLowVm_lowMig_clineMap/timeSeries/");
+	// Sample series
+	defineConstant("sampleTime", c(100000,
+		100200, 100400, 100600, 100800,
+		101000, 102000, 104000, 106000,
+		108000, 110000, 120000, 130000,
+		140000, 160000, 180000, 200000));
 	
 	// two-dimentional space + phenotype; prevent selfing
 	initializeSLiMOptions(dimensionality="xy", preventIncidentalSelfing=T);
@@ -91,47 +89,20 @@ mutationEffect(m2) {
 	return 1.0; // The direct fitness effect is reset to neutral
 }
 
-// Recurrent boundary expansion and contraction before the sampling stage
-// Minimum boundary: x0 = 0, x1 = 0.1, y0 = 0, y1 = 1
-// Maximum boundary: x0 = 0, x1 = 1, y0 = 0, y1 = 1
+// Expansion is not allowed in the first t1 generations ()
+// Initial boundary: x0 = 0, x1 = 0.1, y0 = 0, y1 = 1
 1:100000 reproduction() {
 	// 10 nearby trees
 	neighbors = i2.nearestNeighbors(individual, 10);
 	if (!neighbors.size())
 		return;
 	mate = sample(neighbors, 1);
-	// Relative time in an environmental cycle
-	peakTime = 0.2*envPeriod;
-	expansionSpeed = 0.9/peakTime;
-	contractionSpeed = 0.9/(envPeriod-peakTime);
-	currentPhase = sim.cycle%envPeriod;
-	b = currentPhase < peakTime ? (0.1+currentPhase*expansionSpeed) else (1-(currentPhase-peakTime)*contractionSpeed);
-	defineGlobal("currentBoundary", b);
 	// Overlapping generations, on average R offsprings were generated
 	for (i in seqLen(rpois(1,R)))
 	{
 		offspring = subpop.addCrossed(individual, mate);
 		do pos = individual.spatialPosition + rnorm(2, 0, sigma_D);
-		while (!((pos[0]>=0) & (pos[0]<=currentBoundary) & (pos[1]>=0) & (pos[1]<=1)));
-		offspring.setSpatialPosition(pos);
-	}
-}
-
-// Expansion at the sampling stage
-100001:101000 reproduction() {
-	// 10 nearby trees
-	neighbors = i2.nearestNeighbors(individual, 10);
-	if (!neighbors.size())
-		return;
-	mate = sample(neighbors, 1);
-	b = 0.1 + (sim.cycle-100000) * (0.9/1000);
-	defineGlobal("currentBoundary", b);
-	// Overlapping generations, on average R offsprings were generated
-	for (i in seqLen(rpois(1,R)))
-	{
-		offspring = subpop.addCrossed(individual, mate);
-		do pos = individual.spatialPosition + rnorm(2, 0, sigma_D);
-		while (!((pos[0]>=0) & (pos[0]<=currentBoundary) & (pos[1]>=0) & (pos[1]<=1)));
+		while (!((pos[0]>=0) & (pos[0]<=1) & (pos[1]>=0) & (pos[1]<=1)));
 		offspring.setSpatialPosition(pos);
 	}
 }
@@ -150,12 +121,13 @@ mutationEffect(m2) {
 	
 	// Set spatial boundary as (x0, y0, x1, y1)
 	p0.setSpatialBounds(c(0.0, 0.0, 1.0, 1.0));
-	p0.individuals.x = runif(p0.individualCount, min=0, max=0.1);
+	p0.individuals.x = runif(p0.individualCount, min=0, max=1);
 	p0.individuals.y = runif(p0.individualCount);
 	p0.individuals.z = p0.individuals.sumOfMutationsOfType(m2);
+	// Homogeneous stabilizing selection in the initial envrionment
 	//	defineConstant("mapValues", matrix(c(0,0,0,0), ncol=2));
-	// Heterogeneous selection always exists and does not change (e.g. daylight)
-	defineGlobal("mapValues", matrix(c(0,0,1,1), ncol=2));
+	//	defineGlobal("mapValues", matrix(c(0.5,0.5,0.5,0.5), ncol=2));
+	defineGlobal("mapValues", matrix(c(0,0,0,0), ncol=2));
 	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,
 		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
 }
@@ -178,10 +150,11 @@ mutationEffect(m2) {
 	// mean_fitness = mean(p0.cachedFitness(NULL));
 	// inds.fitnessScaling = K / totalStrength * (mean_fitness + dnorm(phenotypes, optimum, sigma_W));
 	// Wrong rescaling
-//	max_adaptation = 1 / sigma_W / sqrt(2/PI);
-   // correct fitness rescaling
+	//	max_adaptation = 1 / sigma_W / sqrt(2/PI);
+	// correct fitness rescaling
 	max_adaptation = 1 / sigma_W / sqrt(2*PI);
 	scaled_mut_effect = dnorm(phenotypes, optimum, sigma_W)/ max_adaptation;
+	// inds.fitnessScaling = K / totalStrength * (0.3 + 0.7*scaled_mut_effect);
 	inds.fitnessScaling = K / totalStrength * scaled_mut_effect;
 	inds.z = phenotypes;
 	//	//fitness function
@@ -189,16 +162,14 @@ mutationEffect(m2) {
 	
 	// color individuals according to phenotype
 	inds.color = p0.spatialMapColor("map1", phenotypes);
-	// Kill individuals that are outside of the current geographic range
-	inds[inds.x > currentBoundary].fitnessScaling = 0.0;
 }
 
 1: first() {
 	i2.evaluate(sim.subpopulations);
 }
 
-//Sampling phase: expansion finished after t1 generations
-101001: reproduction() {
+// 
+100001: reproduction() {
 	//print(length(p0.individuals));
 	// 10 nearby trees
 	neighbors = i2.nearestNeighbors(individual, 10);
@@ -219,15 +190,29 @@ mutationEffect(m2) {
 	}
 }
 
+// Heterogeneous selection occured after t1 generations
+// Linear gradual environmental change finished in 1000 generations
+100001:101000 early(){
+	//defineConstant("mapValues2", matrix(c(0,0,1,1), ncol=2));
+	extremeEnv = (sim.cycle-100000) * (1/1000);
+	defineGlobal("mapValues", matrix(c(0,0,extremeEnv,extremeEnv), ncol=2));
+	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,
+		valueRange=c(0.0, 1.0), colors=c("orangered3", "burlywood2", "paleturquoise"));
+}
+
 // sample series
-110000 late() {
-	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
-	sim.treeSeqOutput(outDir + "Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_" +
-		"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W +
-		"_sigmaD" + sigma_D + "_mateD" + mateD +
-		"_K" + K + "_r" + r +
-		"_seed" + seed + "_tick" + sim.cycle + ".trees",
-		metadata = Dictionary("indsOptimum", optimum,
-		"mapValues", mapValues));;
+100000: late() {
+	if (any(sim.cycle==sampleTime)) {
+		defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
+		sim.treeSeqOutput(outDir + "Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_" +
+			"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W +
+			"_sigmaD" + sigma_D + "_mateD" + mateD +
+			"_K" + K + "_r" + r +
+			"_seed" + seed + "_tick" + sim.cycle + ".trees",
+			metadata = Dictionary("indsOptimum", optimum,
+			"mapValues", mapValues));;}
+}
+
+200001 late() {
 	sim.simulationFinished();
 }

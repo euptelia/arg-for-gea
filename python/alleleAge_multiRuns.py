@@ -564,11 +564,13 @@ plt.close()
 
 
 #### Three-way relationship among allele frequency, effect size and contribution to LF
+
+#### Scatter plot of allele frequency, phenotypic effect size and LF_mut
 df_polymorphic = df[(df["freq"] != 1) & (df["freq"] != 0)]
 max_lf = max(df_polymorphic["delta_LF_mut"])
 min_lf = min(df_polymorphic["delta_LF_mut"])
 
-# Use minor allele frequency
+# Use minor allele frequency for color
 minor_freq = []
 for f in df_polymorphic["freq"]:
     if f <= 0.5:
@@ -585,13 +587,13 @@ max_abs_effect = max(abs(df_polymorphic["mut_effect"]))
 label_font = 16
 tick_font = 14
 plt.figure(figsize=(7,5))
-# Scatter plot, took a long time and ~20 GB memory
+#Scatter plot, took a long time and ~23 GB memory
 plt.scatter(abs(df_polymorphic["mut_effect"]), df_polymorphic["delta_LF_mut"],
             marker="o", c=minor_freq,
             alpha=0.1, s=20
             #, cmap=cmap_maf
             )
-# small one for testing label sizes
+# #small one for testing label sizes
 # plt.scatter(abs(df_polymorphic["mut_effect"][1:10]), df_polymorphic["delta_LF_mut"][1:10],
 #             marker="o", c=minor_freq[1:10],
 #             alpha=0.1, s=20
@@ -609,7 +611,7 @@ cb=plt.colorbar()
 cb.set_label("Minor allele Frequency", fontsize=16)
 cb.ax.tick_params(labelsize=14, size=3, width=2)
 cb.solids.set(alpha=1)
-plt.show()
+# plt.show()
 # plt.colorbar().set_label("Minor allele Frequency", fontsize=16)
 # plt.colorbar().set_ticks([0, 0.1, 0.2, 0.3, 0.4, 0.5])
 # plt.colorbar().set_ticklabels(["0", "0.1", "0.2", "0.3", "0.4", "0.5"], fontsize=tick_font)
@@ -742,7 +744,6 @@ tick_font = 14
 #           "#238A8DFF", "#287D8EFF","#2D708EFF", "#33638DFF", "#39568CFF",
 #           "#404788FF", "#453781FF","#482677FF", "#481567FF", "#440154FF"]
 #Modified viridis
-#f7db5c
 colors = ["#FDE725FF", "#cce010FF", "#a2d115FF", "#68cf1fFF", "#34c421FF",
            "#2bba44FF", "#3CBB75FF","#29AF7FFF", "#20A387FF", "#1F968BFF",
           "#238A8DFF", "#287D8EFF","#2D708EFF", "#33638DFF", "#39568CFF",

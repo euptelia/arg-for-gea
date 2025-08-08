@@ -3,41 +3,44 @@ initialize() {
 	initializeSLiMModelType("nonWF");
 	defineConstant("seed", rdunif(1, 0, asInteger(2^62) - 1));
 	setSeed(seed);
-	// mutation rate: 1e-8. 1e-10
-	defineConstant("mu", 1e-8);
+	// mutation rate
+	defineConstant("mu", 1e-10);
 	//  recombination rate on chromosomes
 	defineConstant("r", 1e-7);
 	// genome size: 10 Mb
 	defineConstant("L", 1e7); //
 	// carrying capacity density: capacity when uniformly distributed
-	// Observed N: ~5300 diploid individual
+	// Observed N: ~4800 diploid individual
 	defineConstant("K", 6000); //
 	//	defineConstant("K", 40000); //
 	//  reproduction rate
 	defineConstant("R", 0.2);
-	// Sd of mutation effect size on trait value: 0.01. 0.1
-	defineConstant("sigma_M", 0.01);
+	// Sd of mutation effect size on trait value
+	defineConstant("sigma_M", 0.1);
 	// Sd of fitness function (selection curve)
 	defineConstant("sigma_W", 0.4);
-	// Sd of dispersion (centered on parent 1): 0.03, 0.06
-	defineConstant("sigma_D", 0.06);
+	// Sd of dispersion (centered on parent 1)
+	defineConstant("sigma_D", 0.03);
 	//	// Competition kernal width: compD/3
 	//	defineConstant("S", 1e-2);
 	// Max distance for competition: 30m/3km
 	defineConstant("compD", 3e-2);
-	// Max distance for mate choice: 300m/3km: 0.12, 0.15
-	defineConstant("mateD", 0.15);
+	// Max distance for mate choice: 300m/3km
+	defineConstant("mateD", 0.12);
 	// Max strength for competition
 	defineConstant("maxCompStrength", 1.0);
 	// Length of the period of each environmental cycle
 	defineConstant("envPeriod", 10000);
 	// Current x boundary of habitat; Starts from 0.1
 	defineGlobal("currentBoundary", 0.1);
-	//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/");
-	//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M2b_smallLowVm_lowMig_clineMap/");
-	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/recurrentChange/M3b_smallLowVm_highMig_clineMap/");
-	
-	// defineConstant("outDir", "D:/UBC_office/slim/output/");
+	//	Output directory
+	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/recurrentChange/M3b_largeLowVm_lowMig_clineMap/timeSeries/");
+	// Sample series
+	defineConstant("sampleTime", c(100000,
+		100200, 100400, 100600, 100800,
+		101000, 102000, 104000, 106000,
+		108000, 110000, 120000, 130000,
+		140000, 160000, 180000, 200000));
 	
 	// two-dimentional space + phenotype; prevent selfing
 	initializeSLiMOptions(dimensionality="xy", preventIncidentalSelfing=T);
@@ -190,7 +193,7 @@ mutationEffect(m2) {
 	// color individuals according to phenotype
 	inds.color = p0.spatialMapColor("map1", phenotypes);
 	// Kill individuals that are outside of the current geographic range
-	inds[inds.x > currentBoundary].fitnessScaling = 0.0;
+	inds[inds.x > currentBoundary].fitnessScaling = 0.0; 
 }
 
 1: first() {
@@ -220,14 +223,19 @@ mutationEffect(m2) {
 }
 
 // sample series
-110000 late() {
+100000: late() {
+	if (any(sim.cycle==sampleTime)) {
 	defineGlobal("optimum", p0.spatialMapValue("map1", p0.individuals.spatialPosition));
-	sim.treeSeqOutput(outDir + "Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_" +
-		"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W +
-		"_sigmaD" + sigma_D + "_mateD" + mateD +
-		"_K" + K + "_r" + r +
-		"_seed" + seed + "_tick" + sim.cycle + ".trees",
+	sim.treeSeqOutput(outDir + "Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_" + 
+	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
+	"_sigmaD" + sigma_D + "_mateD" + mateD +
+	"_K" + K + "_r" + r +
+	"_seed" + seed + "_tick" + sim.cycle + ".trees",
 		metadata = Dictionary("indsOptimum", optimum,
-		"mapValues", mapValues));;
+		"mapValues", mapValues));
+	}
+}
+
+200001 late() {
 	sim.simulationFinished();
 }

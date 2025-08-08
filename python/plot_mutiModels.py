@@ -16,6 +16,17 @@ figPath = "/home/anadem/github/data/tskit_data/figure/multiModels/v1.0/"
 if not os.path.exists(figPath):
     os.makedirs(figPath)
 
+#Check the following values before using
+num_cat_age = 22 #number of bins
+cat_width_age = 5000.0
+p_threshold = 0.0000000001
+maf_filter = 0.05
+age_fig_size = (9,6) # 22 bins
+alpha_line=0.5
+label_font = 16
+tick_font = 16
+legend_font = 15
+
 #Contrast the effect of environmental map
 #Constant pop, cline
 f1 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_tick110000_200runs_FPR.tab"
@@ -38,18 +49,6 @@ df5 = pd.read_csv(f5, sep="\t", header=0, index_col=False)
 f6 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M3b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_tick110000_200runs_FPR.tab"
 df6 = pd.read_csv(f6, sep="\t", header=0, index_col=False)
 
-#Check the following numbers before use
-num_cat_age = 22 #number of bins
-cat_width_age = 5000.0
-p_threshold = 0.0000000001
-maf_filter = 0.05
-age_fig_size = (7,6) # 22 bins
-alpha_line=0.5
-# age_fig_size = (8,5) # 40 bins
-# age_fig_size = (15,5) # 100 bins
-# age_fig_size = (9,5) # 55 bins
-label_font = 16
-tick_font = 16
 age_boundaries = list(df1["tick_text"]) + [110000.0]
 
 # Neutral alleles: FPR ～ Allele age, equal intervals
@@ -104,10 +103,10 @@ plt.xticks(ticks=age_boundaries,
            labels=[str(int(i/1000)) for i in age_boundaries],
            rotation=90)
 plt.tick_params(axis='both', which='major', labelsize=tick_font)
-plt.legend(loc="center right",
+plt.legend(loc="center",
            title="  Env. map \nCline   Patchy",
-           title_fontsize=14,
-           fontsize=14,
+           title_fontsize=legend_font,
+           fontsize=legend_font,
            ncol=2,
            columnspacing=0.5)._legend_box.align = "left"
 # plt.title("", fontsize=label_font)
@@ -140,18 +139,7 @@ df5 = pd.read_csv(f5, sep="\t", header=0, index_col=False)
 f6 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_tick110000_200runs_FPR.tab"
 df6 = pd.read_csv(f6, sep="\t", header=0, index_col=False)
 
-#Check the following numbers before use
-num_cat_age = 22 #number of bins
-cat_width_age = 5000.0
-p_threshold = 0.0000000001
-maf_filter = 0.05
-age_fig_size = (7,6) # 22 bins
 alpha_line=0.8
-# age_fig_size = (8,5) # 40 bins
-# age_fig_size = (15,5) # 100 bins
-# age_fig_size = (9,5) # 55 bins
-label_font = 16
-tick_font = 16
 age_boundaries = list(df1["tick_text"]) + [110000.0]
 
 # Neutral alleles: FPR ～ Allele age, equal intervals
@@ -206,10 +194,10 @@ plt.plot(df6["age"],
          alpha=alpha_line,
          label=" Recurrent env. changes")
 plt.ylim(min(df2["fpr"]*0.8), max(df4["fpr"])*1.1)
-plt.legend(loc="upper right",
+plt.legend(loc="upper center",
            title="   Migration \n Low    High",
-           title_fontsize=14,
-           fontsize=14,
+           title_fontsize=legend_font,
+           fontsize=legend_font,
            ncol=2,
            columnspacing=0.5)._legend_box.align = "left"
 plt.xlabel("Allele age (thousand ticks)", fontsize=label_font)
@@ -248,17 +236,7 @@ f6 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/C
 df6 = pd.read_csv(f6, sep="\t", header=0, index_col=False)
 
 #Check the following numbers before use
-num_cat_age = 22 #number of bins
-cat_width_age = 5000.0
-p_threshold = 0.0000000001
-maf_filter = 0.05
-age_fig_size = (7,6) # 22 bins
 alpha_line=0.8
-# age_fig_size = (8,5) # 40 bins
-# age_fig_size = (15,5) # 100 bins
-# age_fig_size = (9,5) # 55 bins
-label_font = 16
-tick_font = 16
 age_boundaries = list(df1["tick_text"]) + [110000.0]
 
 # Neutral alleles: FPR ～ Allele age, equal intervals
@@ -313,10 +291,10 @@ plt.plot(df6["age"],
          alpha=alpha_line,
          label=" Recurrent env. changes")
 plt.ylim(min(df2["fpr"]*0.8), max(df4["fpr"])*1.18)
-plt.legend(loc="upper right",
+plt.legend(loc="upper center",
            title=" Demography \nConst.  Expan.",
-           title_fontsize=14,
-           fontsize=14,
+           title_fontsize=legend_font,
+           fontsize=legend_font,
            ncol=2,
            columnspacing=0.5)._legend_box.align = "left"
 plt.xlabel("Allele age (thousand ticks)", fontsize=label_font)

@@ -22,7 +22,7 @@
 
 
 basePath="/media/anadem/PortableSSD/arg4gea_data/tskit_data/output/table/Continuous_nonWF*"
-#basePath="/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF*M2b*patchyMap*"
+#basePath="/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07*"
 for folder in $basePath
 do
   echo $folder/tick110000/
