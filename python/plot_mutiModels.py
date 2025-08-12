@@ -22,10 +22,10 @@ cat_width_age = 5000.0
 p_threshold = 0.0000000001
 maf_filter = 0.05
 age_fig_size = (9,6) # 22 bins
-alpha_line=0.5
+alpha_line=0.8
 label_font = 16
 tick_font = 16
-legend_font = 15
+legend_font = 16
 
 #Contrast the effect of environmental map
 #Constant pop, cline
@@ -216,7 +216,7 @@ plt.savefig(figPath+"fpr_comparison2" +
             dpi=300)
 plt.close()
 
-#Contrast the effect of selection and migration
+#Contrast the effect of selection and demographic history
 #No selection
 f1 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07_tick110000_100runs_p1e-10_maf0.05_cat22_fpr.tab"
 df1 = pd.read_csv(f1, sep="\t", header=0, index_col=False)

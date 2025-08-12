@@ -117,7 +117,8 @@ mut_time_cats = np.append(np.arange(-history, max(times), (max(times) + history)
 #                                 maxSize,
 #                                 maxSize / num_cat_size),
 #                       maxSize + 0.0001)
-#Method 2: Unified categories for all models
+
+#Method 2: Unified categories for all models. Bad resolution for models with a high polygenicity.
 num_cat_size = 20 #
 size_cats_step = 0.01
 size_last_tick = 0.2 # temporary
@@ -125,6 +126,13 @@ lf_sum_positive_size = np.full(shape=(20, 100), fill_value=np.nan)
 lf_sum_negative_size = np.full(shape=(20, 100), fill_value=np.nan)
 size_cats = np.r_[np.arange(0, size_last_tick, size_cats_step), 1]
 
+# #Method 3: 10 categories for a zoom in plot
+# num_cat_size = 10 #
+# size_cats_step = 0.005
+# size_last_tick = 0.05 # temporary
+# lf_sum_positive_size = np.full(shape=(10, 100), fill_value=np.nan)
+# lf_sum_negative_size = np.full(shape=(10, 100), fill_value=np.nan)
+# size_cats = np.r_[np.arange(0, size_last_tick, size_cats_step), 1]
 
 
 # Load multiple runs again and summarize data
@@ -269,19 +277,10 @@ model1 = ols('k80 ~ lf_type * times', data=df_summary_myTime_melt).fit()
 print(model1.summary())
 anova_result = sm.stats.anova_lm(model1, type=2)
 
-
-
 #Plots
-label_font = 16
-tick_font = 16
-legend_font = 15
-
-
-
-# df_summary_median_myTime = df_summary_median[(df_summary_median.index >= 1000)
-#                                              & (df_summary_median.index <= 10000)]
-# stats.linregress(df_summary_median_myTime.index,df_summary_median_myTime["k_net"])
-# stats.linregress(df_summary_median_myTime.index,df_summary_median_myTime["k_positive"])
+label_font = 17
+tick_font = 18
+legend_font = 18
 
 #Use mean instead of median for most plots
 df_freq_positive_median = df_lf_freq_positive.groupby(level=0).mean()
@@ -291,13 +290,18 @@ df_freq_negative_median = df_lf_freq_negative.groupby(level=0).mean()
 df_age_negative_median = df_lf_age_negative.groupby(level=0).mean()
 df_size_negative_median = df_lf_size_negative.groupby(level=0).mean()
 
+# df_summary_median_myTime = df_summary_median[(df_summary_median.index >= 1000)
+#                                              & (df_summary_median.index <= 10000)]
+# stats.linregress(df_summary_median_myTime.index,df_summary_median_myTime["k_net"])
+# stats.linregress(df_summary_median_myTime.index,df_summary_median_myTime["k_positive"])
+
 
 
 # Three types of Sigma(LF_mut) ~ time
 alpha_singleRun = 0.08
 alpha_mean = 0.9
 
-plt.figure(figsize=(9,5))
+plt.figure(figsize=(9,5.1))
 plt.axhline(y=0, linestyle="dotted", color="grey")
 #Positive LF
 for runID in runID_unique:
@@ -334,12 +338,12 @@ plt.plot(times, df_summary_median["lf"],
          label=r"Net sum")
 plt.xlabel("Ticks after the last environmental change",
            fontsize=label_font)
-plt.ylabel(r"Contribution to local adaptation ($\it{\Sigma LF_{mut}}$ )",
+plt.ylabel(r"Contribution to local adaptation ($\it{\Sigma LF_{mut}}$)",
            fontsize=label_font)
 plt.tick_params(axis='both', which='major', labelsize=tick_font)
 plt.title(shortName, fontsize=label_font)
-plt.legend(title_fontsize=label_font,
-           fontsize=label_font)
+plt.legend(title_fontsize=20,
+           fontsize=20)
 plt.tight_layout()
 plt.savefig(figPath + model_name  + "_20RunsMedian_allelicLF.png",
             dpi=300)
@@ -347,33 +351,33 @@ plt.close()
 
 
 
-# k80(positive) ~ time
-plt.figure(figsize=(9,5))
-for runID in runID_unique:
-    focal_run = df_summary[df_summary["runID"] == runID]
-    plt.plot(focal_run["times"], focal_run["k_positive"],
-             marker="", markersize=5, markerfacecolor="white",
-             color="grey", alpha=alpha_singleRun)
-plt.plot(times, df_summary_median["k_positive"],
-         marker="o", markersize=5, markerfacecolor="white",
-         color="dimgrey", alpha=alpha_mean,
-         linewidth=2.0,
-         label=r"Net sum")
-plt.xlabel("Ticks after the last environmental change",
-           fontsize=label_font)
-plt.ylabel(r"$K_{80, pos}$",
-           fontsize=label_font)
-plt.title(shortName, fontsize=label_font)
-plt.tick_params(axis='both', which='major', labelsize=tick_font)
-plt.tight_layout()
-plt.savefig(figPath + model_name + "_20RunsMedian_k" +
-            str(int(expected_explained_proportion*100)) +
-            "positve.png",
-            dpi=300)
-plt.close()
+# # k80(positive) ~ time
+# plt.figure(figsize=(9,5.1))
+# for runID in runID_unique:
+#     focal_run = df_summary[df_summary["runID"] == runID]
+#     plt.plot(focal_run["times"], focal_run["k_positive"],
+#              marker="", markersize=5, markerfacecolor="white",
+#              color="grey", alpha=alpha_singleRun)
+# plt.plot(times, df_summary_median["k_positive"],
+#          marker="o", markersize=5, markerfacecolor="white",
+#          color="dimgrey", alpha=alpha_mean,
+#          linewidth=2.0,
+#          label=r"Net sum")
+# plt.xlabel("Ticks after the last environmental change",
+#            fontsize=label_font)
+# plt.ylabel(r"$K_{80, pos}$",
+#            fontsize=label_font)
+# plt.title(shortName, fontsize=label_font)
+# plt.tick_params(axis='both', which='major', labelsize=tick_font)
+# plt.tight_layout()
+# plt.savefig(figPath + model_name + "_20RunsMedian_k" +
+#             str(int(expected_explained_proportion*100)) +
+#             "positve.png",
+#             dpi=300)
+# plt.close()
 
 # k80(net) and k80(positive) ~ time
-plt.figure(figsize=(9,5))
+plt.figure(figsize=(9,5.1))
 #k80 net
 for runID in runID_unique:
     focal_run = df_summary[df_summary["runID"] == runID]
@@ -396,12 +400,12 @@ plt.plot(times, df_summary_median["k_positive"],
              color="lightseagreen", alpha=alpha_mean,
          label=r"$K_{80,pos}$")
 plt.xlabel("Ticks after the last environmental change",
-           fontsize=label_font)
+           fontsize=18)
 plt.ylabel("Minimum number of alleles for \n explaining 80% local adaptation "+ r"($K_{80}$)",
-           fontsize=label_font)
+           fontsize=18)
 plt.title(shortName, fontsize=label_font)
-plt.legend(title_fontsize=label_font,
-           fontsize=label_font)
+plt.legend(title_fontsize=22,
+           fontsize=22)
 plt.tick_params(axis='both', which='major', labelsize=tick_font)
 plt.tight_layout()
 plt.savefig(figPath + model_name + "_20RunsMedian_k" +
@@ -434,10 +438,10 @@ plt.plot(times2, df_summary_median["k_positive"][times2],
          label=r"$K_{80,pos}$")
 plt.xlabel("Ticks after the last environmental change",
            fontsize=label_font)
-plt.ylabel("Minimum number of alleles for \n explaining 80% local adaptation "+ r"($K_{80}$)",
+plt.ylabel("Minimum number of alleles for\nexplaining 80% local adaptation "+ r"($K_{80}$)",
            fontsize=label_font)
-plt.legend(title_fontsize=label_font,
-           fontsize=label_font)
+plt.legend(title_fontsize=legend_font,
+           fontsize=legend_font)
 plt.tick_params(axis='both', which='major', labelsize=tick_font)
 plt.tight_layout()
 # plt.title(shortName, fontsize=label_font)
@@ -479,6 +483,11 @@ plt.close()
 #             dpi=300)
 # plt.close()
 
+
+
+label_font = 16
+tick_font = 16
+legend_font = 15
 
 
 # Plot contribution to local adaptation (sum(positive LF_mut)) from alleles of each frequency bin
@@ -526,7 +535,7 @@ plt.close()
 #                "0.5-0.6", "0.6-0.7", "0.7-0.8", "0.8-0.9", "0.9-1.0"]
 # index10000 = int(np.where(times == 10000)[0])
 # maxY = np.sum(lf_by_freq_positive, axis=0)[index10000] * 1.1
-plt.figure(figsize=(8, 5))
+plt.figure(figsize=(9, 5))
 plt.stackplot(times2, df_freq_positive_median.iloc[:, idx_zoom],
               colors=freq10colors,
               labels=freq_labels)
@@ -599,7 +608,7 @@ plt.savefig(figPath + model_name + "_20RunsMean_lfByMutTime_20Bin_stack.png",
 plt.close()
 
 # Zoom in, stacked area, contribution of frequency bins ~ time， 0 - 100 000，add negative
-plt.figure(figsize=(8, 5))
+plt.figure(figsize=(9, 5))
 plt.stackplot(times2, df_age_positive_median.iloc[:, idx_zoom],
               colors=time20colors,
               labels=mut_time_labels)
@@ -607,7 +616,7 @@ plt.stackplot(times2, df_age_negative_median.iloc[:, idx_zoom],
               colors=time20colors,
               labels="")
 plt.axhline(y=0, color="grey", linestyle="dotted")
-plt.xlabel("Ticks after the environmental change",
+plt.xlabel("Ticks after the last environmental change",
            fontsize=label_font)
 plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ ) ",
            fontsize=label_font)
@@ -634,20 +643,20 @@ plt.close()
 # Plot the contribution to local adaptation (sum(positive LF_mut)) from alleles of each SIZE bin
 # Colors copied from
 # /home/tianlin/Documents/github/arg-for-gea/R/play_with_colors.R
-# #viridis
-# size20colors = ["#FDE725", "#DCE318", "#B8DE29", "#94D840", "#74D055",
-#                 "#56C667", "#3CBB75", "#29AF7F", "#20A386", "#1F968B",
-#                 "#238A8D", "#287D8E", "#2D718E", "#32648E", "#39558C",
-#                 "#3F4788", "#453781", "#482677", "#481567", "#440154"]
-#Modified viridis
-size20colors = ["#FDE725FF", "#cce010FF", "#a2d115FF", "#68cf1fFF", "#34c421FF",
-                "#2bba44FF", "#3CBB75FF","#29AF7FFF", "#20A387FF", "#1F968BFF",
-                "#238A8DFF", "#287D8EFF","#2D708EFF", "#33638DFF", "#39568CFF",
-                "#404788FF", "#453781FF","#482677FF", "#481567FF", "#440154FF"]
+#viridis
+size20colors = ["#FDE725", "#DCE318", "#B8DE29", "#94D840", "#74D055",
+                "#56C667", "#3CBB75", "#29AF7F", "#20A386", "#1F968B",
+                "#238A8D", "#287D8E", "#2D718E", "#32648E", "#39558C",
+                "#3F4788", "#453781", "#482677", "#481567", "#440154"]
+# #Modified viridis
+# size20colors = ["#FDE725FF", "#cce010FF", "#a2d115FF", "#68cf1fFF", "#34c421FF",
+#                 "#2bba44FF", "#3CBB75FF","#29AF7FFF", "#20A387FF", "#1F968BFF",
+#                 "#238A8DFF", "#287D8EFF","#2D708EFF", "#33638DFF", "#39568CFF",
+#                 "#404788FF", "#453781FF","#482677FF", "#481567FF", "#440154FF"]
 size_labels = [" – ".join([str(round(size_cats[i], 3)),
                            str(round(size_cats[i + 1], 3))])
                for i in range(num_cat_size)]
-size_labels[-1] = ">" + str(size_cats[-2])
+size_labels[-1] = ">" + str(round(size_cats[-2],3))
 
 # Stacked area, contribution of size bins ~ time， 0 - 100 000, add negative
 plt.figure(figsize=(12, 5))
@@ -658,7 +667,7 @@ plt.stackplot(times, df_size_negative_median,
               colors=size20colors,
               labels="")
 plt.axhline(y=0, color="grey", linestyle="dotted")
-plt.xlabel("Ticks after the environmental change",
+plt.xlabel("Ticks after the last environmental change",
            fontsize=label_font)
 plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ ) ",
            fontsize=label_font)
@@ -688,7 +697,7 @@ plt.close()
 
 # Zoom in, 0 - 10 000
 # Stacked area, contribution of size bins ~ time
-plt.figure(figsize=(8, 5))
+plt.figure(figsize=(9, 5))
 plt.stackplot(times2, df_size_positive_median.iloc[:, idx_zoom],
               colors=size20colors,
               labels=size_labels)
@@ -696,7 +705,7 @@ plt.stackplot(times2, df_size_negative_median.iloc[:, idx_zoom],
               colors=size20colors,
               labels="")
 plt.axhline(y=0, color="grey", linestyle="dotted")
-plt.xlabel("Ticks after the environmental change",
+plt.xlabel("Ticks after the last environmental change",
            fontsize=label_font)
 plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ ) ",
            fontsize=label_font)
@@ -720,3 +729,85 @@ plt.savefig(figPath + model_name +
             "_20RunsMean_lfBysize20Bin_stack_zoomIn.png",
             dpi=300)
 plt.close()
+
+
+# #10 categories
+# #Modified viridis
+# size10colors = ["#FDE725FF", "#AADC32FF", "#5DC863FF", "#27AD81FF", "#1F9A8AFF",
+#           "#287C8EFF", "#365D8DFF","#443A83FF", "#481F70FF", "#440154FF"]
+# size_labels = [" – ".join([str(round(size_cats[i], 3)),
+#                            str(round(size_cats[i + 1], 3))])
+#                for i in range(num_cat_size)]
+# size_labels[-1] = ">" + str(size_cats[-2])
+#
+# # Stacked area, contribution of size bins ~ time， 0 - 100 000, add negative
+# plt.figure(figsize=(12, 5))
+# plt.stackplot(times, df_size_positive_median,
+#               colors=size10colors,
+#               labels=size_labels)
+# plt.stackplot(times, df_size_negative_median,
+#               colors=size10colors,
+#               labels="")
+# plt.axhline(y=0, color="grey", linestyle="dotted")
+# plt.xlabel("Ticks after the environmental change",
+#            fontsize=label_font)
+# plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ ) ",
+#            fontsize=label_font)
+# # plt.ylim(0, 1.4)
+# # plt.legend(loc=(1.03, -0.1),
+# #            title="|Phenotypic effect size|",
+# #            reverse=True,
+# #            ncol=1, fontsize="medium")
+# plt.legend(loc=(1.05, -0.15),
+#            title="|Phenotypic effect size|",
+#            reverse=True,
+#            ncol=1,
+#            title_fontsize=15,
+#            fontsize=15,
+#            labelspacing=0.05,
+#            columnspacing=-0.5)
+# plt.tick_params(axis='both', which='major', labelsize=tick_font)
+# plt.title(shortName, fontsize=label_font)
+# plt.tight_layout()
+# # plt.savefig(figPath + model_name +
+# #             "_20Runsmedian_lfBysize20Bin_stack.png",
+# #             dpi=300)
+# plt.savefig(figPath + model_name +
+#             "_20RunsMean_lfBysize10Bin_stack.png",
+#             dpi=300)
+# plt.close()
+#
+# # Zoom in, 0 - 10 000
+# # Stacked area, contribution of size bins ~ time
+# plt.figure(figsize=(8, 5))
+# plt.stackplot(times2, df_size_positive_median.iloc[:, idx_zoom],
+#               colors=size10colors,
+#               labels=size_labels)
+# plt.stackplot(times2, df_size_negative_median.iloc[:, idx_zoom],
+#               colors=size10colors,
+#               labels="")
+# plt.axhline(y=0, color="grey", linestyle="dotted")
+# plt.xlabel("Ticks after the environmental change",
+#            fontsize=label_font)
+# plt.ylabel(r"Contribution to local adaptation ( $\it{\Sigma LF_{mut}}$ ) ",
+#            fontsize=label_font)
+# # plt.ylim(0, 1.4)
+# plt.legend(loc=(1.05, -0.15),
+#            title="|Phenotypic effect size|",
+#            reverse=True,
+#            ncol=1,
+#            title_fontsize=15,
+#            fontsize=15,
+#            # handletextpad=-1.2,
+#            labelspacing=0.05,
+#            columnspacing=-0.5)
+# plt.tick_params(axis='both', which='major', labelsize=tick_font)
+# plt.title(shortName, fontsize=label_font)
+# plt.tight_layout()
+# # plt.savefig(figPath + model_name +
+# #             "_20Runsmedian_lfBysize20Bin_stack_zoomIn.png",
+# #             dpi=300)
+# plt.savefig(figPath + model_name +
+#             "_20RunsMean_lfBysize10Bin_stack_zoomIn.png",
+#             dpi=300)
+# plt.close()
