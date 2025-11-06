@@ -111,6 +111,8 @@ history = 100000 # number of generations before the focal model
 
 #User input arguments:
 path_file_name = args.input
+# path_file_name = "/media/anadem/My Passport/arg4gea_data/wrong_fitness_function/slim_data/wrong_fitness/M2a_largeLowVm_highMig_clineMap/tick110000/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_seed350679788500244123_tick110000.trees"
+# path_file_name = "/media/anadem/PortableSSD/arg4gea_data/slim_data/M2a_largeLowVm_highMig_clineMap/tick110000/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_seed2921651730789354_tick110000.trees"
 # path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/realistic_fpr_comparisons/M2b_smallLowVm_lowMig_clineMap/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed55381568486983757_tick110000.trees"
 # Test with a smaller file
 # path_file_name = "/home/tianlin/Documents/github/data/slim_data/glacial_history/historical_optimum0_timeSeries_gradualChange/M2b_smallLowVm_highMig_clineMap/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_seed142788750963570601_tick100400.trees"

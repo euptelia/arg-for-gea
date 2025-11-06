@@ -3,12 +3,14 @@ For all .trees files in a folder,
 calculate:
     population fst (Weir and Cockman)
     LF (average contrast between local and foreign mean fitness)
-Save results in a table
+    Individual ages
+Save results in tables
 Typically needs about 16 Gb memory
 tianlin.duan42@gmail.com
 2024.08.24
 Last modified
 2025.03.18
+2025.11.06
 """
 ############################# modules #########################################
 import msprime
@@ -71,19 +73,48 @@ inPath = args.inPath
 outPath = args.outPath
 fileList = glob.glob(inPath + "*.trees")
 model_name = fileList[0].split("/")[-1].split(".trees")[0]
-if not os.path.exists(outPath+"/fst/"):
-    os.makedirs(outPath+"/fst/")
-    os.makedirs(outPath+"/lf/")
-    os.makedirs(outPath+"/summary/")
-output_fst = outPath + "/fst/" + model_name +"_Fst.tab"
-output_lf = outPath + "/lf/" + model_name +"_LF.tab"
-output_avrg = outPath + "/summary/" + model_name + "_averageFst_averageLF.tab"
+
+#Translate long model names to short model names
+if "sigmaD0.06_mateD0.15" in model_name:
+    migName = "HighMig"
+elif "sigmaD0.03_mateD0.12" in model_name:
+    migName = "LowMig"
+else:
+    migName = ""
+if "_clineMap_" in model_name:
+    mapName = "Cline"
+elif "_patchyMap_" in model_name:
+    mapName = "Patchy"
+else:
+    mapName = ""
+if "_sigmaM0.01_" in model_name:
+    mutName = "HighPoly"
+elif "_sigmaM0.1_" in model_name:
+    mutName = "LowPoly"
+else:
+    mutName = ""
+demoName_ori = model_name.split("_")[2]
+name_change = {"M2a":"MSelCon", "M2b":"MSelExp", "M3a":"MRecCon", "M3b":"MRecExp"}
+demoName = name_change[demoName_ori]
+shortName = "_".join([demoName, mutName, migName, mapName])
+
+#Create directories
+for folder in ["/fst/", "/lf/", "/ind_age/", "/summary/"]:
+    if not os.path.exists(outPath+folder):
+        os.makedirs(outPath+folder)
+output_fst = outPath + "/fst/" + shortName +"_Fst.tab"
+output_lf = outPath + "/lf/" + shortName +"_LF.tab"
+output_indAge = outPath + "/ind_age/" + shortName +"_indAge.tab"
+output_avrg = outPath + "/summary/" + shortName + "_averageFst_averageLF_averageAge.tab"
 fout_fst = open(output_fst, "w")
 fout_lf = open(output_lf, "w")
 fout_avrg = open(output_avrg, "w")
-
+fout_indAge = open(output_indAge, "w")
 fst_list = []
 lf_list = []
+fout_indAge.write(shortName+"\n")
+
+#Loading individual .tree files
 for file in fileList:
     # print("Fst calculation started")
     # print(time.ctime())
@@ -114,6 +145,10 @@ for file in fileList:
                                 model=mut_model1,
                                 keep=True) #keep the existing mutations
     del ts
+
+    # Age of individuals
+    for ind in mts.individuals():
+        fout_indAge.write(str(ind.metadata['age'])+"\n")
 
     # Mutation effect in a list of lists,
     # corresponding to phenotypic effect of allele 0/1/2... at each site
@@ -163,6 +198,7 @@ for file in fileList:
 
     # Fst
     g = mts.genotype_matrix().reshape(mts.num_sites, mts.num_individuals, 2)
+    del mts
     subpops = [inds_subpop[i] for i in range(100)]
     a, b, c = allel.weir_cockerham_fst(g, subpops)
     # fst_pop = a / (a + b + c)
@@ -181,10 +217,11 @@ header = "\t".join(["model",
                     "fst_mean", "fst_sd",
                     "lf_mean", "lf_sd"])
 fout_avrg.write(header + "\n")
-words = [model_name,
+words = [shortName,
          str(round(np.mean(fst_list),4)), str(round(np.std(fst_list),4)),
          str(round(np.mean(lf_list),4)), str(round(np.std(lf_list),4))]
 fout_avrg.write("\t".join(words) + "\n")
 fout_fst.close()
 fout_lf.close()
+fout_indAge.close()
 fout_avrg.close()

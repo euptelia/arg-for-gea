@@ -44,12 +44,9 @@ args = parser.parse_args()
 # dist_mate = 0.12
 num_runs = 200
 inPath = args.input
-# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
-# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/tick110000/"
-# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
-# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07/tick110000/"
+# inPath = "/media/anadem/PortableSSD/arg4gea_data/tskit_data/tick110000/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K6000_r1.0e-07/tick110000/"
 
-simName = inPath.split("/")[-3]
+simName = inPath.split("/")[-3] #Check this before use
 #Short title: Hard coded. Check this before using!
 if "sigmaD0.06_mateD0.15" in simName:
     migName = "HighMig"
@@ -74,19 +71,28 @@ demoName_ori = simName.split("_")[2]
 name_change = {"M2a":"Single change", "M2b":"Single expansion", "M3a":"Recurrent changes", "M3b":"Recurrent expansions"}
 demoName = name_change[demoName_ori]
 shortName = ",".join([demoName, migName, mapName])
+name_change2 = {"M2a":"MSelCon", "M2b":"MSelExp", "M3a":"MRecCon", "M3b":"MRecExp"}
+demoName2 = name_change2[demoName_ori]
+# shortName2 = "_".join([demoName2, mutName, migName, mapName])
 
 # figPath = ("/home/anadem/github/data/tskit_data/figure/multiRuns/" +
 #            simName + "/" + str(num_runs) + "runs_" +
 #            inPath.split("/")[-2]+"/")
-figPath = ("/home/anadem/github/data/tskit_data/figure/multiRuns/test/" +
+figPath = ("/home/anadem/github/data/tskit_data/figure/multiRuns/" +
            simName + "/")
 if not os.path.exists(figPath):
     os.makedirs(figPath)
-# outPath = ("/home/anadem/github/data/tskit_data/output/mutiRuns/k80" +
-#            simName + "/200runs_" + inPath.split("/")[-2]+"/")
-outPath = ("/home/anadem/github/data/tskit_data/output/mutiRuns/test/")
+
+outPath = ("/home/anadem/github/data/tskit_data/stats/")
 if not os.path.exists(outPath):
     os.makedirs(outPath)
+#Create directories
+for folder in ["adaptive_freq/", "fpr/singleModel/", "k80/singleModel/"]:
+    if not os.path.exists(outPath+folder):
+        os.makedirs(outPath+folder)
+outPath_freq = outPath + "adaptive_freq/"
+outPath_fpr = outPath + "fpr/singleModel/"
+outPath_k80 = outPath + "k80/singleModel/"
 
 # Check this before use!
 model_name = "_".join(inPath.split("/")[-3:-1] + [str(num_runs)+"runs"])
@@ -132,7 +138,42 @@ print(str(run) + " files have been loaded.")
 # Columns: "id", "age", "freq", "mut_effect","delta_LF_mut",
 #          "tau", "p", "relative_positive_lf", "relative_negative_lf", "relative_lf",
 #          "run_id", "p_rank"
+del df_focal
 
+#Basic distributions
+# Adaptive alleles: more than one 1% average contribution
+LF_min = sum(df["delta_LF_mut"])/num_runs/100
+freq_adaptive = df.loc[df["delta_LF_mut"]>LF_min,"freq"]
+#Save the freq table for combined figures
+# outPath_freq = outPath + "others/"
+out_path_file = (outPath_freq + model_name +
+                 "_freq_adaptive_LFmut" + str(LF_min) +
+                 ".tab")
+header = "freq" + "\n"
+with open(out_path_file, "w") as fout:
+    fout.write(header)
+    for i in freq_adaptive:
+        outLine = str(i) +"\n"
+        fout.write(outLine)
+fout.close()
+print("Freq table has been saved.")
+#
+# # Plot
+# fig_size = (5,4)
+# plt.figure(figsize=fig_size)
+# plt.hist(freq_adaptive,
+#          bins=50, stacked=True,
+#          color="mediumaquamarine",
+#          density=True)
+# plt.xlabel("Allele frequency", fontsize=16)
+# plt.ylabel("Counts", fontsize=16)
+# plt.title("Relative LF_mut>" + str(LF_min))
+# plt.tight_layout()
+# plt.savefig(figPath + model_name +
+#             "_freq_adaptive_LFmut" + str(LF_min) +
+#             ".png",
+#             dpi=300)
+# plt.close()
 
 
 #### Make plots similar to FPR in M0 models
@@ -211,9 +252,6 @@ plt.savefig(figPath+model_name +
 plt.close()
 
 #Save the FPR~age table for combined figures
-outPath_fpr = outPath + "fpr/singleModel/"
-if not os.path.exists(outPath_fpr):
-    os.makedirs(outPath_fpr)
 out_path_file = (outPath_fpr + model_name +
                  "_p" + str(p_threshold) +
                  "_maf"+str(maf_filter) +
@@ -325,11 +363,8 @@ median_gea_goal = int(np.mean(gea_goal))
 median_explained = median_cumulative_lf[median_gea_goal]
 
 #Save K80 as a table
-outPath_k80 = outPath + "k80/singleModel/"
-if not os.path.exists(outPath_k80):
-    os.makedirs(outPath_k80)
 out_path_file = (outPath_k80 + model_name + "_k80.txt")
-header = "_".join([demoName, mutName, migName, mapName]) + "\n"
+header = "_".join([demoName2, mutName, migName, mapName]) + "\n"
 with open(out_path_file, "w") as fout:
     fout.write(header)
     for i in gea_goal:
@@ -586,41 +621,42 @@ max_abs_effect = max(abs(df_polymorphic["mut_effect"]))
 
 label_font = 16
 tick_font = 14
-plt.figure(figsize=(7,5))
-#Scatter plot, took a long time and ~23 GB memory
-plt.scatter(abs(df_polymorphic["mut_effect"]), df_polymorphic["delta_LF_mut"],
-            marker="o", c=minor_freq,
-            alpha=0.1, s=20
-            #, cmap=cmap_maf
-            )
-# #small one for testing label sizes
-# plt.scatter(abs(df_polymorphic["mut_effect"][1:10]), df_polymorphic["delta_LF_mut"][1:10],
-#             marker="o", c=minor_freq[1:10],
+
+# #Scatter plot, took about 20min and ~23 GB memory, does not need to be run every time
+# plt.figure(figsize=(7,5))
+# plt.scatter(abs(df_polymorphic["mut_effect"]), df_polymorphic["delta_LF_mut"],
+#             marker="o", c=minor_freq,
 #             alpha=0.1, s=20
-#             ,# cmap=cmap_maf
+#             #, cmap=cmap_maf
 #             )
-plt.xlabel("|Phenotypic effect size|",
-           fontsize=label_font)
-plt.ylabel("$LF_{mut}$",
-           fontsize=label_font)
-plt.xlim(left=min_abs_effect,
-         right=max_abs_effect)
-# plt.ylim(bottom=-0.004, top=max_lf)
-plt.ylim(bottom=min_lf, top=max_lf)
-cb=plt.colorbar()
-cb.set_label("Minor allele Frequency", fontsize=16)
-cb.ax.tick_params(labelsize=14, size=3, width=2)
-cb.solids.set(alpha=1)
-# plt.show()
-# plt.colorbar().set_label("Minor allele Frequency", fontsize=16)
-# plt.colorbar().set_ticks([0, 0.1, 0.2, 0.3, 0.4, 0.5])
-# plt.colorbar().set_ticklabels(["0", "0.1", "0.2", "0.3", "0.4", "0.5"], fontsize=tick_font)
-plt.tick_params(axis='both', which='major', labelsize=tick_font)
-plt.title(shortName, fontsize=label_font)
-plt.tight_layout()
-plt.savefig(figPath+model_name+"_effectSize_vs_LFmut_minorFrequencyColor_spectral.png",
-            dpi=300)
-plt.close()
+# # #small one for testing label sizes
+# # plt.scatter(abs(df_polymorphic["mut_effect"][1:10]), df_polymorphic["delta_LF_mut"][1:10],
+# #             marker="o", c=minor_freq[1:10],
+# #             alpha=0.1, s=20
+# #             ,# cmap=cmap_maf
+# #             )
+# plt.xlabel("|Phenotypic effect size|",
+#            fontsize=label_font)
+# plt.ylabel("$LF_{mut}$",
+#            fontsize=label_font)
+# plt.xlim(left=min_abs_effect,
+#          right=max_abs_effect)
+# # plt.ylim(bottom=-0.004, top=max_lf)
+# plt.ylim(bottom=min_lf, top=max_lf)
+# cb=plt.colorbar()
+# cb.set_label("Minor allele Frequency", fontsize=16)
+# cb.ax.tick_params(labelsize=14, size=3, width=2)
+# cb.solids.set(alpha=1)
+# # plt.show()
+# # plt.colorbar().set_label("Minor allele Frequency", fontsize=16)
+# # plt.colorbar().set_ticks([0, 0.1, 0.2, 0.3, 0.4, 0.5])
+# # plt.colorbar().set_ticklabels(["0", "0.1", "0.2", "0.3", "0.4", "0.5"], fontsize=tick_font)
+# plt.tick_params(axis='both', which='major', labelsize=tick_font)
+# plt.title(shortName, fontsize=label_font)
+# plt.tight_layout()
+# plt.savefig(figPath+model_name+"_effectSize_vs_LFmut_minorFrequencyColor_spectral.png",
+#             dpi=300)
+# plt.close()
 
 del df_polymorphic
 
@@ -718,8 +754,9 @@ size_last_tick = 0.2 # temporary
 # lf_sum = []
 lf_sum_positive_size = np.full(shape=(20, 100), fill_value=np.nan)
 lf_sum_negative_size = np.full(shape=(20, 100), fill_value=np.nan)
-age_cats = np.append(np.arange(0, max(age), max(age)/num_age_cat),
-                     max(age))
+# age_cats = np.append(np.arange(0, max(age), max(age)/num_age_cat),
+#                      max(age))
+age_cats = np.linspace(0, max(age),num_age_cat+1)
 size_cats = np.r_[np.arange(0, size_last_tick, size_cats_step), max(size)]
 for i in range(num_age_cat):
     for j in range(num_size_cat):
@@ -833,8 +870,9 @@ lf_sum_negative_freq = np.full(shape=(10, 100), fill_value=np.nan)
 age = df["age"]
 freq = df["freq"]
 
-age_cats = np.append(np.arange(0, max(age), max(age)/num_age_cat),
-                     max(age))
+# age_cats = np.append(np.arange(0, max(age), max(age)/num_age_cat),
+#                      max(age))
+age_cats = np.linspace(0, max(age),num_age_cat+1)
 freq_cats = np.arange(0, freq_last_tick, freq_cats_step)
 for i in range(num_age_cat):
     for j in range(num_freq_cat):

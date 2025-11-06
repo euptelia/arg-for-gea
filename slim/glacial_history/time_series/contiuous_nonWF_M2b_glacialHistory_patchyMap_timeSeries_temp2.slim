@@ -212,7 +212,7 @@ mutationEffect(m2) {
 // Heterogeneous selection occured after t1 generations
 100001 early(){
 	//defineConstant("mapValues2", matrix(c(0,0,1,1), ncol=2));
-	loadMap = readCSV("/home/tianlin/Documents/github/data/slim_data/map/random_map1.csv",
+	loadMap = readCSV("/home/anadem/github/arg-for-gea/map/random_map1.csv",
 		colNames = F, colTypes = "f").asMatrix();
 	defineGlobal("mapValues", loadMap);
 	p0.defineSpatialMap("map1", "xy", mapValues, interpolate=T,

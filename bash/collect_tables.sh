@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#Merge tables 
+#Merge k80 tables 
 cd /home/anadem/github/data/tskit_data/output/mutiRuns/k80
 touch k80_32model.tab
 for file in ./singleModel/*.txt

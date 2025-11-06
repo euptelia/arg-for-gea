@@ -12,7 +12,10 @@ import pandas as pd #dataframe
 
 ############################# program #########################################
 num_runs = 200
-figPath = "/home/anadem/github/data/tskit_data/figure/multiModels/v1.0/"
+# inPath = "/home/anadem/github/data/tskit_data/wrong_fitness_function/mutiRuns/test/fpr/singleModel"
+# inPath = "/home/anadem/github/data/tskit_data/output/mutiRuns/fpr/singleModel"
+inPath = "/home/anadem/github/data/tskit_data/stats/fpr/singleModel"
+figPath = "/home/anadem/github/data/tskit_data/figure/multiModels/"
 if not os.path.exists(figPath):
     os.makedirs(figPath)
 
@@ -27,119 +30,26 @@ label_font = 16
 tick_font = 16
 legend_font = 16
 
-#Contrast the effect of environmental map
-#Constant pop, cline
-f1 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_tick110000_200runs_FPR.tab"
-df1 = pd.read_csv(f1, sep="\t", header=0, index_col=False)
-#Constant pop, patchy
-f2 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M2a_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_tick110000_200runs_FPR.tab"
-df2 = pd.read_csv(f2, sep="\t", header=0, index_col=False)
-
-# Single expansion, cline
-f3 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_tick110000_200runs_FPR.tab"
-df3 = pd.read_csv(f3, sep="\t", header=0, index_col=False)
-# Single expansion, patchy
-f4 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_tick110000_200runs_FPR.tab"
-df4 = pd.read_csv(f4, sep="\t", header=0, index_col=False)
-
-# Multiple expansions, cline
-f5 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_tick110000_200runs_FPR.tab"
-df5 = pd.read_csv(f5, sep="\t", header=0, index_col=False)
-# Multiple expansions, patchy
-f6 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M3b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_tick110000_200runs_FPR.tab"
-df6 = pd.read_csv(f6, sep="\t", header=0, index_col=False)
-
-age_boundaries = list(df1["tick_text"]) + [110000.0]
-
-# Neutral alleles: FPR ～ Allele age, equal intervals
-plt.figure(figsize=age_fig_size)
-# plt.figure(figsize=(15,5)) # 100 bins
-plt.plot(df1["age"],
-         df1["fpr"],
-         color="mediumaquamarine",
-         marker = "s",
-         alpha=alpha_line,
-         label = " ")
-plt.plot(df3["age"],
-         df3["fpr"],
-         color="mediumaquamarine",
-         marker = "<",
-         alpha=alpha_line,
-         label = " ")
-plt.plot(df5["age"],
-         df5["fpr"],
-         color="teal",
-         marker = "D",
-         alpha=alpha_line,
-         label = " ")
-plt.plot(df2["age"],
-         df2["fpr"],
-         color="mediumaquamarine",
-         marker = "s",
-         fillstyle="none",
-         # linestyle='dotted',
-         alpha=alpha_line,
-         label = "Constant pop.")
-plt.plot(df4["age"],
-         df4["fpr"],
-         color="mediumaquamarine",
-         marker = "<",
-         fillstyle="none",
-         # linestyle='dotted',
-         alpha=alpha_line,
-         label = "Single pop. expansion")
-plt.plot(df6["age"],
-         df6["fpr"],
-         color="teal",
-         marker = "D",
-         fillstyle="none",
-         # linestyle='dotted',
-         alpha=alpha_line,
-         label = "Recurrent pop. expansions")
-plt.xlabel("Allele age (thousand ticks)", fontsize=label_font)
-plt.ylabel("False positive rate of neutral alleles \n (FP/(FP+TN))",
-           fontsize=label_font)
-plt.xticks(ticks=age_boundaries,
-           labels=[str(int(i/1000)) for i in age_boundaries],
-           rotation=90)
-plt.tick_params(axis='both', which='major', labelsize=tick_font)
-plt.legend(loc="center",
-           title="  Env. map \nCline   Patchy",
-           title_fontsize=legend_font,
-           fontsize=legend_font,
-           ncol=2,
-           columnspacing=0.5)._legend_box.align = "left"
-# plt.title("", fontsize=label_font)
-plt.tight_layout()
-plt.savefig(figPath+"fpr_comparison1" +
-            str(num_cat_age)+"bins"+"_FPR_vs_age_neutralAllele_GEAp" + str(p_threshold) +
-            "_maf" + str(maf_filter) +
-            "_equalInterval.png",
-            dpi=300)
-plt.close()
-
-
-
-#Contrast the effect of selection and migration
+#1. Contrast the effect of selection and migration
 #No selection
-f1 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07_tick110000_100runs_p1e-10_maf0.05_cat22_fpr.tab"
+f1 = inPath + "/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07_tick110000_100runs_p1e-10_maf0.05_cat22_fpr.tab"
 df1 = pd.read_csv(f1, sep="\t", header=0, index_col=False)
-f2 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07_tick110000_100runs_p1e-10_maf0.05_cat22_fpr.tab"
+f2 = inPath + "/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07_tick110000_100runs_p1e-10_maf0.05_cat22_fpr.tab"
 df2 = pd.read_csv(f2, sep="\t", header=0, index_col=False)
 
 #1 environmental change
-f3 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_tick110000_200runs_FPR.tab"
+f3 = inPath + "/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
 df3 = pd.read_csv(f3, sep="\t", header=0, index_col=False)
-f4 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_tick110000_200runs_FPR.tab"
+f4 = inPath + "/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
 df4 = pd.read_csv(f4, sep="\t", header=0, index_col=False)
 
 #Recurrent environmental changes
-f5 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_tick110000_200runs_FPR.tab"
+f5 = inPath + "/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
 df5 = pd.read_csv(f5, sep="\t", header=0, index_col=False)
-f6 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K17000_r1.0e-07_tick110000_200runs_FPR.tab"
+f6 = inPath + "/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
 df6 = pd.read_csv(f6, sep="\t", header=0, index_col=False)
 
-alpha_line=0.8
+alpha_line=0.5
 age_boundaries = list(df1["tick_text"]) + [110000.0]
 
 # Neutral alleles: FPR ～ Allele age, equal intervals
@@ -147,7 +57,7 @@ plt.figure(figsize=age_fig_size)
 # plt.figure(figsize=(15,5)) # 100 bins
 plt.plot(df1["age"],
          df1["fpr"],
-         color="grey",
+         color="dimgrey",
          marker = "o",
          # fillstyle="none",
          linestyle='dotted',
@@ -156,7 +66,7 @@ plt.plot(df1["age"],
          label=" ")
 plt.plot(df3["age"],
          df3["fpr"],
-         color="mediumaquamarine",
+         color="#2ab076",
          marker = "o",
          # fillstyle="none",
          linestyle='dotted',
@@ -165,7 +75,7 @@ plt.plot(df3["age"],
          label=" ")
 plt.plot(df5["age"],
          df5["fpr"],
-         color="teal",
+         color="indigo",
          marker = "o",
          # fillstyle="none",
          linestyle='dotted',
@@ -174,21 +84,21 @@ plt.plot(df5["age"],
          label=" ")
 plt.plot(df2["age"],
          df2["fpr"],
-         color="grey",
+         color="dimgrey",
          marker = "o",
          # linestyle='dashed',
          alpha=alpha_line,
          label=" No selection")
 plt.plot(df4["age"],
          df4["fpr"],
-         color="mediumaquamarine",
+         color="#2ab076",
          marker = "o",
          # linestyle='dashed',
          alpha=alpha_line,
          label=" Single env. change")
 plt.plot(df6["age"],
          df6["fpr"],
-         color="teal",
+         color="indigo",
          marker = "o",
          # linestyle='dashed',
          alpha=alpha_line,
@@ -209,34 +119,35 @@ plt.xticks(ticks=age_boundaries,
 plt.tick_params(axis='both', which='major', labelsize=tick_font)
 # plt.title("", fontsize=label_font)
 plt.tight_layout()
-plt.savefig(figPath+"fpr_comparison2" +
+plt.savefig(figPath+"fpr_comparison1_" +
             str(num_cat_age)+"bins"+"_FPR_vs_age_neutralAllele_GEAp" + str(p_threshold) +
             "_maf" + str(maf_filter) +
             "_equalInterval.png",
             dpi=300)
 plt.close()
 
-#Contrast the effect of selection and demographic history
+
+
+#2.Contrast the effect of selection and demographic history: in low migration
 #No selection
-f1 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07_tick110000_100runs_p1e-10_maf0.05_cat22_fpr.tab"
+f1 = inPath + "/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07_tick110000_100runs_p1e-10_maf0.05_cat22_fpr.tab"
 df1 = pd.read_csv(f1, sep="\t", header=0, index_col=False)
-f2 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M0b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07_tick110000_100runs_p1e-10_maf0.05_cat22_fpr.tab"
+f2 = inPath + "/Continuous_nonWF_M0b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07_tick110000_100runs_p1e-10_maf0.05_cat22_fpr.tab"
 df2 = pd.read_csv(f2, sep="\t", header=0, index_col=False)
 
 #1 environmental change
-f3 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_tick110000_200runs_FPR.tab"
+f3 = inPath + "/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
 df3 = pd.read_csv(f3, sep="\t", header=0, index_col=False)
-f4 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_tick110000_200runs_FPR.tab"
+f4 = inPath + "/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
 df4 = pd.read_csv(f4, sep="\t", header=0, index_col=False)
 
 #Recurrent environmental changes
-f5 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_tick110000_200runs_FPR.tab"
+f5 = inPath + "/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
 df5 = pd.read_csv(f5, sep="\t", header=0, index_col=False)
-f6 = "/home/anadem/github/data/tskit_data/output/mutiRuns/test/fpr/singleModel/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_tick110000_200runs_FPR.tab"
+f6 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
 df6 = pd.read_csv(f6, sep="\t", header=0, index_col=False)
 
 #Check the following numbers before use
-alpha_line=0.8
 age_boundaries = list(df1["tick_text"]) + [110000.0]
 
 # Neutral alleles: FPR ～ Allele age, equal intervals
@@ -244,50 +155,50 @@ plt.figure(figsize=age_fig_size)
 # plt.figure(figsize=(15,5)) # 100 bins
 plt.plot(df1["age"],
          df1["fpr"],
-         color="grey",
+         color="dimgrey",
          marker = "s",
-         # linestyle='dashed',
+         linestyle='dotted',
          # fillstyle="none",
          alpha=alpha_line,
          label="   ")
 plt.plot(df3["age"],
          df3["fpr"],
-         color="mediumaquamarine",
+         color="#2ab076",
          marker = "s",
          # fillstyle="none",
-         # linestyle='dashed',
+         linestyle='dotted',
          alpha=alpha_line,
          label="   ")
 plt.plot(df5["age"],
          df5["fpr"],
-         color="teal",
+         color="indigo",
          marker = "s",
          # fillstyle="none",
-         # linestyle='dashed',
+         linestyle='dotted',
          alpha=alpha_line,
          label="   ")
 plt.plot(df2["age"],
          df2["fpr"],
-         color="grey",
+         color="dimgrey",
          marker = "<",
          # fillstyle="none",
-         # linestyle='dashed',
+         linestyle='dotted',
          alpha=alpha_line,
          label=" No selection")
 plt.plot(df4["age"],
          df4["fpr"],
-         color="mediumaquamarine",
+         color="#2ab076",
          marker = "<",
          # fillstyle="none",
-         # linestyle='dashed',
+         linestyle='dotted',
          alpha=alpha_line,
          label=" Single env. change")
 plt.plot(df6["age"],
          df6["fpr"],
-         color="teal",
+         color="indigo",
          marker = "<",
          # fillstyle="none",
-         # linestyle='dashed',
+         linestyle='dotted',
          alpha=alpha_line,
          label=" Recurrent env. changes")
 plt.ylim(min(df2["fpr"]*0.8), max(df4["fpr"])*1.18)
@@ -306,9 +217,237 @@ plt.xticks(ticks=age_boundaries,
 plt.tick_params(axis='both', which='major', labelsize=tick_font)
 # plt.title("", fontsize=label_font)
 plt.tight_layout()
-plt.savefig(figPath+"fpr_comparison3" +
+plt.savefig(figPath+"fpr_comparison2_lowMig_" +
             str(num_cat_age)+"bins"+"_FPR_vs_age_neutralAllele_GEAp" + str(p_threshold) +
             "_maf" + str(maf_filter) +
             "_equalInterval.png",
             dpi=300)
 plt.close()
+
+
+
+# #2.Contrast the effect of selection and demographic history: in high migration: Not used
+# #No selection
+# f1 = inPath + "/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07_tick110000_100runs_p1e-10_maf0.05_cat22_fpr.tab"
+# df1 = pd.read_csv(f1, sep="\t", header=0, index_col=False)
+# f2 = inPath + "/Continuous_nonWF_M0b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07_tick110000_100runs_p1e-10_maf0.05_cat22_fpr.tab"
+# df2 = pd.read_csv(f2, sep="\t", header=0, index_col=False)
+#
+# #1 environmental change
+# f3 = inPath + "/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
+# df3 = pd.read_csv(f3, sep="\t", header=0, index_col=False)
+# f4 = inPath + "/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
+# df4 = pd.read_csv(f4, sep="\t", header=0, index_col=False)
+#
+# #Recurrent environmental changes
+# f5 = inPath + "/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
+# df5 = pd.read_csv(f5, sep="\t", header=0, index_col=False)
+# f6 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
+# df6 = pd.read_csv(f6, sep="\t", header=0, index_col=False)
+#
+# #Check the following numbers before use
+# alpha_line=0.8
+# age_boundaries = list(df1["tick_text"]) + [110000.0]
+#
+# # Neutral alleles: FPR ～ Allele age, equal intervals
+# plt.figure(figsize=age_fig_size)
+# # plt.figure(figsize=(15,5)) # 100 bins
+# plt.plot(df1["age"],
+#          df1["fpr"],
+#          color="dimgrey",
+#          marker = "s",
+#          # linestyle='dotted',
+#          # fillstyle="none",
+#          alpha=alpha_line,
+#          label="   ")
+# plt.plot(df3["age"],
+#          df3["fpr"],
+#          color="#2ab076",
+#          marker = "s",
+#          # fillstyle="none",
+#          # linestyle='dotted',
+#          alpha=alpha_line,
+#          label="   ")
+# plt.plot(df5["age"],
+#          df5["fpr"],
+#          color="indigo",
+#          marker = "s",
+#          # fillstyle="none",
+#          # linestyle='dotted',
+#          alpha=alpha_line,
+#          label="   ")
+# plt.plot(df2["age"],
+#          df2["fpr"],
+#          color="dimgrey",
+#          marker = "<",
+#          # fillstyle="none",
+#          # linestyle='dotted',
+#          alpha=alpha_line,
+#          label=" No selection")
+# plt.plot(df4["age"],
+#          df4["fpr"],
+#          color="#2ab076",
+#          marker = "<",
+#          # fillstyle="none",
+#          # linestyle='dotted',
+#          alpha=alpha_line,
+#          label=" Single env. change")
+# plt.plot(df6["age"],
+#          df6["fpr"],
+#          color="indigo",
+#          marker = "<",
+#          # fillstyle="none",
+#          # linestyle='dotted',
+#          alpha=alpha_line,
+#          label=" Recurrent env. changes")
+# plt.ylim(min(df2["fpr"]*0.8), max(df4["fpr"])*1.18)
+# plt.legend(loc="upper center",
+#            title=" Demography \nConst.  Expan.",
+#            title_fontsize=legend_font,
+#            fontsize=legend_font,
+#            ncol=2,
+#            columnspacing=0.5)._legend_box.align = "left"
+# plt.xlabel("Allele age (thousand ticks)", fontsize=label_font)
+# plt.ylabel("False positive rate of neutral alleles \n (FP/(FP+TN))",
+#            fontsize=label_font)
+# plt.xticks(ticks=age_boundaries,
+#            labels=[str(int(i/1000)) for i in age_boundaries],
+#            rotation=90)
+# plt.tick_params(axis='both', which='major', labelsize=tick_font)
+# # plt.title("", fontsize=label_font)
+# plt.tight_layout()
+# plt.savefig(figPath+"fpr_comparison2_highMig_" +
+#             str(num_cat_age)+"bins"+"_FPR_vs_age_neutralAllele_GEAp" + str(p_threshold) +
+#             "_maf" + str(maf_filter) +
+#             "_equalInterval.png",
+#             dpi=300)
+# plt.close()
+
+
+
+#3. Contrast the effect of environmental map
+#Constant pop, cline
+f1 = inPath + "/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
+df1 = pd.read_csv(f1, sep="\t", header=0, index_col=False)
+#Constant pop, patchy
+f2 = inPath + "/Continuous_nonWF_M2a_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
+df2 = pd.read_csv(f2, sep="\t", header=0, index_col=False)
+
+# Single expansion, cline
+f3 = inPath + "/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
+df3 = pd.read_csv(f3, sep="\t", header=0, index_col=False)
+# Single expansion, patchy
+f4 = inPath + "/Continuous_nonWF_M2b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
+df4 = pd.read_csv(f4, sep="\t", header=0, index_col=False)
+
+# Multiple expansions, cline
+f5 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
+df5 = pd.read_csv(f5, sep="\t", header=0, index_col=False)
+# Multiple expansions, patchy
+f6 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
+df6 = pd.read_csv(f6, sep="\t", header=0, index_col=False)
+
+age_boundaries = list(df1["tick_text"]) + [110000.0]
+
+# Neutral alleles: FPR ～ Allele age, equal intervals
+plt.figure(figsize=age_fig_size)
+# plt.figure(figsize=(15,5)) # 100 bins
+plt.plot(df1["age"],
+         df1["fpr"],
+         color="#2ab076",
+         marker = "s",
+         alpha=alpha_line,
+         label = " ")
+plt.plot(df3["age"],
+         df3["fpr"],
+         color="#2ab076",
+         marker = "<",
+         alpha=alpha_line,
+         label = " ")
+plt.plot(df5["age"],
+         df5["fpr"],
+         color="indigo",
+         marker = "D",
+         alpha=alpha_line,
+         label = " ")
+plt.plot(df2["age"],
+         df2["fpr"],
+         color="#2ab076",
+         marker = "s",
+         fillstyle="none",
+         # linestyle='dotted',
+         alpha=alpha_line,
+         label = "Constant pop.")
+plt.plot(df4["age"],
+         df4["fpr"],
+         color="#2ab076",
+         marker = "<",
+         fillstyle="none",
+         # linestyle='dotted',
+         alpha=alpha_line,
+         label = "Single pop. expansion")
+plt.plot(df6["age"],
+         df6["fpr"],
+         color="indigo",
+         marker = "D",
+         fillstyle="none",
+         # linestyle='dotted',
+         alpha=alpha_line,
+         label = "Recurrent pop. expansions")
+plt.xlabel("Allele age (thousand ticks)", fontsize=label_font)
+plt.ylabel("False positive rate of neutral alleles \n (FP/(FP+TN))",
+           fontsize=label_font)
+plt.xticks(ticks=age_boundaries,
+           labels=[str(int(i/1000)) for i in age_boundaries],
+           rotation=90)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
+plt.legend(loc="center",
+           title="  Env. map \nCline   Patchy",
+           title_fontsize=legend_font,
+           fontsize=legend_font,
+           ncol=2,
+           columnspacing=0.5)._legend_box.align = "left"
+# plt.title("", fontsize=label_font)
+plt.tight_layout()
+plt.savefig(figPath+"fpr_comparison3_" +
+            str(num_cat_age)+"bins"+"_FPR_vs_age_neutralAllele_GEAp" + str(p_threshold) +
+            "_maf" + str(maf_filter) +
+            "_equalInterval.png",
+            dpi=300)
+plt.close()
+
+
+# #### Compare allele frequecy of locally adaptive alleles in models with different migration levels: Not used
+# freq_inPath="/home/anadem/github/data/tskit_data/wrong_fitness_function/stats/others/"
+# f1 = freq_inPath + "Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K6000_r1.0e-07_tick110000_200runs_freq_adaptive_LFmut0.0014417500841659063.tab"
+# df1 = pd.read_csv(f1, sep="\t", header=0, index_col=False)
+# f2 = freq_inPath + "Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_freq_adaptive_LFmut0.0013659886181065606.tab"
+# df2 = pd.read_csv(f2, sep="\t", header=0, index_col=False)
+#
+# # Adaptive alleles: more than one 1% average contribution
+# fig_size = (5,4)
+# plt.figure(figsize=fig_size)
+# plt.hist(df1["freq"],
+#          histtype="stepfilled",
+#          label="Low migation",
+#          bins=50, stacked=False,
+#          color="dimgrey",
+#          density=True,
+#          alpha=0.5)
+# plt.hist(df2["freq"],
+#          histtype="stepfilled",
+#          label="High migation",
+#          bins=50, stacked=False,
+#          color="#2ab076",
+#          density=True,
+#          alpha=0.5)
+# plt.legend()
+# plt.xlabel("Allele frequency", fontsize=16)
+# plt.ylabel("Density", fontsize=16)
+# # plt.title("Relative LF_mut>" + str(LF_min))
+# plt.tight_layout()
+# plt.savefig(figPath +
+#             "migration_freq_adaptive_1percentLFmut" +
+#             ".png",
+#             dpi=300)
+# plt.close()

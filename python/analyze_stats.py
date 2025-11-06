@@ -7,8 +7,7 @@ import numpy as np
 import pandas as pd
 import glob
 from scipy import stats
-
-
+############################# functions #######################################
 #Short title
 def shortenNames(oldName):
     #Replace path/file names with a short model name
@@ -37,6 +36,7 @@ def shortenNames(oldName):
 #Fst
 #High Migration
 fileList_highMig = glob.glob("/home/anadem/github/data/tskit_data/stats/fst/Continuous_nonWF_*sigmaD0.06_mateD0.15*_Fst.tab")
+# fileList_highMig = glob.glob("/home/anadem/github/data/tskit_data/wrong_fitness_function/stats/fst/Continuous_nonWF_*sigmaD0.06_mateD0.15*_Fst.tab")
 df_list_highMig = [pd.read_csv(fileName, header=None) for fileName in fileList_highMig]
 df_fst_highMig = pd.concat(df_list_highMig)
 np.mean(df_fst_highMig)
@@ -45,6 +45,7 @@ stats.sem(df_fst_highMig)
 
 #low Migration
 fileList_lowMig = glob.glob("/home/anadem/github/data/tskit_data/stats/fst/Continuous_nonWF_*sigmaD0.03_mateD0.12*_Fst.tab")
+# fileList_lowMig = glob.glob("/home/anadem/github/data/tskit_data/wrong_fitness_function/stats/fst/Continuous_nonWF_*sigmaD0.03_mateD0.12*_Fst.tab")
 df_list_lowMig = [pd.read_csv(fileName, header=None) for fileName in fileList_lowMig]
 df_fst_lowMig = pd.concat(df_list_lowMig)
 np.mean(df_fst_lowMig)
