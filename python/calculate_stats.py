@@ -104,7 +104,7 @@ for folder in ["/fst/", "/lf/", "/ind_age/", "/summary/"]:
         os.makedirs(outPath+folder)
 output_fst = outPath + "/fst/" + shortName +"_Fst.tab"
 output_lf = outPath + "/lf/" + shortName +"_LF.tab"
-output_avrg = outPath + "/summary/" + shortName + "_averageFst_averageLF_averageAge.tab"
+output_avrg = outPath + "/summary/" + shortName + "_averageFst_averageLF.tab"
 fout_fst = open(output_fst, "w")
 fout_lf = open(output_lf, "w")
 fout_avrg = open(output_avrg, "w")
