@@ -23,4 +23,4 @@ arg-for-gea/slim/glacial_history/
 
 ### Time-series-sample simulations 
 arg-for-gea/slim/glacial_history/time_series/  
-![\*.slim -> alleleAge_slimHistory_noNeuMut.py -> timeSeries_multiTimes_multiRuns.py](ocs/scripts_flow_chart2_1.1.png)  
+![\*.slim -> alleleAge_slimHistory_noNeuMut.py -> timeSeries_multiTimes_multiRuns.py](docs/scripts_flow_chart2_1.1.png)  
