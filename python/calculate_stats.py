@@ -5,7 +5,7 @@ calculate:
     LF (average contrast between local and foreign mean fitness)
     Individual ages
 Save results in tables
-Typically needs about 16 Gb memory
+Typically needs about 20 Gb memory
 tianlin.duan42@gmail.com
 2024.08.24
 Last modified
@@ -104,15 +104,15 @@ for folder in ["/fst/", "/lf/", "/ind_age/", "/summary/"]:
         os.makedirs(outPath+folder)
 output_fst = outPath + "/fst/" + shortName +"_Fst.tab"
 output_lf = outPath + "/lf/" + shortName +"_LF.tab"
-output_indAge = outPath + "/ind_age/" + shortName +"_indAge.tab"
 output_avrg = outPath + "/summary/" + shortName + "_averageFst_averageLF_averageAge.tab"
 fout_fst = open(output_fst, "w")
 fout_lf = open(output_lf, "w")
 fout_avrg = open(output_avrg, "w")
-fout_indAge = open(output_indAge, "w")
 fst_list = []
 lf_list = []
-fout_indAge.write(shortName+"\n")
+# output_indAge = outPath + "/ind_age/" + shortName +"_indAge.tab"
+# fout_indAge = open(output_indAge, "w")
+# fout_indAge.write(shortName+"\n")
 
 #Loading individual .tree files
 for file in fileList:
@@ -146,9 +146,9 @@ for file in fileList:
                                 keep=True) #keep the existing mutations
     del ts
 
-    # Age of individuals
-    for ind in mts.individuals():
-        fout_indAge.write(str(ind.metadata['age'])+"\n")
+    # # Age of individuals
+    # for ind in mts.individuals():
+    #     fout_indAge.write(str(ind.metadata['age'])+"\n")
 
     # Mutation effect in a list of lists,
     # corresponding to phenotypic effect of allele 0/1/2... at each site
@@ -223,5 +223,5 @@ words = [shortName,
 fout_avrg.write("\t".join(words) + "\n")
 fout_fst.close()
 fout_lf.close()
-fout_indAge.close()
+# fout_indAge.close()
 fout_avrg.close()

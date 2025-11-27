@@ -3,10 +3,13 @@ SLiM simulations and Python scripts for exploring the genetic architecture of lo
 Tree sequences are recorded during SLiM simulations and processed by Python scripts.  
 
 *Note: Models have been renamed in reports:  
-Scripts            Reports  
-M0  --------->    M0  
-M2  --------->    M1  
-M3  --------->    M2  
+    Scripts            Reports  
+    M0a  --------->    MNeuCon  
+    M0b  --------->    MNeuExp  
+    M2a  --------->    MSelCon  
+    M2a  --------->    MSelExp  
+    M3a  --------->    MRecCon  
+    M3b  --------->    MRecExp  
 
 ### Single-sample simulations  
 arg-for-gea/slim/glacial_history/  

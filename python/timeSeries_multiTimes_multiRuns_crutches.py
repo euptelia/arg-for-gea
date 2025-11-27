@@ -43,7 +43,9 @@ inPath = args.input
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/timeSeries"
 # inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/selection/Continuous_nonWF_M3b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07/timeSeries"
 
+# inPath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07/timeSeries"
 
+inPath = "/media/anadem/golden5tb/arg4gea_data/tskit_data/timeSeries/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07/timeSeries"
 history = 100000 # Ticks before the last environmental change (before the sampling stage)
 #Use K80
 expected_explained_proportion = 0.8
@@ -81,7 +83,7 @@ demoName = name_change[demoName_ori]
 shortName = ",".join([demoName, migName, mapName])
 
 #Output
-figPath = ("/home/anadem/github/data/tskit_data/figure/multiTimes/multiRun/test/"+
+figPath = ("/home/anadem/github/data/tskit_data/figure/multiTimes/multiRun/"+
            model_name + "/")
 if not os.path.exists(figPath):
     os.makedirs(figPath)
@@ -126,7 +128,7 @@ lf_sum_positive_size = np.full(shape=(20, 100), fill_value=np.nan)
 lf_sum_negative_size = np.full(shape=(20, 100), fill_value=np.nan)
 size_cats = np.r_[np.arange(0, size_last_tick, size_cats_step), 1]
 
-# #Method 3: 10 categories for a zoom in plot
+# #Method 3-1: 10 categories for a zoom in plot
 # num_cat_size = 10 #
 # size_cats_step = 0.005
 # size_last_tick = 0.05 # temporary
@@ -134,6 +136,13 @@ size_cats = np.r_[np.arange(0, size_last_tick, size_cats_step), 1]
 # lf_sum_negative_size = np.full(shape=(10, 100), fill_value=np.nan)
 # size_cats = np.r_[np.arange(0, size_last_tick, size_cats_step), 1]
 
+# #Method 3-2: 20 categories for a zoom in plot: Used once for Figure_temporal
+# num_cat_size = 20 #
+# size_cats_step = 0.002
+# size_last_tick = 0.04 # temporary
+# lf_sum_positive_size = np.full(shape=(10, 100), fill_value=np.nan)
+# lf_sum_negative_size = np.full(shape=(10, 100), fill_value=np.nan)
+# size_cats = np.r_[np.arange(0, size_last_tick, size_cats_step), 1]
 
 # Load multiple runs again and summarize data
 df_summary = pd.DataFrame()
@@ -260,6 +269,8 @@ for runID in runID_unique:
 
 #Median of all runs
 df_summary_median = df_summary.drop(columns=["runID"]).groupby(["times"]).median()
+df_summary_median["k_positive"]
+df_summary_median["k_net"]
 
 #Separate generation 1000-10000
 df_summary_myTime = df_summary[(df_summary["times"] >= 1000) & (df_summary["times"] <= 10000)]
@@ -345,7 +356,7 @@ plt.title(shortName, fontsize=label_font)
 plt.legend(title_fontsize=20,
            fontsize=20)
 plt.tight_layout()
-plt.savefig(figPath + model_name  + "_20RunsMedian_allelicLF.png",
+plt.savefig(figPath + model_name  + "_30RunsMedian_allelicLF.png",
             dpi=300)
 plt.close()
 
@@ -370,7 +381,7 @@ plt.close()
 # plt.title(shortName, fontsize=label_font)
 # plt.tick_params(axis='both', which='major', labelsize=tick_font)
 # plt.tight_layout()
-# plt.savefig(figPath + model_name + "_20RunsMedian_k" +
+# plt.savefig(figPath + model_name + "_30RunsMedian_k" +
 #             str(int(expected_explained_proportion*100)) +
 #             "positve.png",
 #             dpi=300)
@@ -408,7 +419,7 @@ plt.legend(title_fontsize=22,
            fontsize=22)
 plt.tick_params(axis='both', which='major', labelsize=tick_font)
 plt.tight_layout()
-plt.savefig(figPath + model_name + "_20RunsMedian_k" +
+plt.savefig(figPath + model_name + "_30RunsMedian_k" +
             str(int(expected_explained_proportion*100)) +
             "net.png", dpi=300)
 plt.close()
@@ -445,7 +456,7 @@ plt.legend(title_fontsize=legend_font,
 plt.tick_params(axis='both', which='major', labelsize=tick_font)
 plt.tight_layout()
 # plt.title(shortName, fontsize=label_font)
-plt.savefig(figPath + model_name + "_20RunsMedian_k" +
+plt.savefig(figPath + model_name + "_30RunsMedian_k" +
             str(int(expected_explained_proportion*100)) +
             "net_zoom10000.png", dpi=300)
 plt.close()
@@ -489,7 +500,6 @@ label_font = 16
 tick_font = 16
 legend_font = 15
 
-
 # Plot contribution to local adaptation (sum(positive LF_mut)) from alleles of each frequency bin
 freq10colors = ["#d2ebf3FF", "#9dcde3FF", "#6899CEFF", "#4074cbFF", "#1839aaFF",
                 "#1624a1FF", "#523cb7FF", "#8f69caFF", "#c2a0dfFF", "#e5d0f0FF"]
@@ -521,9 +531,9 @@ plt.legend(title="     Allele frequency    ",
 plt.tick_params(axis='both', which='major', labelsize=tick_font)
 plt.title(shortName, fontsize=label_font)
 plt.tight_layout()
-# plt.savefig(figPath + model_name + "_median20Runs_lfByFreq10Bin_stack.png",
+# plt.savefig(figPath + model_name + "_median30Runs_lfByFreq10Bin_stack.png",
 #             dpi=300)
-plt.savefig(figPath + model_name + "_20RunsMean_lfByFreq10Bin_stack.png",
+plt.savefig(figPath + model_name + "_30RunsMean_lfByFreq10Bin_stack.png",
             dpi=300)
 plt.close()
 
@@ -558,9 +568,9 @@ plt.legend(title="    Allele frequency    ",
 plt.tick_params(axis='both', which='major', labelsize=tick_font)
 plt.title(shortName, fontsize=label_font)
 plt.tight_layout()
-# plt.savefig(figPath + model_name + "_median20Runs_lfByFreq10Bin_stack_zoomIn.png",
+# plt.savefig(figPath + model_name + "_median30Runs_lfByFreq10Bin_stack_zoomIn.png",
 #             dpi=300)
-plt.savefig(figPath + model_name + "_20RunsMean_lfByFreq10Bin_stack_zoomIn.png",
+plt.savefig(figPath + model_name + "_30RunsMean_lfByFreq10Bin_stack_zoomIn.png",
             dpi=300)
 plt.close()
 
@@ -601,9 +611,9 @@ plt.legend(loc=(1.05, -0.15),
 plt.tick_params(axis='both', which='major', labelsize=tick_font)
 plt.title(shortName, fontsize=label_font)
 plt.tight_layout()
-# plt.savefig(figPath + model_name + "_20RunsMedian_lfByMutTime_20Bin_stack.png",
+# plt.savefig(figPath + model_name + "_30RunsMedian_lfByMutTime_20Bin_stack.png",
 #             dpi=300)
-plt.savefig(figPath + model_name + "_20RunsMean_lfByMutTime_20Bin_stack.png",
+plt.savefig(figPath + model_name + "_30RunsMean_lfByMutTime_20Bin_stack.png",
             dpi=300)
 plt.close()
 
@@ -632,9 +642,9 @@ plt.legend(loc=(1.06, -0.15),
 plt.title(shortName, fontsize=label_font)
 plt.tick_params(axis='both', which='major', labelsize=tick_font)
 plt.tight_layout()
-# plt.savefig(figPath + model_name + "_20RunsMedian_lfByMutTime_20Bin_stack_zoomIn.png",
+# plt.savefig(figPath + model_name + "_30RunsMedian_lfByMutTime_20Bin_stack_zoomIn.png",
 #             dpi=300)
-plt.savefig(figPath + model_name + "_20RunsMean_lfByMutTime_20Bin_stack_zoomIn.png",
+plt.savefig(figPath + model_name + "_30RunsMean_lfByMutTime_20Bin_stack_zoomIn.png",
             dpi=300)
 plt.close()
 
@@ -653,10 +663,10 @@ size20colors = ["#FDE725", "#DCE318", "#B8DE29", "#94D840", "#74D055",
 #                 "#2bba44FF", "#3CBB75FF","#29AF7FFF", "#20A387FF", "#1F968BFF",
 #                 "#238A8DFF", "#287D8EFF","#2D708EFF", "#33638DFF", "#39568CFF",
 #                 "#404788FF", "#453781FF","#482677FF", "#481567FF", "#440154FF"]
-size_labels = [" – ".join([str(round(size_cats[i], 3)),
-                           str(round(size_cats[i + 1], 3))])
+size_labels = [" – ".join([str('{:.3f}'.format(round(size_cats[i], 3))),
+                           str('{:.3f}'.format(round(size_cats[i + 1], 3)))])
                for i in range(num_cat_size)]
-size_labels[-1] = ">" + str(round(size_cats[-2],3))
+size_labels[-1] = ">" + str('{:.3f}'.format(round(size_cats[-2],3)))
 
 # Stacked area, contribution of size bins ~ time， 0 - 100 000, add negative
 plt.figure(figsize=(12, 5))
@@ -688,10 +698,10 @@ plt.tick_params(axis='both', which='major', labelsize=tick_font)
 plt.title(shortName, fontsize=label_font)
 plt.tight_layout()
 # plt.savefig(figPath + model_name +
-#             "_20Runsmedian_lfBysize20Bin_stack.png",
+#             "_30Runsmedian_lfBysize20Bin_stack.png",
 #             dpi=300)
 plt.savefig(figPath + model_name +
-            "_20RunsMean_lfBysize20Bin_stack.png",
+            "_30RunsMean_lfBysize20Bin_stack.png",
             dpi=300)
 plt.close()
 
@@ -723,10 +733,10 @@ plt.tick_params(axis='both', which='major', labelsize=tick_font)
 plt.title(shortName, fontsize=label_font)
 plt.tight_layout()
 # plt.savefig(figPath + model_name +
-#             "_20Runsmedian_lfBysize20Bin_stack_zoomIn.png",
+#             "_30Runsmedian_lfBysize20Bin_stack_zoomIn.png",
 #             dpi=300)
 plt.savefig(figPath + model_name +
-            "_20RunsMean_lfBysize20Bin_stack_zoomIn.png",
+            "_30RunsMean_lfBysize20Bin_stack_zoomIn.png",
             dpi=300)
 plt.close()
 
@@ -770,10 +780,10 @@ plt.close()
 # plt.title(shortName, fontsize=label_font)
 # plt.tight_layout()
 # # plt.savefig(figPath + model_name +
-# #             "_20Runsmedian_lfBysize20Bin_stack.png",
+# #             "_30Runsmedian_lfBysize20Bin_stack.png",
 # #             dpi=300)
 # plt.savefig(figPath + model_name +
-#             "_20RunsMean_lfBysize10Bin_stack.png",
+#             "_30RunsMean_lfBysize10Bin_stack.png",
 #             dpi=300)
 # plt.close()
 #
@@ -805,9 +815,9 @@ plt.close()
 # plt.title(shortName, fontsize=label_font)
 # plt.tight_layout()
 # # plt.savefig(figPath + model_name +
-# #             "_20Runsmedian_lfBysize20Bin_stack_zoomIn.png",
+# #             "_30Runsmedian_lfBysize20Bin_stack_zoomIn.png",
 # #             dpi=300)
 # plt.savefig(figPath + model_name +
-#             "_20RunsMean_lfBysize10Bin_stack_zoomIn.png",
+#             "_30RunsMean_lfBysize10Bin_stack_zoomIn.png",
 #             dpi=300)
 # plt.close()

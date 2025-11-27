@@ -49,16 +49,19 @@ df5 = pd.read_csv(f5, sep="\t", header=0, index_col=False)
 f6 = inPath + "/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
 df6 = pd.read_csv(f6, sep="\t", header=0, index_col=False)
 
-alpha_line=0.5
+alpha_line=0.65
 age_boundaries = list(df1["tick_text"]) + [110000.0]
+color_neutral="#2b2b2b"
+color_singel_sel="#2ab076"
+color_recurrent_sel="indigo"
 
 # Neutral alleles: FPR ～ Allele age, equal intervals
 plt.figure(figsize=age_fig_size)
 # plt.figure(figsize=(15,5)) # 100 bins
 plt.plot(df1["age"],
          df1["fpr"],
-         color="dimgrey",
-         marker = "o",
+         color=color_neutral,
+         marker = "s",
          # fillstyle="none",
          linestyle='dotted',
          linewidth=2.0,
@@ -66,8 +69,8 @@ plt.plot(df1["age"],
          label=" ")
 plt.plot(df3["age"],
          df3["fpr"],
-         color="#2ab076",
-         marker = "o",
+         color=color_singel_sel,
+         marker = "s",
          # fillstyle="none",
          linestyle='dotted',
          linewidth=2.0,
@@ -75,8 +78,8 @@ plt.plot(df3["age"],
          label=" ")
 plt.plot(df5["age"],
          df5["fpr"],
-         color="indigo",
-         marker = "o",
+         color=color_recurrent_sel,
+         marker = "s",
          # fillstyle="none",
          linestyle='dotted',
          linewidth=2.0,
@@ -84,22 +87,22 @@ plt.plot(df5["age"],
          label=" ")
 plt.plot(df2["age"],
          df2["fpr"],
-         color="dimgrey",
-         marker = "o",
+         color=color_neutral,
+         marker = "s",
          # linestyle='dashed',
          alpha=alpha_line,
          label=" No selection")
 plt.plot(df4["age"],
          df4["fpr"],
-         color="#2ab076",
-         marker = "o",
+         color=color_singel_sel,
+         marker = "s",
          # linestyle='dashed',
          alpha=alpha_line,
          label=" Single env. change")
 plt.plot(df6["age"],
          df6["fpr"],
-         color="indigo",
-         marker = "o",
+         color=color_recurrent_sel,
+         marker = "s",
          # linestyle='dashed',
          alpha=alpha_line,
          label=" Recurrent env. changes")
@@ -155,7 +158,7 @@ plt.figure(figsize=age_fig_size)
 # plt.figure(figsize=(15,5)) # 100 bins
 plt.plot(df1["age"],
          df1["fpr"],
-         color="dimgrey",
+         color=color_neutral,
          marker = "s",
          linestyle='dotted',
          # fillstyle="none",
@@ -163,7 +166,7 @@ plt.plot(df1["age"],
          label="   ")
 plt.plot(df3["age"],
          df3["fpr"],
-         color="#2ab076",
+         color=color_singel_sel,
          marker = "s",
          # fillstyle="none",
          linestyle='dotted',
@@ -171,7 +174,7 @@ plt.plot(df3["age"],
          label="   ")
 plt.plot(df5["age"],
          df5["fpr"],
-         color="indigo",
+         color=color_recurrent_sel,
          marker = "s",
          # fillstyle="none",
          linestyle='dotted',
@@ -179,7 +182,7 @@ plt.plot(df5["age"],
          label="   ")
 plt.plot(df2["age"],
          df2["fpr"],
-         color="dimgrey",
+         color=color_neutral,
          marker = "<",
          # fillstyle="none",
          linestyle='dotted',
@@ -187,7 +190,7 @@ plt.plot(df2["age"],
          label=" No selection")
 plt.plot(df4["age"],
          df4["fpr"],
-         color="#2ab076",
+         color=color_singel_sel,
          marker = "<",
          # fillstyle="none",
          linestyle='dotted',
@@ -195,7 +198,7 @@ plt.plot(df4["age"],
          label=" Single env. change")
 plt.plot(df6["age"],
          df6["fpr"],
-         color="indigo",
+         color=color_recurrent_sel,
          marker = "<",
          # fillstyle="none",
          linestyle='dotted',
@@ -254,7 +257,7 @@ plt.close()
 # # plt.figure(figsize=(15,5)) # 100 bins
 # plt.plot(df1["age"],
 #          df1["fpr"],
-#          color="dimgrey",
+#          color=color_neutral,
 #          marker = "s",
 #          # linestyle='dotted',
 #          # fillstyle="none",
@@ -262,7 +265,7 @@ plt.close()
 #          label="   ")
 # plt.plot(df3["age"],
 #          df3["fpr"],
-#          color="#2ab076",
+#          color=color_singel_sel,
 #          marker = "s",
 #          # fillstyle="none",
 #          # linestyle='dotted',
@@ -270,7 +273,7 @@ plt.close()
 #          label="   ")
 # plt.plot(df5["age"],
 #          df5["fpr"],
-#          color="indigo",
+#          color=color_recurrent_sel,
 #          marker = "s",
 #          # fillstyle="none",
 #          # linestyle='dotted',
@@ -278,7 +281,7 @@ plt.close()
 #          label="   ")
 # plt.plot(df2["age"],
 #          df2["fpr"],
-#          color="dimgrey",
+#          color=color_neutral,
 #          marker = "<",
 #          # fillstyle="none",
 #          # linestyle='dotted',
@@ -286,7 +289,7 @@ plt.close()
 #          label=" No selection")
 # plt.plot(df4["age"],
 #          df4["fpr"],
-#          color="#2ab076",
+#          color=color_singel_sel,
 #          marker = "<",
 #          # fillstyle="none",
 #          # linestyle='dotted',
@@ -294,7 +297,7 @@ plt.close()
 #          label=" Single env. change")
 # plt.plot(df6["age"],
 #          df6["fpr"],
-#          color="indigo",
+#          color=color_recurrent_sel,
 #          marker = "<",
 #          # fillstyle="none",
 #          # linestyle='dotted',
@@ -354,25 +357,25 @@ plt.figure(figsize=age_fig_size)
 # plt.figure(figsize=(15,5)) # 100 bins
 plt.plot(df1["age"],
          df1["fpr"],
-         color="#2ab076",
+         color=color_singel_sel,
          marker = "s",
          alpha=alpha_line,
          label = " ")
 plt.plot(df3["age"],
          df3["fpr"],
-         color="#2ab076",
+         color=color_singel_sel,
          marker = "<",
          alpha=alpha_line,
          label = " ")
 plt.plot(df5["age"],
          df5["fpr"],
-         color="indigo",
+         color=color_recurrent_sel,
          marker = "D",
          alpha=alpha_line,
          label = " ")
 plt.plot(df2["age"],
          df2["fpr"],
-         color="#2ab076",
+         color=color_singel_sel,
          marker = "s",
          fillstyle="none",
          # linestyle='dotted',
@@ -380,7 +383,7 @@ plt.plot(df2["age"],
          label = "Constant pop.")
 plt.plot(df4["age"],
          df4["fpr"],
-         color="#2ab076",
+         color=color_singel_sel,
          marker = "<",
          fillstyle="none",
          # linestyle='dotted',
@@ -388,7 +391,7 @@ plt.plot(df4["age"],
          label = "Single pop. expansion")
 plt.plot(df6["age"],
          df6["fpr"],
-         color="indigo",
+         color=color_recurrent_sel,
          marker = "D",
          fillstyle="none",
          # linestyle='dotted',
@@ -431,14 +434,14 @@ plt.close()
 #          histtype="stepfilled",
 #          label="Low migation",
 #          bins=50, stacked=False,
-#          color="dimgrey",
+#          color=color_neutral,
 #          density=True,
 #          alpha=0.5)
 # plt.hist(df2["freq"],
 #          histtype="stepfilled",
 #          label="High migation",
 #          bins=50, stacked=False,
-#          color="#2ab076",
+#          color=color_singel_sel,
 #          density=True,
 #          alpha=0.5)
 # plt.legend()
