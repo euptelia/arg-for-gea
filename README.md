@@ -15,12 +15,12 @@ Tree sequences are recorded during SLiM simulations and processed by Python scri
 arg-for-gea/slim/glacial_history/  
 
 #### No selection (M0)  
-![\*.slim  -> alleleAge_slimHistory_m0.py -> alleleAge_multiRuns_m0.py](docs/scripts_flow_chart3_1.1.png)  
+![\*.slim  -> alleleAge_slimHistory_m0.py -> alleleAge_multiRuns_m0.py](docs/scripts_flow_chart3_1.2.png)  
       
 #### With selection (M2,M3)  
-![\*.slim  -> alleleAge_slimHistory.py -> alleleAge_multiRuns.py](docs/scripts_flow_chart1_1.1.png)  
+![\*.slim  -> alleleAge_slimHistory.py -> alleleAge_multiRuns.py](docs/scripts_flow_chart1_1.2.png)  
  
 
 ### Time-series-sample simulations 
 arg-for-gea/slim/glacial_history/time_series/  
-![\*.slim -> alleleAge_slimHistory_noNeuMut.py -> timeSeries_multiTimes_multiRuns.py](docs/scripts_flow_chart2_1.1.png)  
+![\*.slim -> alleleAge_slimHistory_noNeuMut.py -> timeSeries_multiTimes_multiRuns.py](docs/scripts_flow_chart2_1.2.png)  
