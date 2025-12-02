@@ -26,10 +26,6 @@ parser.add_argument('-o', '--outPath',
 args = parser.parse_args()
 
 ############################# program #########################################
-# #test
-# path_file_name = "/media/anadem/PortableSSD/arg4gea_data/slim_data/M2a_largeLowVm_highMig_clineMap/tick110000/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_seed2921651730789354_tick110000.trees"
-# ts = tskit.load(path_file_name)
-
 #Values
 inPath = args.inPath
 outPath = args.outPath

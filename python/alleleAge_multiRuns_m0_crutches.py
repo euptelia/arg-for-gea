@@ -53,8 +53,8 @@ import seaborn as sns # for density histplot
 num_runs = 100
 # inPath = args.input
 
-# mytitle = "M0a, low migration, cline map"
-# inPath = "/media/anadem/PortableSSD/arg4gea_data/UBC_dell_20240917/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
+mytitle = "M0a, low migration, cline map"
+inPath = "/media/anadem/PortableSSD/arg4gea_data/UBC_dell_20240917/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
 # mytitle = "M0a, high migration, cline map"
 # inPath = "/media/anadem/PortableSSD/arg4gea_data/UBC_dell_20240917/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
 # mytitle = "M0a, low migration, patchy map"
@@ -67,8 +67,8 @@ num_runs = 100
 # inPath = "/media/anadem/PortableSSD/arg4gea_data/UBC_dell_20240917/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
 # mytitle = "M0b, low migration, patchy map"
 # inPath = "/media/anadem/PortableSSD/arg4gea_data/UBC_dell_20240917/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K5000_r1.0e-07/tick110000/"
-mytitle = "M0b, high migration, patchy map"
-inPath = "/media/anadem/PortableSSD/arg4gea_data/UBC_dell_20240917/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
+# mytitle = "M0b, high migration, patchy map"
+# inPath = "/media/anadem/PortableSSD/arg4gea_data/UBC_dell_20240917/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/Continuous_nonWF_M0b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K5000_r1.0e-07/tick110000/"
 
 simName = inPath.split("/")[-3]
 #Short title: Hard coded. Check this before using!
@@ -115,11 +115,15 @@ tick = int(inPath.split("/")[-2].split("tick")[-1])
 event_age = tick - 100000
 
 # Load results of multiple runs from file
+# Columns: "pos", "age", "freq", "mut_effect","mean_LF",
+#          "tau", "p-tau", "pearsonsrho", "p-rho",
+#          "run_id", "p-tau_rank"
 df = pd.DataFrame()
 fileList = glob.glob(inPath + "*.txt")
 run = 0
 for f in fileList:
-    df_focal = pd.read_csv(f, sep='\t', header=0)
+    # df_focal = pd.read_csv(f, sep='\t', header=0)
+    df_focal = pd.read_csv(f, sep='\t', header=0, index_col = False)
     # Add temporary run ID, and rank of p-values
     df_focal["run_id"] = np.full(shape=(df_focal.shape[0], 1),
                                          fill_value=run)
@@ -128,10 +132,55 @@ for f in fileList:
     df = pd.concat([df, df_focal], axis=0)
     run += 1
 print(str(run) + " files have been loaded.")
-# Columns: "pos", "age", "freq", "mut_effect","mean_LF",
-#          "tau", "p-tau", "pearsonsrho", "p-rho",
-#          "run_id", "p-tau_rank"
+df["mutID"] = range(len(df["freq"]))
+df = df.set_index("mutID")
 
+
+# #Relationship between allele frequency and allele age
+# Separate neutral segregating alleles
+df_neutral = df[(df["mut_effect"] == 0) &
+                (df["freq"] != 0) &
+                (df["freq"] != 1)]
+num_age_cat = 20
+age_width = int(110000/20)
+age_cats = np.linspace(0,110000,num_age_cat+1)
+age_mean = age_cats[1:] - age_width/2
+freq_mean_byAge = []
+freq_sd_byAge = []
+#subsample 100000 alleles
+subsample_size = 100000
+df_sub = df_neutral.loc[random.sample(list(df_neutral.index), subsample_size)]
+for i in range(num_age_cat):
+    lf_category = df_sub["freq"][np.logical_and(df_sub["age"] > age_cats[i],
+                                            df_sub["age"] <= age_cats[i+1])]
+    freq_mean_byAge.append(np.mean(lf_category))
+    freq_sd_byAge.append(np.std(lf_category))
+
+label_font=16
+tick_font=14
+x = df_sub["age"]
+y = df_sub["freq"]
+plt.figure(figsize=(7,5))
+plt.scatter(x, y,
+            marker="o", c="#80808003",
+            alpha=0.1, s=20
+            #, cmap=cmap_maf
+            )
+# plt.plot(age_mean, freq_mean_byAge,
+#          c="black",
+#          marker="o")
+plt.errorbar(age_mean, freq_mean_byAge, freq_sd_byAge,
+             c="black", linestyle='-', marker='o')
+plt.xlabel("Allele age",
+           fontsize=label_font)
+plt.ylabel("Allele frequency",
+           fontsize=label_font)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
+plt.title(shortName, fontsize=label_font)
+plt.tight_layout()
+plt.savefig(figPath+model_name+"_freq_vs_age_scatter_" +str(subsample_size)+"segregatingAlleles.png",
+            dpi=300)
+plt.close()
 
 
 #### Separate neutral alleles
