@@ -7,7 +7,6 @@ Tianlin Duan, Michael C. Whitlock, Tom R. Booker
 bioRxiv 2026.02.01.703099; doi: https://doi.org/10.64898/2026.02.01.703099  
 
 <br/>
-<br/>
 *Note: Models have been renamed in reports:  
 
 |  Scripts  |  Reports  |
@@ -35,4 +34,5 @@ arg-for-gea/slim/glacial_history/
 
 ### Time-series-sample simulations 
 arg-for-gea/slim/glacial_history/time_series/  
+
 ![\*.slim -> alleleAge_slimHistory_noNeuMut.py -> timeSeries_multiTimes_multiRuns.py](docs/scripts_flow_chart2_1.2.png)  
