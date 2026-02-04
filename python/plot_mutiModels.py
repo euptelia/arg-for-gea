@@ -5,7 +5,7 @@ tianlin.duan42@gmail.com
 2025.08.05
 """
 ############################# modules #########################################
-import matplotlib
+# import matplotlib
 import matplotlib.pyplot as plt
 import os #mkdir
 import pandas as pd #dataframe
@@ -24,11 +24,20 @@ num_cat_age = 22 #number of bins
 cat_width_age = 5000.0
 p_threshold = 0.0000000001
 maf_filter = 0.05
-age_fig_size = (9,6) # 22 bins
-alpha_line=0.8
-label_font = 16
-tick_font = 16
+age_fig_size = (12,6) # 22 bins
+# alpha_line=0.65
+alpha_line=0.6
+alpha_special=0.8 #highlight green lines
+label_font = 22
+tick_font = 18
 legend_font = 16
+my_linewidth = 3
+my_markeredgewidth = 2
+my_markersize = 12
+color_neutral="#2b2b2b"
+# color_singel_sel="#2ab076"
+color_singel_sel="#20a86d"
+color_recurrent_sel="indigo"
 
 #1. Contrast the effect of selection and migration
 #No selection
@@ -49,11 +58,7 @@ df5 = pd.read_csv(f5, sep="\t", header=0, index_col=False)
 f6 = inPath + "/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
 df6 = pd.read_csv(f6, sep="\t", header=0, index_col=False)
 
-alpha_line=0.65
 age_boundaries = list(df1["tick_text"]) + [110000.0]
-color_neutral="#2b2b2b"
-color_singel_sel="#2ab076"
-color_recurrent_sel="indigo"
 
 # Neutral alleles: FPR ～ Allele age, equal intervals
 plt.figure(figsize=age_fig_size)
@@ -62,48 +67,63 @@ plt.plot(df1["age"],
          df1["fpr"],
          color=color_neutral,
          marker = "s",
+         markersize=my_markersize,
          # fillstyle="none",
          linestyle='dotted',
-         linewidth=2.0,
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label=" ")
 plt.plot(df3["age"],
          df3["fpr"],
          color=color_singel_sel,
          marker = "s",
+         markersize=my_markersize,
          # fillstyle="none",
          linestyle='dotted',
-         linewidth=2.0,
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label=" ")
 plt.plot(df5["age"],
          df5["fpr"],
          color=color_recurrent_sel,
          marker = "s",
+         markersize=my_markersize,
          # fillstyle="none",
          linestyle='dotted',
-         linewidth=2.0,
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label=" ")
 plt.plot(df2["age"],
          df2["fpr"],
          color=color_neutral,
          marker = "s",
+         markersize=my_markersize,
          # linestyle='dashed',
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label=" No selection")
 plt.plot(df4["age"],
          df4["fpr"],
          color=color_singel_sel,
          marker = "s",
+         markersize=my_markersize,
          # linestyle='dashed',
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label=" Single env. change")
 plt.plot(df6["age"],
          df6["fpr"],
          color=color_recurrent_sel,
          marker = "s",
+         markersize=my_markersize,
          # linestyle='dashed',
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label=" Recurrent env. changes")
 plt.ylim(min(df2["fpr"]*0.8), max(df4["fpr"])*1.1)
@@ -114,7 +134,9 @@ plt.legend(loc="upper center",
            ncol=2,
            columnspacing=0.5)._legend_box.align = "left"
 plt.xlabel("Allele age (thousand ticks)", fontsize=label_font)
-plt.ylabel("False positive rate of neutral alleles \n (FP/(FP+TN))",
+# plt.ylabel("False positive rate of neutral alleles \n (FP/(FP+TN))",
+#            fontsize=label_font)
+plt.ylabel("False positive rate",
            fontsize=label_font)
 plt.xticks(ticks=age_boundaries,
            labels=[str(int(i/1000)) for i in age_boundaries],
@@ -160,7 +182,10 @@ plt.plot(df1["age"],
          df1["fpr"],
          color=color_neutral,
          marker = "s",
+         markersize=my_markersize,
          linestyle='dotted',
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
          # fillstyle="none",
          alpha=alpha_line,
          label="   ")
@@ -168,40 +193,55 @@ plt.plot(df3["age"],
          df3["fpr"],
          color=color_singel_sel,
          marker = "s",
+         markersize=my_markersize,
          # fillstyle="none",
          linestyle='dotted',
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label="   ")
 plt.plot(df5["age"],
          df5["fpr"],
          color=color_recurrent_sel,
          marker = "s",
+         markersize=my_markersize,
          # fillstyle="none",
          linestyle='dotted',
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label="   ")
 plt.plot(df2["age"],
          df2["fpr"],
          color=color_neutral,
          marker = "<",
+         markersize=my_markersize,
          # fillstyle="none",
          linestyle='dotted',
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label=" No selection")
 plt.plot(df4["age"],
          df4["fpr"],
          color=color_singel_sel,
          marker = "<",
+         markersize=my_markersize,
          # fillstyle="none",
          linestyle='dotted',
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label=" Single env. change")
 plt.plot(df6["age"],
          df6["fpr"],
          color=color_recurrent_sel,
-         marker = "<",
+         marker = "D",
+         markersize=my_markersize,
          # fillstyle="none",
          linestyle='dotted',
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label=" Recurrent env. changes")
 plt.ylim(min(df2["fpr"]*0.8), max(df4["fpr"])*1.18)
@@ -212,7 +252,9 @@ plt.legend(loc="upper center",
            ncol=2,
            columnspacing=0.5)._legend_box.align = "left"
 plt.xlabel("Allele age (thousand ticks)", fontsize=label_font)
-plt.ylabel("False positive rate of neutral alleles \n (FP/(FP+TN))",
+# plt.ylabel("False positive rate of neutral alleles \n (FP/(FP+TN))",
+#            fontsize=label_font)
+plt.ylabel("False positive rate",
            fontsize=label_font)
 plt.xticks(ticks=age_boundaries,
            labels=[str(int(i/1000)) for i in age_boundaries],
@@ -359,46 +401,66 @@ plt.plot(df1["age"],
          df1["fpr"],
          color=color_singel_sel,
          marker = "s",
+         markersize=my_markersize,
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label = " ")
 plt.plot(df3["age"],
          df3["fpr"],
          color=color_singel_sel,
          marker = "<",
+         markersize=my_markersize,
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label = " ")
 plt.plot(df5["age"],
          df5["fpr"],
          color=color_recurrent_sel,
          marker = "D",
+         markersize=my_markersize,
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label = " ")
 plt.plot(df2["age"],
          df2["fpr"],
          color=color_singel_sel,
          marker = "s",
+         markersize=my_markersize,
          fillstyle="none",
          # linestyle='dotted',
-         alpha=alpha_line,
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
+         alpha=alpha_special,
          label = "Constant pop.")
 plt.plot(df4["age"],
          df4["fpr"],
          color=color_singel_sel,
          marker = "<",
+         markersize=my_markersize,
          fillstyle="none",
          # linestyle='dotted',
-         alpha=alpha_line,
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
+         alpha=alpha_special,
          label = "Single pop. expansion")
 plt.plot(df6["age"],
          df6["fpr"],
          color=color_recurrent_sel,
          marker = "D",
+         markersize=my_markersize,
          fillstyle="none",
          # linestyle='dotted',
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label = "Recurrent pop. expansions")
 plt.xlabel("Allele age (thousand ticks)", fontsize=label_font)
-plt.ylabel("False positive rate of neutral alleles \n (FP/(FP+TN))",
+# plt.ylabel("False positive rate of neutral alleles \n (FP/(FP+TN))",
+#            fontsize=label_font)
+plt.ylabel("False positive rate",
            fontsize=label_font)
 plt.xticks(ticks=age_boundaries,
            labels=[str(int(i/1000)) for i in age_boundaries],

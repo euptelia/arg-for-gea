@@ -1,15 +1,26 @@
 # arg-for-gea  
-SLiM simulations and Python scripts for exploring the genetic architecture of local adaptation and its implications for genotype-environment association (GEA) analysis, with a focus on the effects of allele age. 
-Tree sequences are recorded during SLiM simulations and processed by Python scripts.  
+SLiM and Python scripts for exploring the genetic architecture of local adaptation and its implications for genotype-environment association (GEA) analysis, with a focus on the effects of allele age. Tree sequences are recorded during SLiM simulations and processed by Python scripts.  
 
+#### Preprint:  
+The genetic architecture of local adaptation is historically contingent  
+Tianlin Duan, Michael C. Whitlock, Tom R. Booker  
+bioRxiv 2026.02.01.703099; doi: https://doi.org/10.64898/2026.02.01.703099  
+
+<br/>
+<br/>
 *Note: Models have been renamed in reports:  
-    Scripts  --------->    Reports  
-    M0a  --------->    MNeuCon  
-    M0b  --------->    MNeuExp  
-    M2a  --------->    MSelCon  
-    M2a  --------->    MSelExp  
-    M3a  --------->    MRecCon  
-    M3b  --------->    MRecExp  
+    |  Scripts  |  Reports  |   
+    |  :----:   |   :----:  |
+    |    M0a    |  MNeuCon  |  
+    |    M0b    |  MNeuExp  |  
+    |    M2a    |  MSelCon  |  
+    |    M2a    |  MSelExp  |  
+    |    M3a    |  MRecCon  |  
+    |    M3b    |  MRecExp  |  
+
+<br/>
+<br/>
+<br/>
 
 ### Single-sample simulations  
 arg-for-gea/slim/glacial_history/  
