@@ -10,18 +10,18 @@ bioRxiv 2026.02.01.703099; doi: https://doi.org/10.64898/2026.02.01.703099
 <br/>
 *Note: Models have been renamed in reports:  
 
-    |  Scripts  |  Reports  |   
-    |  :----:   |   :----:  |
-    |    M0a    |  MNeuCon  |  
-    |    M0b    |  MNeuExp  |  
-    |    M2a    |  MSelCon  |  
-    |    M2a    |  MSelExp  |  
-    |    M3a    |  MRecCon  |  
-    |    M3b    |  MRecExp  |  
+|  Scripts  |  Reports  |
+|  :----:   |   :----:  |
+|    M0a    |  MNeuCon  |
+|    M0b    |  MNeuExp  |
+|    M2a    |  MSelCon  |
+|    M2a    |  MSelExp  |
+|    M3a    |  MRecCon  |
+|    M3b    |  MRecExp  |
 
 <br/>
 <br/>
-<br/>
+
 
 ### Single-sample simulations  
 arg-for-gea/slim/glacial_history/  
