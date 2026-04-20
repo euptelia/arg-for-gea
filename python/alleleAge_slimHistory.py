@@ -121,7 +121,7 @@ path_file_name = args.input
 # path_file_name = "/home/anadem/github/data/slim_data/glacial_history/M2a_largeLowVm_highMig_clineMap/tick110000/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_seed276074702539843421_tick110000.trees"
 # path_file_name = "/home/anadem/github/data/slim_data/glacial_history/M2a_largeLowVm_lowMig_patchyMap/tick110000/Continuous_nonWF_M2a_glacialHistoryOptimum0_patchyMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.03_mateD0.12_K17000_r1.0e-07_seed4438724523450938086_tick110000.trees"
 
-
+# path_file_name = "/home/anadem/github/data/slim_data/first_revision/M3b_smallLowVm_highMig_clineMap/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_seed3734788341383028066_tick110000.trees"
 
 # Remove paths
 file_name = path_file_name.split("/")[-1]
@@ -141,7 +141,8 @@ if not os.path.exists(figPath):
 
 # outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/"
 # outBasePath = "/home/tianlin/ubc/data/tskit_data/output/table/realistic_fpr_comparisons/"
-outBasePath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/"
+# outBasePath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/"
+outBasePath = "/home/anadem/github/data/tskit_data/output/table/first_revision/"
 outPath = outBasePath+short_model_name+"/"
 if not os.path.exists(outPath):
     os.makedirs(outPath)

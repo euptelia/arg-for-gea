@@ -10,7 +10,7 @@ initialize() {
 	// genome size: 10 Mb
 	defineConstant("L", 1e7); //
 	// carrying capacity density: capacity when uniformly distributed
-	// Observed N: ~ diploid individual; First revision: 
+	// Observed N: ~ diploid individual; First revision
 	defineConstant("K", 6000); //
 	//	defineConstant("K", 40000); //
 	//  reproduction rate
@@ -29,8 +29,8 @@ initialize() {
 	defineConstant("mateD", 0.15);
 	// Max strength for competition
 	defineConstant("maxCompStrength", 1.0);
-	// Max spatial boundary: Original:1; First revision: 2 (area * 4)
-	defineConstant("maxBoundary", 2);
+	// Max spatial boundary: Original:1; First revision
+	defineConstant("maxBoundary", sqrt(3));
 	// Length of the period of each environmental cycle
 	defineConstant("envPeriod", 10000);
 	// Current x boundary of habitat; Starts from 0.1; First revision: relative value of max boundary
@@ -233,7 +233,7 @@ mutationEffect(m2) {
 	sim.treeSeqOutput(outDir + "Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_" + 
 	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
 	"_sigmaD" + sigma_D + "_mateD" + mateD +
-	"_K" + K + "_r" + r +
+	"_K" + K + "_r" + r + "_boundarySqrt3" +
 	"_seed" + seed + "_tick" + sim.cycle + ".trees",
 		metadata = Dictionary("indsOptimum", optimum,
 		"mapValues", mapValues));

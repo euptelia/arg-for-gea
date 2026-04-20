@@ -29,7 +29,7 @@ initialize() {
 	// Max strength for competition
 	defineConstant("maxCompStrength", 1.0);
 	// Max spatial boundary: Original:1; First revision: 2 (so new area = area * 4)
-	defineConstant("maxBoundary", 2);
+	defineConstant("maxBoundary", sqrt(3));
 //	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/");
 	defineConstant("outDir", "/home/anadem/github/data/slim_data/first_revision/M2b_smallLowVm_highMig_clineMap/timeSeries/");
 	// Sample series
@@ -225,7 +225,7 @@ mutationEffect(m2) {
 	sim.treeSeqOutput(outDir + "Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_" + 
 	"mu" + mu + "_sigmaM" + sigma_M + "_sigmaW" + sigma_W + 
 	"_sigmaD" + sigma_D + "_mateD" + mateD +
-	"_K" + K + "_r" + r +
+	"_K" + K + "_r" + r + "_boundarySqrt3" +
 	"_seed" + seed + "_tick" + sim.cycle + ".trees",
 		metadata = Dictionary("indsOptimum", optimum,
 		"mapValues", mapValues));

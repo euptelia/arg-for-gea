@@ -90,9 +90,29 @@
 #    slim /home/anadem/github/arg-for-gea/slim/glacial_history/time_series/contiuous_nonWF_M2a_glacialHistory_patchyMap_timeSeries_temp2.slim
 #done
 
+#for i in {1..30} 
+#do
+#    printf "Start the %s/30 runs of M2a, patchy, timeseries, temp3 \n" $i
+#    slim /home/anadem/github/arg-for-gea/slim/glacial_history/time_series/contiuous_nonWF_M2a_glacialHistory_patchyMap_timeSeries_temp3.slim
+#done
+
 for i in {1..30} 
 do
-    printf "Start the %s/30 runs of M2a, patchy, timeseries, temp3 \n" $i
-    slim /home/anadem/github/arg-for-gea/slim/glacial_history/time_series/contiuous_nonWF_M2a_glacialHistory_patchyMap_timeSeries_temp3.slim
+    printf "Start the %s/30 runs of M2b, cline, high Poly, high Mig \n" $i
+    slim /home/anadem/github/arg-for-gea/slim/first_revison/contiuous_nonWF_M2b_glacialHistory_clineMap_singleExpansion_highPoly.slim
 done
+
+#for i in {1..10} 
+#do
+#    printf "Start the %s/10 runs of M3b, cline, high Poly, high Mig \n" $i
+#    slim /home/anadem/github/arg-for-gea/slim/first_revison/contiuous_nonWF_M3b_glacialHistory_clineMap_recurrentChange_highPoly.slim
+#done
+
+#for i in {1..10} 
+#do
+#    printf "Start the %s/10 runs of M3b, cline, low Poly, high Mig \n" $i
+#    slim /home/anadem/github/arg-for-gea/slim/first_revison/contiuous_nonWF_M3b_glacialHistory_clineMap_recurrentChange_lowPoly.slim
+#done
+
+
 
