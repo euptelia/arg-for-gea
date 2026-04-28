@@ -991,17 +991,17 @@
 #    i=$((${i}+1))
 #done
 
-sleep 2h
-inPath="/home/anadem/github/data/slim_data/glacial_history/M2b_smallLowVm_lowMig_patchyMap/timeSeries/batch2"
-i=1
-echo $inPath
-for file in ${inPath}/*.trees
-do
-    printf "file %s / 7 \n" $i 
-    printf "Start making a table with \n %s" $file
-    python3 /home/anadem/github/arg-for-gea/python/alleleAge_slimHistory_noNeuMut.py -i ${file}
-    i=$((${i}+1))
-done
+#sleep 2h
+#inPath="/home/anadem/github/data/slim_data/glacial_history/M2b_smallLowVm_lowMig_patchyMap/timeSeries/batch2"
+#i=1
+#echo $inPath
+#for file in ${inPath}/*.trees
+#do
+#    printf "file %s / 7 \n" $i 
+#    printf "Start making a table with \n %s" $file
+#    python3 /home/anadem/github/arg-for-gea/python/alleleAge_slimHistory_noNeuMut.py -i ${file}
+#    i=$((${i}+1))
+#done
 
 #inPath="/home/anadem/github/data/slim_data/glacial_history/M2a_smallLowVm_highMig_clineMap/timeSeries/batch2"
 #i=1
@@ -1035,4 +1035,26 @@ done
 #    python3 /home/anadem/github/arg-for-gea/python/alleleAge_slimHistory_noNeuMut.py -i ${file}
 #    i=$((${i}+1))
 #done
+
+#inPath="/home/anadem/github/data/slim_data/first_revision/M2b_smallLowVm_highMig_clineMap/timeSeries/batch1"
+#i=1
+#echo $inPath
+#for file in ${inPath}/*.trees
+#do
+#    printf "file %s / 60 \n" $i 
+#    printf "Start making a table with \n %s" $file
+#    python3 /home/anadem/github/arg-for-gea/python/first_revision/alleleAge_slimHistory_noNeuMut.py -i ${file}
+#    i=$((${i}+1))
+#done
+
+inPath="/home/anadem/github/data/slim_data/first_revision/M2b_smallLowVm_highMig_clineMap/tick110000"
+i=1
+echo $inPath
+for file in ${inPath}/*.trees
+do
+    printf "file %s / 30 \n" $i 
+    printf "Start making a table with \n %s" $file
+    python3 /home/anadem/github/arg-for-gea/python/first_revision/alleleAge_slimHistory.py -i ${file} -p 0
+    i=$((${i}+1))
+done
 
