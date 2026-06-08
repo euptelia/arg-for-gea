@@ -50,3 +50,14 @@ mv /home/anadem/github/data/tskit_data/figure/multiTimes/multiRun/*/*_20RunsMedi
 
 cd /home/anadem/github/data/tskit_data/figure/multiTimes/multiRun
 mkdir k80 lf mutTime freq size
+
+
+#First revision
+#Merge k80 tables 
+#cd /home/anadem/github/data/tskit_data/stats/first_revision/k80
+#touch k80_6model.tab
+#for file in ./singleModel/*.txt
+#do 
+#  paste k80_6model.tab $file > temp.txt
+#  mv temp.txt k80_6model.tab
+#done

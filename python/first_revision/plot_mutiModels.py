@@ -11,7 +11,7 @@ import os #mkdir
 import pandas as pd #dataframe
 
 ############################# program #########################################
-num_runs = 200
+num_runs = 30
 # inPath = "/home/anadem/github/data/tskit_data/wrong_fitness_function/mutiRuns/test/fpr/singleModel"
 # inPath = "/home/anadem/github/data/tskit_data/output/mutiRuns/fpr/singleModel"
 # inPath = "/home/anadem/github/data/tskit_data/stats/fpr/singleModel"
@@ -41,6 +41,120 @@ color_neutral="#2b2b2b"
 # color_singel_sel="#2ab076"
 color_singel_sel="#20a86d"
 color_recurrent_sel="indigo"
+
+#4. Contrast the effect of population size
+#m2b
+f1 = inPath + "/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
+df1 = pd.read_csv(f1, sep="\t", header=0, index_col=False)
+f2 = inPath + "/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_p1e-10_maf0.05_cat22_fpr.tab"
+df2 = pd.read_csv(f2, sep="\t", header=0, index_col=False)
+
+#m3b small
+f3 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
+df3 = pd.read_csv(f3, sep="\t", header=0, index_col=False)
+f4 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_p1e-10_maf0.05_cat22_fpr.tab"
+df4 = pd.read_csv(f4, sep="\t", header=0, index_col=False)
+
+#m3b large
+#Recurrent environmental changes
+f5 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
+df5 = pd.read_csv(f5, sep="\t", header=0, index_col=False)
+f6 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_p1e-10_maf0.05_cat22_fpr.tab"
+df6 = pd.read_csv(f6, sep="\t", header=0, index_col=False)
+
+age_boundaries = list(df1["tick_text"]) + [110000.0]
+
+# Neutral alleles: FPR ～ Allele age, equal intervals
+plt.figure(figsize=age_fig_size)
+# plt.figure(figsize=(15,5)) # 100 bins
+plt.plot(df1["age"],
+         df1["fpr"],
+         color=color_singel_sel,
+         marker = "<",
+         markersize=10,
+         # fillstyle="none",
+         #linestyle='dotted',
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
+         alpha=alpha_line,
+         label=" ")
+plt.plot(df3["age"],
+         df3["fpr"],
+         color=color_recurrent_sel,
+         marker = "D",
+         markersize=9,
+         # fillstyle="none",
+         #linestyle='dotted',
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
+         alpha=alpha_line,
+         label=" ")
+plt.plot(df5["age"],
+         df5["fpr"],
+         color="#96036d",
+         marker = "D",
+         markersize=9,
+         # fillstyle="none",
+         #linestyle='dotted',
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
+         alpha=alpha_line,
+         label=" ")
+plt.plot(df2["age"],
+         df2["fpr"],
+         color=color_singel_sel,
+         marker = "<",
+         markersize=14,
+         # linestyle='dashed',
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
+         alpha=alpha_line,
+         label=" Single env. change")
+plt.plot(df4["age"],
+         df4["fpr"],
+         color=color_recurrent_sel,
+         marker = "D",
+         markersize=13,
+         # linestyle='dashed',
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
+         alpha=alpha_line,
+         label=" Recurrent env. changes (High Poly.)")
+plt.plot(df6["age"],
+         df6["fpr"],
+         color="#96036d",
+         marker = "D",
+         markersize=13,
+         # linestyle='dashed',
+         linewidth=my_linewidth,
+         markeredgewidth=my_markeredgewidth,
+         alpha=alpha_line,
+         label=" Recurrent env. changes (Low Poly.)")
+plt.ylim(min(df2["fpr"]*0.8), max(df6["fpr"])*1.1)
+plt.legend(loc="upper center",
+           title=" Population size \n Small   Large",
+           title_fontsize=legend_font,
+           fontsize=legend_font,
+           ncol=2,
+           columnspacing=0.5)._legend_box.align = "left"
+plt.xlabel("Allele age (thousand ticks)", fontsize=label_font)
+# plt.ylabel("False positive rate of neutral alleles \n (FP/(FP+TN))",
+#            fontsize=label_font)
+plt.ylabel("False positive rate",
+           fontsize=label_font)
+plt.xticks(ticks=age_boundaries,
+           labels=[str(int(i/1000)) for i in age_boundaries],
+           rotation=90)
+plt.tick_params(axis='both', which='major', labelsize=tick_font)
+# plt.title("", fontsize=label_font)
+plt.tight_layout()
+plt.savefig(figPath+"fpr_comparison1_" +
+            str(num_cat_age)+"bins"+"_FPR_vs_age_neutralAllele_GEAp" + str(p_threshold) +
+            "_maf" + str(maf_filter) +
+            "_equalInterval.png",
+            dpi=350)
+plt.close()
+
 
 #1. Contrast the effect of selection and migration
 #No selection

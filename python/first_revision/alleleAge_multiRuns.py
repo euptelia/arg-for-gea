@@ -41,12 +41,13 @@ args = parser.parse_args()
 ############################# program #########################################
 # Values
 # sigma_w = 0.4
-# dist_mate = 0.12
-num_runs = 200
+# dist_mate = 0.15
+num_runs = 30  #First revision
 inPath = args.input
-# inPath = "/media/anadem/PortableSSD/arg4gea_data/tskit_data/tick110000/Continuous_nonWF_M2a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K6000_r1.0e-07/tick110000/"
+# inPath = "/home/anadem/github/data/tskit_data/output/table/first_revision/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3/tick110000/"
 
 simName = inPath.split("/")[-3] #Check this before use
+#print(simName)
 #Short title: Hard coded. Check this before using!
 if "sigmaD0.06_mateD0.15" in simName:
     migName = "HighMig"
@@ -78,12 +79,12 @@ demoName2 = name_change2[demoName_ori]
 # figPath = ("/home/anadem/github/data/tskit_data/figure/multiRuns/" +
 #            simName + "/" + str(num_runs) + "runs_" +
 #            inPath.split("/")[-2]+"/")
-figPath = ("/home/anadem/github/data/tskit_data/figure/multiRuns/" +
+figPath = ("/home/anadem/github/data/tskit_data/figure/multiRuns/first_revision/" +
            simName + "/")
 if not os.path.exists(figPath):
     os.makedirs(figPath)
 
-outPath = ("/home/anadem/github/data/tskit_data/stats/")
+outPath = ("/home/anadem/github/data/tskit_data/stats/first_revision/")
 if not os.path.exists(outPath):
     os.makedirs(outPath)
 #Create directories
@@ -115,6 +116,8 @@ past_event_ages = [tick-i for i in list(range(0, 100000, 10000))]
 df = pd.DataFrame()
 # Load results of multiple runs from file
 fileList = glob.glob(inPath + "*.txt")
+#print(inPath)
+#print(fileList)
 run = 0
 for f in fileList:
     # df_focal = pd.read_csv(f, sep='\t', header=0)

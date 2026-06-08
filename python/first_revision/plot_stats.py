@@ -20,23 +20,127 @@ from scipy.stats import f_oneway
 import scipy.stats as stats
 import matplotlib.patches as mpatches # manually make legends
 
+from first_revision.plot_mutiModels import my_linewidth
+
 ############################# program #########################################
 figPath = "/home/anadem/github/data/tskit_data/figure/multiModels/first_revision/"
 if not os.path.exists(figPath):
     os.makedirs(figPath)
 
+#### k80 ####
+inPath = "/home/anadem/github/data/tskit_data/stats/first_revision/k80/singleModel/"
+
+#Two plots: Low polygenicity and high polygenicity
+colors = ["#4a2522","#a68785"]
+widths = 0.5
+myLineWidth = 2
+patch1 = mpatches.Patch(color=colors[0], label='Small')
+patch2 = mpatches.Patch(color=colors[1], label='Large')
+
+
+fig, axs = plt.subplots(nrows=1, ncols=2,
+                        figsize=(4,4))
+#Upper plot: high polygenicity
+focal_data1_1 = pd.read_table(inPath + "Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_k80.txt",
+                    sep="\t", header=0)
+focal_data2_1 = pd.read_table(inPath + "Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_k80.txt",
+                    sep="\t", header=0)
+focal_data1_2 = pd.read_table(inPath + "Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_k80.txt",
+                    sep="\t", header=0)
+focal_data2_2 = pd.read_table(inPath + "Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_k80.txt",
+                    sep="\t", header=0)
+focal_data1 = pd.concat([focal_data1_1, focal_data1_2], axis=1)
+focal_data2 = pd.concat([focal_data2_1, focal_data2_2], axis=1)
+labels_popSize = [i.split("_")[2] for i in list(focal_data1)]
+labels_model = ["\n"+i.split("_")[0] for i in list(focal_data1)]
+axs[0].boxplot(focal_data1, notch=True, patch_artist=True, widths=0.3,
+           boxprops=dict(facecolor=colors[0], color=colors[0], linewidth=myLineWidth),
+           capprops=dict(color=colors[0], linewidth=myLineWidth),
+           whiskerprops=dict(color=colors[0], linewidth=myLineWidth),
+           flierprops=dict(color=colors[0], markeredgecolor=colors[0]),
+           medianprops=dict(color=colors[0]))
+axs[0].boxplot(focal_data2, positions=np.arange(len(focal_data2.columns))+1.3,
+           notch=True, patch_artist=True, widths=0.3,
+           boxprops=dict(facecolor=colors[1], color=colors[1], linewidth=myLineWidth),
+           capprops=dict(color=colors[1], linewidth=myLineWidth),
+           whiskerprops=dict(color=colors[1], linewidth=myLineWidth),
+           flierprops=dict(color=colors[1], markeredgecolor=colors[1]),
+           medianprops=dict(color=colors[1])
+           )
+axs[0].set_ylim(50, 620)
+axs[0].set_xticks([])
+labels2 = axs[0].secondary_xaxis(location=0)
+labels2.set_xticks([1.15, 2.15], labels=labels_model)
+labels2.tick_params('x', length=0)
+axs[0].set_title('High polygenicity')
+axs[0].set_xlabel(xlabel="\n\nModels", weight="bold")
+axs[0].set_ylabel(ylabel="$\it{K_{80,pos}}$", fontsize=16)
+axs[0].legend(handles=[patch2, patch1],
+              title="Population size",
+              loc="upper left",
+              fontsize=10)
+trans = axs[0].get_xaxis_transform()
+axs[0].plot([0.85,1.45],[-.035,-.035], color="dimgrey", transform=trans, clip_on=False)
+axs[0].plot([1.85,2.45],[-.035,-.035], color="dimgrey", transform=trans, clip_on=False)
+
+#Lower plot: low polygenicity
+focal_data1 = pd.read_table(inPath + "Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_k80.txt",
+                    sep="\t", header=0)
+focal_data2 = pd.read_table(inPath + "Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_k80.txt",
+                    sep="\t", header=0)
+labels_map = [i.split("_")[3] for i in list(focal_data1)]
+labels_model = ["\n"+i.split("_")[0] for i in list(focal_data1)]
+labels_full = ["\n".join(np.array(i.split("_"))[[0,3]]) for i in list(focal_data1)]
+axs[1].boxplot(focal_data1, notch=True, patch_artist=True, widths=0.15,
+           boxprops=dict(facecolor=colors[0], color=colors[0], linewidth=myLineWidth),
+           capprops=dict(color=colors[0], linewidth=myLineWidth),
+           whiskerprops=dict(color=colors[0], linewidth=myLineWidth),
+           flierprops=dict(color=colors[0], markeredgecolor=colors[0]),
+           medianprops=dict(color=colors[0]))
+axs[1].boxplot(focal_data2, positions=np.arange(len(focal_data2.columns))+1.3,
+           notch=True, patch_artist=True, widths=0.15,
+           boxprops=dict(facecolor=colors[1], color=colors[1], linewidth=myLineWidth),
+           capprops=dict(color=colors[1], linewidth=myLineWidth),
+           whiskerprops=dict(color=colors[1], linewidth=myLineWidth),
+           flierprops=dict(color=colors[1], markeredgecolor=colors[1]),
+           medianprops=dict(color=colors[1])
+           )
+axs[1].set_ylim(1.5, 7.7)
+axs[1].set_xticks([])
+labels2 = axs[1].secondary_xaxis(location=0)
+labels2.set_xticks([1.15], labels=labels_model)
+labels2.tick_params('x', length=0)
+axs[1].set_title('Low polygenicity')
+axs[1].set_xlabel(xlabel="\n\nModels", weight="bold")
+# axs[1].set_ylabel(ylabel="$\it{K_{80,pos}}$")
+axs[1].legend(handles=[patch2, patch1],
+           title="Population size",
+           loc="upper left",
+            fontsize=10)
+trans = axs[1].get_xaxis_transform()
+axs[1].plot([0.95,1.35],[-.035,-.035], color="dimgrey", transform=trans, clip_on=False)
+fig.tight_layout()
+# plt.savefig(figPath+
+#             "k80_32models_boxplot.png",
+#             dpi=350)
+plt.savefig(figPath+
+            "k80_6models_boxplot2.tif",
+            dpi=350)
+plt.close()
+
 
 #### N individual ####
-n_ind = pd.read_table("/home/anadem/github/data/tskit_data/stats/n_ind/n_ind_32model.tab",
+n_ind = pd.read_table("/home/anadem/github/data/tskit_data/stats/first_revision/n_ind/n_ind_3model.tab",
                     sep="\t")
 n_ind.mean()
 n_ind.std()
 n_ind.mean(axis=None)
 n_ind.stack().std(axis=None)
 
+
 # Individual ages
 # Individual age of 32 models
-inPath = "/home/anadem/github/data/tskit_data/stats/ind_age/"
+inPath = "/home/anadem/github/data/tskit_data/stats/first_revision/ind_age/"
 outPath = "/home/anadem/github/data/tskit_data/stats/first_revision/"
 fileList = glob.glob(inPath + "*.tab")
 ind_age_dict = {}
@@ -88,25 +192,10 @@ plt.close()
 
 np.log10(ind_age)
 
-# #Violin plot: not used
-# # Remove NaN values from the dataset before using matplotlib
-# ind_age_noNan = [np.array(np.log10(ind_age[group]))[~np.isnan(np.log10(ind_age[group]))] for group in ind_age]
-# plt.figure(figsize=(12,6))
-# plt.violinplot(ind_age_noNan)
-# plt.xticks(ticks=np.arange(len(ind_age_noNan))+1.125,
-#            labels=list(ind_age),
-#            rotation=90,
-#            ha='center')
-# fig.tight_layout()
-# plt.savefig(figPath+
-#             "individual_age_violinPlot_log10.png",
-#             dpi=350)
-# plt.close()
-
 
 
 #### k80 ####
-k80 = pd.read_table("/home/anadem/github/data/tskit_data/stats/k80/k80_32model.tab",
+k80 = pd.read_table("/home/anadem/github/data/tskit_data/stats/first_revision/k80_3model.tab",
                     sep="\t")
 # select columns containing 'lowPoly'
 k80_lowPoly = k80.filter(like="LowPoly", axis=1)

@@ -20,7 +20,10 @@ bioRxiv 2026.02.01.703099; doi: https://doi.org/10.64898/2026.02.01.703099
 
 <br/>
 <br/>
-
+*clineMap*.slim: simulations with a clinal environmental map  
+*patchyMap*.slim: simulations with a patchy environmental map  
+<br/>
+<br/>
 
 ### Single-sample simulations  
 arg-for-gea/slim/glacial_history/  

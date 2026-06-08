@@ -268,18 +268,6 @@ for v in mts.variants():
         focal_freq = np.count_nonzero(v.genotypes == allele)/num_samples
         freq.append(focal_freq)
 
-# # TMRCA of all samples at the position of each mutation
-# tmrca_mut = []
-# for p in pos_by_mut:
-#     tmrca_mut.append(tree_height(mts.at(p), max_tick))
-#
-# tmrca_mut = np.full(shape=mts.num_mutations,
-#                     fill_value=np.nan)
-# i = 0
-# for p in pos_by_mut:
-#     tmrca_mut[i] = tree_height(mts.at(p), max_tick)
-#     i += 1
-
 # Remove negative LF values and 0 allele age for some plots
 age_positveLFandAge = age[np.logical_and(delta_LF_mut > 0, age > 0)]
 delta_LF_mut_positveLFandAge = delta_LF_mut[np.logical_and(delta_LF_mut > 0,
