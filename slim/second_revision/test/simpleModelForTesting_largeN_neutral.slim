@@ -1,0 +1,211 @@
+
+// set up a simulation of local adaptation in a 2D stepping-stone model
+// assuming a directional selection model of local adaptation
+
+initialize() {
+		// Second revision: A factor for scaling the original mutation rate and population size
+	defineConstant("scaleF", 10);
+	// Random seed
+	defineConstant("seed", rdunif(1, 0, asInteger(2^62) - 1));
+	setSeed(seed);
+	// output dir
+	defineConstant("outDir", "/home/anadem/github/data/slim_data/second_revision/test/discrete_neutral/");
+	// population size (per dem)
+	defineConstant("N", 55*scaleF); // Pretty obvious what this is
+	
+	// genome size: 10 Mb
+	defineConstant("L", 1e7); //
+	// functional mutation rate: 1e-8, 1e-10 # Second revision: mu/scaleF
+	defineConstant("mu", (1e-8)/scaleF);
+		// Sd of mutation effect size on trait value: small 0.01, large: 0.1
+	defineConstant("sigma_M", 0.01);
+	//  recombination rate on chromosomes
+	defineConstant("r", 1e-7);
+	
+	// I include some options for the selection strength below	
+	defineConstant("s", 0.0475); // This gives a fitness reduction of 1/2 between environmental extremes
+	//	defineConstant("s", 0.0205); // This gives a fitness reduction of 1/5 between environmental extremes
+	//	defineConstant("s", 0.005); // This gives a fitness reduction of 1/10 between environmental extremes
+	
+	defineConstant("REP", 1); // For saving files
+	
+	defineConstant("optima", c(-7,-4,1,-2,1,2,3,5,3,1,3,3,2,2,-7,-3,-2,-2,0,3,5,4,1,0,1,1,0,0,-7,-5,-2,2,3,0,3,1,-1,-1,-1,-1,-1,-1,-7,-5,0,2,4,-1,0,-1,0,0,-1,-1,-1,0,-7,-4,-1,4,0,-1,2,2,0,0,-1,-1,-1,0,-6,-4,-3,-3,1,1,0,0,0,-1,0,-1,-1,2,-6,-4,0,-2,-3,-3,1,0,0,0,0,-1,1,2,-2,-1,-2,-1,1,-2,1,0,0,0,2,0,0,2,-1,-2,-2,-1,0,-2,0,1,1,0,2,1,2,3,-3,-1,-2,-2,0,-3,3,2,2,1,3,5,3,4,-1,0,-1,-2,-2,-4,-2,-1,0,2,1,1,3,7,1,0,0,-2,-1,-1,-1,0,1,1,1,4,7,7,-4,-6,-1,0,-2,-3,-2,0,1,3,3,5,7,7,-3,-4,-6,-4,-1,-3,-1,-2,0,2,4,7,7,7) );
+//	defineConstant("subpopCount", length(optima));
+	defineConstant("subpopCount", 100);
+	
+	// Keep track of the tree sequence for the population
+	initializeTreeSeq();
+	
+	initializeMutationRate(mu);
+	
+	initializeMutationType("m2", 0.5, "n", 0.0, sigma_M);   // QTL mutations
+	m2.convertToSubstitution = F;
+	
+	// g2 genomic element type: genes at chromosomes with QTL
+	initializeGenomicElementType("g2", m2, 1.0);
+	
+	
+	// genome of total length 10 Mb 
+	// four chromosomes
+	len_chrom = asInteger(L/4);
+	//5kb-genes with 5/10/20 kb-intergenic regions in the first three chromosomes
+	len_gene = 5000;
+	len_intergenic_list = c(10000, 10000, 10000);
+	for (i in 0:2)
+	{
+		len_intergenic = len_intergenic_list[i];
+		len_block = len_gene + len_intergenic;
+		for (j in seq(len_chrom*i, asInteger(len_chrom*(i+1)-len_block),len_block))
+		{
+			initializeGenomicElement(g2, j, j + len_gene);
+		}
+	}
+	
+	//recombination rate: Ingvarsson et al., 2008: 2e-8 -- 27e-8 (modal 15e-8)
+	rates = c(rep(c(r, 0.5),3), r);
+	ends = c(len_chrom-1, len_chrom,
+		len_chrom*2-1, len_chrom*2,
+		len_chrom*3-1, len_chrom*3,
+		len_chrom*4-1);
+	initializeRecombinationRate(rates, ends);
+}
+
+mutationEffect(m2) {
+	return 1.0; // The direct fitness effect is reset to neutral
+}
+
+1 late() {
+	// I hard-coded the BC Map into the SLiM recipe to make it a little more portable
+	// I start with a single panmictic population 
+	
+	tempID = "p999";
+	sim.addSubpop(tempID, subpopCount*N);
+	defineConstant("simID", getSeed());
+
+}
+
+
+
+// Do 100 generations of single population, constant size then split into the stepping stone
+100 late(){
+	
+	m2.convertToSubstitution = F;
+	m2.mutationStackPolicy = "f";
+	
+	// Make 196 demes from the original population	
+	for (i in 0:(subpopCount-1)){
+		sim.addSubpopSplit(i, N, p999);
+		sim.subpopulations[i].tag = asInteger(optima[i]);
+	}
+	
+	// Reduce the initial subpopulation to 0 individuals 
+	p999.setSubpopulationSize(0);
+	sLen = asInteger(sqrt(subpopCount));
+	
+	// Set the migration rate - analytical expectations for Fst in stepping stone population are messy - I just got this value through trial and error. It leads to an Fst of around 5%
+	mig = 7.5 / ( 2*N );
+	
+	// Set the migration rates between adjacent demes
+	for (i in 1:subpopCount-1) {
+		row = asInteger(i/sLen);
+		col = asInteger(i - (sLen * row));
+		focal = i;
+		
+		// A 2D stepping stone model
+		//      Left
+		if (col != 0){
+			sim.subpopulations[focal].setMigrationRates(focal-1, mig);
+		}
+		//      Right
+		if (col < sLen-1){
+			sim.subpopulations[focal].setMigrationRates(focal+1 , mig);
+		}
+		//      Up
+		if (row > 0){
+			sim.subpopulations[focal].setMigrationRates(focal - sLen  , mig);
+		}
+		//      Down
+		if (row < sLen-1){
+			sim.subpopulations[focal].setMigrationRates(focal+sLen, mig);
+		}
+	}
+
+}
+
+// After 1000 generations of netural evolution, impose a model of directional selection on a single mutation
+// Use the mutation introduction code from Recipe 9.3
+// I use the code from that recipe to make the simulation conditional on establishment of the allele
+
+//1001:101001 mutationEffect(m2) {
+//	if (individual.genome1.individual.subpopulation.tag != individual.genome2.individual.subpopulation.tag)
+//		return "a";
+//	else
+//		return 1. + s*individual.genome1.individual.subpopulation.tag;
+//}
+
+//11000 late() {
+//	// save the state of the simulation
+//	sim.treeSeqOutput(tempdir() + "slim_" + REP + ".txt");
+//	
+//	// introduce the sweep mutation
+//	target = sample(p6.genomes, 1);
+//	target.addNewDrawnMutation(m2, 2500000);
+//}
+
+
+//11000: late() {
+//	mut = sim.mutationsOfType(m2);
+//	
+//	if (size(mut) == 1)
+//	{
+//		if (sim.mutationFrequencies(NULL, mut) > 0.1)
+//		{
+//			cat(simID + ": ESTABLISHED\n");
+//			community.deregisterScriptBlock(self);
+//		}
+//	}
+//	else
+//	{
+//		cat(simID + ": LOST - RESTARTING\n");
+//		
+//		// go back to tick 1000
+//		sim.readFromPopulationFile(tempdir() + "slim_" + REP + ".txt");
+//		
+//		for (i in 0:(subpopCount-1)){
+//			sim.subpopulations[i].tag = asInteger(optima[i]);
+//		}
+//		
+//		// start a newly seeded run
+//		setSeed(rdunif(1, 0, asInteger(2^62) - 1));
+//		
+//		// re-introduce the sweep mutation
+//		target = sample(p6.genomes, 1);
+//		target.addNewDrawnMutation(m2, 2500000);
+//	}
+//}
+
+
+1 early() {
+	sim.treeSeqOutput(outDir + "neutral_tick" + sim.cycle +
+		"_seed" + seed + 
+		"_N" + length(sim.subpopulations.individuals) +
+		paste(c("_", REP,"_", s, "_.1Locus.directionalSelection.trees"), sep=""));
+}
+
+
+11000 early() {
+	sim.treeSeqOutput(outDir + "neutral_tick" + sim.cycle +
+		"_seed" + seed + 
+		"_N" + length(sim.subpopulations.individuals) +
+		paste(c("_", REP,"_", s, "_.1Locus.directionalSelection.trees"), sep=""));
+}
+
+
+110000 early() {
+	sim.treeSeqOutput(outDir + "neutral_tick" + sim.cycle +
+		"_seed" + seed + 
+		"_N" + length(sim.subpopulations.individuals) +
+		paste(c("_", REP,"_", s, "_.1Locus.directionalSelection.trees"), sep=""));
+	sim.simulationFinished();
+}
+

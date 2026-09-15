@@ -33,7 +33,8 @@ args = parser.parse_args()
 
 ############################# program #########################################
 # inPath = args.input
-inPath = "/home/anadem/github/data/tskit_data/output/table/first_revision/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3/timeSeries/complete"
+# inPath = "/home/anadem/github/data/tskit_data/output/table/first_revision/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3/timeSeries/complete"
+inPath = "/media/anadem/golden5tb/arg4gea_data/tskit_data/first_revision/low_mut/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu3.33333e-09_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3/timeSeries/complete"
 history = 100000 # Ticks before the last environmental change (before the sampling stage)
 #Use K80
 expected_explained_proportion = 0.8
@@ -71,7 +72,7 @@ demoName = name_change[demoName_ori]
 shortName = ",".join([demoName, migName, mapName])
 
 #Output
-figPath = ("/home/anadem/github/data/tskit_data/figure/multiTimes/first_revision/"+
+figPath = ("/home/anadem/github/data/tskit_data/figure/multiTimes/first_revision/low_mut/"+
            model_name + "/")
 if not os.path.exists(figPath):
     os.makedirs(figPath)

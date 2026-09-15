@@ -17,8 +17,9 @@ num_runs = 30
 # inPath = "/home/anadem/github/data/tskit_data/stats/fpr/singleModel"
 # figPath = "/home/anadem/github/data/tskit_data/figure/multiModels/"
 
-inPath = "/home/anadem/github/data/tskit_data/stats/first_revision/fpr/singleModel"
-figPath = "/home/anadem/github/data/tskit_data/figure/first_revision/"
+# inPath = "/home/anadem/github/data/tskit_data/stats/first_revision/fpr/singleModel"
+inPath = "/home/anadem/github/data/tskit_data/stats/first_revision/low_mut/fpr/singleModel"
+figPath = "/home/anadem/github/data/tskit_data/figure/first_revision/low_mut/"
 if not os.path.exists(figPath):
     os.makedirs(figPath)
 
@@ -46,20 +47,23 @@ color_recurrent_sel="indigo"
 #m2b
 f1 = inPath + "/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
 df1 = pd.read_csv(f1, sep="\t", header=0, index_col=False)
-f2 = inPath + "/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_p1e-10_maf0.05_cat22_fpr.tab"
+# f2 = inPath + "/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_p1e-10_maf0.05_cat22_fpr.tab"
+f2 = inPath + "/Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu3.33333e-09_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_p1e-10_maf0.05_cat22_fpr.tab"
 df2 = pd.read_csv(f2, sep="\t", header=0, index_col=False)
 
 #m3b small
 f3 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
 df3 = pd.read_csv(f3, sep="\t", header=0, index_col=False)
-f4 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_p1e-10_maf0.05_cat22_fpr.tab"
+# f4 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_p1e-10_maf0.05_cat22_fpr.tab"
+f4 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu3.33333e-09_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_p1e-10_maf0.05_cat22_fpr.tab"
 df4 = pd.read_csv(f4, sep="\t", header=0, index_col=False)
 
 #m3b large
 #Recurrent environmental changes
 f5 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
 df5 = pd.read_csv(f5, sep="\t", header=0, index_col=False)
-f6 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_p1e-10_maf0.05_cat22_fpr.tab"
+# f6 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_p1e-10_maf0.05_cat22_fpr.tab"
+f6 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu3.33333e-11_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_p1e-10_maf0.05_cat22_fpr.tab"
 df6 = pd.read_csv(f6, sep="\t", header=0, index_col=False)
 
 age_boundaries = list(df1["tick_text"]) + [110000.0]
@@ -130,7 +134,8 @@ plt.plot(df6["age"],
          markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label=" Recurrent env. changes (Low Poly.)")
-plt.ylim(min(df2["fpr"]*0.8), max(df6["fpr"])*1.1)
+# plt.ylim(min(df2["fpr"]*0.8), max(df6["fpr"])*1.1)
+plt.ylim(min(df4["fpr"]*0.8), max(df2["fpr"])*1.1)
 plt.legend(loc="upper center",
            title=" Population size \n Small   Large",
            title_fontsize=legend_font,

@@ -23,12 +23,13 @@ import matplotlib.patches as mpatches # manually make legends
 from first_revision.plot_mutiModels import my_linewidth
 
 ############################# program #########################################
-figPath = "/home/anadem/github/data/tskit_data/figure/multiModels/first_revision/"
+figPath = "/home/anadem/github/data/tskit_data/figure/multiModels/first_revision/low_mut/"
 if not os.path.exists(figPath):
     os.makedirs(figPath)
 
 #### k80 ####
-inPath = "/home/anadem/github/data/tskit_data/stats/first_revision/k80/singleModel/"
+# inPath = "/home/anadem/github/data/tskit_data/stats/first_revision/k80/singleModel/"
+inPath = "/home/anadem/github/data/tskit_data/stats/first_revision/low_mut/k80/singleModel/"
 
 #Two plots: Low polygenicity and high polygenicity
 colors = ["#4a2522","#a68785"]
@@ -43,11 +44,15 @@ fig, axs = plt.subplots(nrows=1, ncols=2,
 #Upper plot: high polygenicity
 focal_data1_1 = pd.read_table(inPath + "Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_k80.txt",
                     sep="\t", header=0)
-focal_data2_1 = pd.read_table(inPath + "Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_k80.txt",
+# focal_data2_1 = pd.read_table(inPath + "Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_k80.txt",
+#                     sep="\t", header=0)
+focal_data2_1 = pd.read_table(inPath + "Continuous_nonWF_M2b_glacialHistoryOptimum0_clineMap_mu3.33333e-09_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_k80.txt",
                     sep="\t", header=0)
 focal_data1_2 = pd.read_table(inPath + "Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_k80.txt",
                     sep="\t", header=0)
-focal_data2_2 = pd.read_table(inPath + "Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_k80.txt",
+# focal_data2_2 = pd.read_table(inPath + "Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_k80.txt",
+#                     sep="\t", header=0)
+focal_data2_2 = pd.read_table(inPath + "Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu3.33333e-09_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_k80.txt",
                     sep="\t", header=0)
 focal_data1 = pd.concat([focal_data1_1, focal_data1_2], axis=1)
 focal_data2 = pd.concat([focal_data2_1, focal_data2_2], axis=1)
@@ -67,7 +72,8 @@ axs[0].boxplot(focal_data2, positions=np.arange(len(focal_data2.columns))+1.3,
            flierprops=dict(color=colors[1], markeredgecolor=colors[1]),
            medianprops=dict(color=colors[1])
            )
-axs[0].set_ylim(50, 620)
+# axs[0].set_ylim(50, 620) # 3x pop size + original mutatation rate
+axs[0].set_ylim(20, 270)
 axs[0].set_xticks([])
 labels2 = axs[0].secondary_xaxis(location=0)
 labels2.set_xticks([1.15, 2.15], labels=labels_model)
@@ -86,7 +92,9 @@ axs[0].plot([1.85,2.45],[-.035,-.035], color="dimgrey", transform=trans, clip_on
 #Lower plot: low polygenicity
 focal_data1 = pd.read_table(inPath + "Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_k80.txt",
                     sep="\t", header=0)
-focal_data2 = pd.read_table(inPath + "Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_k80.txt",
+# focal_data2 = pd.read_table(inPath + "Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-10_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_k80.txt",
+#                     sep="\t", header=0)
+focal_data2 = pd.read_table(inPath + "Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu3.33333e-11_sigmaM0.1_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_boundarySqrt3_tick110000_30runs_k80.txt",
                     sep="\t", header=0)
 labels_map = [i.split("_")[3] for i in list(focal_data1)]
 labels_model = ["\n"+i.split("_")[0] for i in list(focal_data1)]
@@ -124,7 +132,7 @@ fig.tight_layout()
 #             "k80_32models_boxplot.png",
 #             dpi=350)
 plt.savefig(figPath+
-            "k80_6models_boxplot2.tif",
+            "k80_6models_low_mut_boxplot.tif",
             dpi=350)
 plt.close()
 

@@ -79,12 +79,12 @@ demoName2 = name_change2[demoName_ori]
 # figPath = ("/home/anadem/github/data/tskit_data/figure/multiRuns/" +
 #            simName + "/" + str(num_runs) + "runs_" +
 #            inPath.split("/")[-2]+"/")
-figPath = ("/home/anadem/github/data/tskit_data/figure/multiRuns/first_revision/" +
+figPath = ("/home/anadem/github/data/tskit_data/figure/multiRuns/first_revision/low_mut/" +
            simName + "/")
 if not os.path.exists(figPath):
     os.makedirs(figPath)
 
-outPath = ("/home/anadem/github/data/tskit_data/stats/first_revision/")
+outPath = ("/home/anadem/github/data/tskit_data/stats/first_revision/low_mut/")
 if not os.path.exists(outPath):
     os.makedirs(outPath)
 #Create directories

@@ -13,10 +13,11 @@
 #  python3 /home/anadem/github/arg-for-gea/python/calculate_stats.py -i $folder -o /home/anadem/github/data/tskit_data/stats
 #done
 
-basePath="/media/anadem/PortableSSD/arg4gea_data/slim_data/*/tick110000/"
+#basePath="/media/anadem/PortableSSD/arg4gea_data/slim_data/*/tick110000/"
+basePath="/media/anadem/golden5tb/arg4gea_data/slim_data/first_revision/low_mut/M*/tick110000/"
 for folder in $basePath
 do
   echo $folder
   cd $folder
-  python3 /home/anadem/github/arg-for-gea/python/calculate_stats.py -i $folder -o /home/anadem/github/data/tskit_data/stats
+  python3 /home/anadem/github/arg-for-gea/python/calculate_stats.py -i $folder -o /home/anadem/github/data/tskit_data/stats/first_revision/low_mut
 done

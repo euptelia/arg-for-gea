@@ -142,7 +142,7 @@ if not os.path.exists(figPath):
 # outBasePath = "/home/tianlin/Documents/github/data/tskit_data/output/table/realistic_fpr_comparisons/"
 # outBasePath = "/home/tianlin/ubc/data/tskit_data/output/table/realistic_fpr_comparisons/"
 # outBasePath = "/home/anadem/github/data/tskit_data/output/table/realistic_fpr_comparisons/"
-outBasePath = "/home/anadem/github/data/tskit_data/output/table/first_revision/"
+outBasePath = "/home/anadem/github/data/tskit_data/output/table/first_revision/low_mut/"
 outPath = outBasePath+short_model_name+"/"
 if not os.path.exists(outPath):
     os.makedirs(outPath)
