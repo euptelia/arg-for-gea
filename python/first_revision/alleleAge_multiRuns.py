@@ -4,7 +4,7 @@ alleleAge_slimHistory.py
 tianlin.duan42@gmail.com
 2024.05.09
 """
-############################# modules #########################################
+############################## modules ########################################
 import matplotlib
 from scipy.spatial import distance_matrix
 import PyQt6
@@ -102,11 +102,11 @@ event_age = tick - 100000
 past_event_ages = [tick-i for i in list(range(0, 100000, 10000))]
 
 # Shape of the table:
-# dataTable[0]     mutation ID
-# dataTable[1]     age,
-# dataTable[2]     freq,
-# dataTable[3]     mut_effect,
-# dataTable[4]     delta_LF_mut,
+# dataTable[0]     mutation positions
+# dataTable[1]     age
+# dataTable[2]     freq
+# dataTable[3]     mut_effect
+# dataTable[4]     delta_LF_mut
 # dataTable[5]     cor_GE[0]: Kandell's tau
 # dataTable[6]     cor_GE[1]: p-value
 # dataTable[7]     relative to the sum of positive delta_LF_mut (delta_LF_mut/sum of positive LF_mut )

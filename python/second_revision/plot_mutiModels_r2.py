@@ -18,7 +18,7 @@ import pandas as pd #dataframe
 
 # inPath = "/home/anadem/github/data/tskit_data/stats/first_revision/fpr/singleModel"
 # figPath = "/home/anadem/github/data/tskit_data/figure/first_revision/"
-inPath = "/home/anadem/github/data/tskit_data/stats/second_revision/fpr_neutralChrom"
+inPath = "/home/anadem/github/data/tskit_data/stats/second_revision/fpr_neutralChrom/singleModel"
 figPath = "/home/anadem/github/data/tskit_data/figure/second_revision/"
 
 if not os.path.exists(figPath):
@@ -62,6 +62,9 @@ f5 = inPath + "/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_s
 df5 = pd.read_csv(f5, sep="\t", header=0, index_col=False)
 f6 = inPath + "/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.06_mateD0.15_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
 df6 = pd.read_csv(f6, sep="\t", header=0, index_col=False)
+
+focal_max = max(pd.concat([df1, df2, df3, df4, df5, df6])["fpr"])
+
 
 age_boundaries = list(df1["tick_text"]) + [110000.0]
 
@@ -131,7 +134,7 @@ plt.plot(df6["age"],
          markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label=" Recurrent env. changes")
-plt.ylim(min(df2["fpr"]*0.8), max(df4["fpr"])*1.1)
+plt.ylim(min(df2["fpr"]*0.8), focal_max*1.1)
 plt.legend(loc="upper center",
            title="   Migration \n Low    High",
            title_fontsize=legend_font,
@@ -152,7 +155,7 @@ plt.tight_layout()
 plt.savefig(figPath+"fpr_comparison1_" +
             str(num_cat_age)+"bins"+"_FPR_vs_age_neutralAllele_GEAp" + str(p_threshold) +
             "_maf" + str(maf_filter) +
-            "_equalInterval.png",
+            "_equalInterval_neutralChrom.png",
             dpi=350)
 plt.close()
 
@@ -176,6 +179,8 @@ f5 = inPath + "/Continuous_nonWF_M3a_glacialHistoryOptimum0_clineMap_mu1.0e-08_s
 df5 = pd.read_csv(f5, sep="\t", header=0, index_col=False)
 f6 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_clineMap_mu1.0e-08_sigmaM0.01_sigmaW0.4_sigmaD0.03_mateD0.12_K6000_r1.0e-07_tick110000_200runs_p1e-10_maf0.05_cat22_fpr.tab"
 df6 = pd.read_csv(f6, sep="\t", header=0, index_col=False)
+
+focal_max = max(pd.concat([df1, df2, df3, df4, df5, df6])["fpr"])
 
 #Check the following numbers before use
 age_boundaries = list(df1["tick_text"]) + [110000.0]
@@ -249,7 +254,7 @@ plt.plot(df6["age"],
          markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label=" Recurrent env. changes")
-plt.ylim(min(df2["fpr"]*0.8), max(df4["fpr"])*1.18)
+plt.ylim(min(df2["fpr"]*0.8), focal_max*1.2)
 plt.legend(loc="upper center",
            title=" Demography \nConst.  Expan.",
            title_fontsize=legend_font,
@@ -270,7 +275,7 @@ plt.tight_layout()
 plt.savefig(figPath+"fpr_comparison2_lowMig_" +
             str(num_cat_age)+"bins"+"_FPR_vs_age_neutralAllele_GEAp" + str(p_threshold) +
             "_maf" + str(maf_filter) +
-            "_equalInterval.png",
+            "_equalInterval_neutralChrom.png",
             dpi=350)
 plt.close()
 
@@ -398,6 +403,7 @@ f6 = inPath + "/Continuous_nonWF_M3b_glacialHistoryOptimum0_patchyMap_mu1.0e-08_
 df6 = pd.read_csv(f6, sep="\t", header=0, index_col=False)
 
 age_boundaries = list(df1["tick_text"]) + [110000.0]
+focal_max = max(pd.concat([df1, df2, df3, df4, df5, df6])["fpr"])
 
 # Neutral alleles: FPR ～ Allele age, equal intervals
 plt.figure(figsize=age_fig_size)
@@ -462,6 +468,7 @@ plt.plot(df6["age"],
          markeredgewidth=my_markeredgewidth,
          alpha=alpha_line,
          label = "Recurrent pop. expansions")
+plt.ylim(-0.02, focal_max*1.05)
 plt.xlabel("Allele age (thousand ticks)", fontsize=label_font)
 # plt.ylabel("False positive rate of neutral alleles \n (FP/(FP+TN))",
 #            fontsize=label_font)
@@ -482,7 +489,7 @@ plt.tight_layout()
 plt.savefig(figPath+"fpr_comparison3_" +
             str(num_cat_age)+"bins"+"_FPR_vs_age_neutralAllele_GEAp" + str(p_threshold) +
             "_maf" + str(maf_filter) +
-            "_equalInterval.png",
+            "_equalInterval_neutralChrom.png",
             dpi=350)
 plt.close()
 

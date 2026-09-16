@@ -139,7 +139,7 @@ ind_x, ind_y, ind_z = zip(*ts.individuals_location)
 # Genomic position of sites
 pos = ts.sites_position
 # Genomic position of mutations
-pos_by_mut = ts.sites_position[ts.mutations_site]
+#pos_by_mut = ts.sites_position[ts.mutations_site]
 # Maximum tick
 max_tick = ts.metadata["SLiM"]["tick"]
 # Number of diploid individuals
