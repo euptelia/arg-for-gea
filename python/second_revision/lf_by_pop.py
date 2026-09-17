@@ -248,14 +248,15 @@ elif mapName == "Patchy":
     my_vmin = -0.05
     my_vmax = 0.3
 plt.imshow(LF_pop, cmap='viridis',
-           aspect='auto', origin='lower',
+           aspect='equal', origin='lower',
            vmin=my_vmin, vmax=my_vmax)
 plt.colorbar(label=r" $\it{LF_{pop}}$ ")
-plt.title(shortName)
+plt.title(shortName,size=16)
 plt.savefig(figPath + str(model_name) +
             "_mutSeed" + str(mutation_seed) +
             "_lf100pop_heatmap.png",
             dpi=300)
+plt.tight_layout()
 plt.close()
 
 

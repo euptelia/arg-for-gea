@@ -1117,26 +1117,37 @@
 
 #1/3 mutation rate, M3b, tick110000 for time series analysis
 
-sleep 3h
-inPath="/home/anadem/github/data/slim_data/first_revision/low_mut/M3b_smallLowVm_highMig_clineMap/tick110000/batch1"
-i=1
-echo $inPath
-for file in ${inPath}/*.trees
-do
-    printf "file %s / 10 \n" $i 
-    printf "Start making a table with \n %s" $file
-    python3 /home/anadem/github/arg-for-gea/python/first_revision/alleleAge_slimHistory_noNeuMut.py -i ${file}
-    i=$((${i}+1))
-done
+#sleep 3h
+#inPath="/home/anadem/github/data/slim_data/first_revision/low_mut/M3b_smallLowVm_highMig_clineMap/tick110000/batch1"
+#i=1
+#echo $inPath
+#for file in ${inPath}/*.trees
+#do
+#    printf "file %s / 10 \n" $i 
+#    printf "Start making a table with \n %s" $file
+#    python3 /home/anadem/github/arg-for-gea/python/first_revision/alleleAge_slimHistory_noNeuMut.py -i ${file}
+#    i=$((${i}+1))
+#done
 
-inPath="/home/anadem/github/data/slim_data/first_revision/low_mut/M3b_smallLowVm_highMig_clineMap/tick110000/batch3"
+#inPath="/home/anadem/github/data/slim_data/first_revision/low_mut/M3b_smallLowVm_highMig_clineMap/tick110000/batch3"
+#i=1
+#echo $inPath
+#for file in ${inPath}/*.trees
+#do
+#    printf "file %s / 10 \n" $i 
+#    printf "Start making a table with \n %s" $file
+#    python3 /home/anadem/github/arg-for-gea/python/first_revision/alleleAge_slimHistory_noNeuMut.py -i ${file}
+#    i=$((${i}+1))
+#done
+
+inPath="/home/anadem/github/data/slim_data/glacial_history/second_revision/M3a_interPoly_highMig_clineMap/tick110000/batch1"
 i=1
 echo $inPath
 for file in ${inPath}/*.trees
 do
-    printf "file %s / 10 \n" $i 
+    printf "file %s / 100 \n" $i 
     printf "Start making a table with \n %s" $file
-    python3 /home/anadem/github/arg-for-gea/python/first_revision/alleleAge_slimHistory_noNeuMut.py -i ${file}
+    python3 /home/anadem/github/arg-for-gea/python/alleleAge_slimHistory.py -i ${file} -p 0
     i=$((${i}+1))
 done
 
