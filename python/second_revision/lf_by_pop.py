@@ -83,7 +83,7 @@ short_model_name = "_".join(file_name.split("_")[0:-2])
 figPath = "/home/anadem/github/data/tskit_data/figure/second_revision/"
 #Figure path for the current run
 #figPath = figPath + model_name + "/"
-figPath = figPath + "lf_pop/"
+figPath = figPath + "lf_pop/no_bar/"
 if not os.path.exists(figPath):
     os.makedirs(figPath)
 
@@ -118,9 +118,12 @@ else:
     mutName = ""
 demoName_ori = short_model_name.split("_")[2]
 # name_change = {"M2a":"M1a", "M2b":"M1b", "M3a":"M2a", "M3b":"M2b"}
-name_change = {"M0a":"Neutral constant","M0b":"Neutral expansion",
-               "M2a":"Single change", "M2b":"Single expansion",
-               "M3a":"Recurrent changes", "M3b":"Recurrent expansions"}
+name_change = {"M0a":"MNeuCon","M0b":"MNeuExp",
+               "M2a":"MSelCon", "M2b":"MSelExp",
+               "M3a":"MRecCon", "M3b":"MRecExp"}
+# name_change = {"M0a":"Neutral constant","M0b":"Neutral expansion",
+#                "M2a":"Single change", "M2b":"Single expansion",
+#                "M3a":"Recurrent changes", "M3b":"Recurrent expansions"}
 demoName = name_change[demoName_ori]
 shortName = ",".join([demoName, mutName, migName, mapName])
 
@@ -247,15 +250,16 @@ if mapName == "Cline":
 elif mapName == "Patchy":
     my_vmin = -0.05
     my_vmax = 0.3
+plt.figure(figsize=(4.2,4.2))
 plt.imshow(LF_pop, cmap='viridis',
            aspect='equal', origin='lower',
            vmin=my_vmin, vmax=my_vmax)
-plt.colorbar(label=r" $\it{LF_{pop}}$ ")
+#plt.colorbar(label=r" $\it{LF_{pop}}$ ")
 plt.title(shortName,size=16)
 plt.savefig(figPath + str(model_name) +
             "_mutSeed" + str(mutation_seed) +
             "_lf100pop_heatmap.png",
-            dpi=300)
+            dpi=350)
 plt.tight_layout()
 plt.close()
 

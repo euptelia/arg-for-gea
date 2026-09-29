@@ -36,11 +36,19 @@
 #  python3 /home/anadem/github/arg-for-gea/python/first_revision/alleleAge_multiRuns.py -i $folder/tick110000/
 #done
 
-#First revision: low mutation rate
-basePath="/media/anadem/golden5tb/arg4gea_data/tskit_data/first_revision/low_mut/Continuous_nonWF*"
+##First revision: low mutation rate
+#basePath="/media/anadem/golden5tb/arg4gea_data/tskit_data/first_revision/low_mut/Continuous_nonWF*"
+#for folder in $basePath
+#do
+#  echo $folder/tick110000/
+#  python3 /home/anadem/github/arg-for-gea/python/first_revision/alleleAge_multiRuns.py -i $folder/tick110000/
+#done
+
+#Second revision: intermediate mutational polygenicity
+basePath="/media/anadem/PortableSSD/second_revision/tskit_data/second_revision/Continuous_nonWF*"
 for folder in $basePath
 do
   echo $folder/tick110000/
-  python3 /home/anadem/github/arg-for-gea/python/first_revision/alleleAge_multiRuns.py -i $folder/tick110000/
+  python3 /home/anadem/github/arg-for-gea/python/second_revision/alleleAge_multiRuns.py -i $folder/tick110000/
 done
 

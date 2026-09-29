@@ -3,8 +3,8 @@ initialize() {
 	initializeSLiMModelType("nonWF");
 	defineConstant("seed", rdunif(1, 0, asInteger(2^62) - 1));
 	setSeed(seed);
-	// functional mutation rate: 1e-8. 1e-10; Second revision: intermediate value 1e-9
-	defineConstant("mu", 1e-9);
+	// functional mutation rate: 1e-8. 1e-10; Second revision: intermediate value1 1e-9 value2 2.5e-9
+	defineConstant("mu", 1.5e-9);
 	//  recombination rate on chromosomes
 	defineConstant("r", 1e-7);
 	// genome size: 10 Mb
@@ -15,8 +15,8 @@ initialize() {
 	//	defineConstant("K", 40000); //
 	//  reproduction rate
 	defineConstant("R", 0.2);
-	// Sd of mutation effect size on trait value: small 0.01, large: 0.1; Second revision: intermediate value 0.01*sqrt(10)
-	defineConstant("sigma_M", 0.01*sqrt(10));
+	// Sd of mutation effect size on trait value: small 0.01, large: 0.1; Second revision: intermediate value1 0.01*sqrt(10) value2: 0.02
+	defineConstant("sigma_M", 0.02);
 	// Sd of fitness function (selection curve)
 	defineConstant("sigma_W", 0.4);
 	// Sd of dispersion (centered on parent 1): low 0.03; high: 0.06
@@ -34,7 +34,7 @@ initialize() {
 	// Current extreme limit of habitat; Starts from 0.1
 	defineGlobal("extremeEnv", 0.1);
 	//	defineConstant("outDir", "/home/tianlin/Documents/github/data/slim_data/");
-	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/second_revision/M3a_interPoly_highMig_clineMap/tick110000/");
+	defineConstant("outDir", "/home/anadem/github/data/slim_data/glacial_history/second_revision/M3a_interPoly2_highMig_clineMap/tick110000/");
 	
 	// defineConstant("outDir", "D:/UBC_office/slim/output/");
 	
